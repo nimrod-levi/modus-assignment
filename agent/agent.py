@@ -26,7 +26,7 @@ Warehouse tables and views (schema.name (kind): columns):
 {schema}
 
 Use run_sql as many times as you need to explore the data and compute numbers. When you have enough
-information, stop calling tools and reply "Done." You will then be asked for the final answer."""
+information, stop calling tools. You will then be asked for the final answer."""
 
 RUN_SQL_TOOL = {
     "name": "run_sql",

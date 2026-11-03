@@ -102,3 +102,19 @@ Score: **13/19 = 68.4%** · 0 errors · 0 rejections · 19,090 tokens/Q. Full an
 **Eval fix: q04 disabled** (commented out in `eval/questions.yaml`, author's decision). Reason: it takes too many tokens to explain the
 assumptions (ignore $0 orders, tolerance) and the agent is unlikely to get it right anyway. Not tuned to a score: it is removed for
 every step from here on, so step 0 (20 questions) is not strictly comparable. Re-enable it when the glossary exists.
+
+### Step 2 (candidate) · Drop the "Done." hand-off (not run yet)
+
+Observation: the loop ends on any reply with no `run_sql` call (`if not calls: break` in `agent/agent.py`). The word "Done." in the
+system prompt is never checked; it only keeps the last exploration turn short. The answer is already a separate request with no tools
+and a strict `json_schema`, so "Done." adds nothing the code uses.
+
+Root cause being tested: the prompt tells the model to emit a throwaway token instead of simply stopping. Possible cost: the model
+sometimes writes its answer in plain text on that turn, and the separate final request then repeats the work (extra call and tokens).
+
+Change (prompt wording only, no business context): replace `stop calling tools and reply "Done."` with
+`stop calling tools`. Nothing else changes: same tools, same final `json_schema` request, same retries and scoring.
+
+Hypothesis: score is unchanged within run-to-run variance (13/19 +-1; with 1 run per question this is noise, not a gain), and
+tokens/Q drop slightly. This is a cleanup, not an accuracy fix. If the score drops by more than 1 question, revert, because the
+"Done." turn was doing something. Will be its own commit and tag, run on the same provider, effort and 19 questions as step 1.

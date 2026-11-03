@@ -90,4 +90,15 @@ effort used about 10x the output tokens of the Groq step-0 run (1k-19k vs 0.2-0.
 stopped at 8/20 and is not a score. Speed on one question (q01): Together medium 14.9s, Together low 4.2s, Cerebras medium 1.4s,
 so the default provider is Cerebras (fast, fp16, valid final JSON in the probe), at medium effort.
 
-Status: ready for the full eval (`make eval STEP=step-01-tool-recovery`), then tag `step-01-tool-recovery`. Step 0 is not re-run.
+**Result** (run `step-01-tool-recovery_questions_20261103-221238`, gpt-oss-120b via OpenRouter/Cerebras, medium effort):
+
+Score: **13/19 = 68.4%** · 0 errors · 0 rejections · 19,090 tokens/Q. Full analysis: `eval/analysis/step-01-tool-recovery_20261103-221238/`.
+
+- Crashes gone: every question reached a final answer. q08 q10 q11 q12 now pass, as predicted.
+- Still failing, as predicted: q15-q20 (time and unanswerable). They need context, steps 2+.
+- Surprise: q02 and q06 pass although the context did not change. Probably run-to-run variance (1 run); treat as unstable.
+- Not a clean delta from step 0: the provider changed (Groq to Cerebras) and the set is 19 questions, not 20.
+
+**Eval fix: q04 disabled** (commented out in `eval/questions.yaml`, author's decision). Reason: it takes too many tokens to explain the
+assumptions (ignore $0 orders, tolerance) and the agent is unlikely to get it right anyway. Not tuned to a score: it is removed for
+every step from here on, so step 0 (20 questions) is not strictly comparable. Re-enable it when the glossary exists.

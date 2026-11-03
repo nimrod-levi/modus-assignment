@@ -17,3 +17,5 @@ logs/
 # ad-hoc traces from `make ask` (eval results will live in eval/results/ and are committed)
 runs/*
 !runs/.gitkeep
+
+.claude/worktrees/

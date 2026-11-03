@@ -77,3 +77,26 @@ run to the end. Wrong answers q02 q16 q17 q18 q19 stay wrong (they need context,
 strict `json_schema` on `openai/gpt-oss-120b`; if it does not, the final call needs a plain `json_object` format.
 Not fixed here: q04 hit a 413 (8,000 tokens/min cap on Groq's free tier; results fed back to the model are too big).
 Status: code and unit tests done; not yet run against the API (daily token limit hit). Step 0 is not re-run.
+
+### Step 1b · Explicit "done": read `finish_reason`, drop the scripted "Done."
+
+Root cause (code review, not yet seen in a run): `ask` treated any reply without a tool call as "done" and never read
+`finish_reason`. A reply cut off by `max_tokens` (gpt-oss spends many of them on reasoning), an empty `choices` list or a
+filtered reply would end exploration silently and produce a confident answer from partial data. The system prompt also
+told the model to say "Done.", a scripted turn that carries no information.
+
+Changes (loop mechanics only, no business context):
+- `finish_reason` is stored on every model call in the trace.
+- `finish_reason == "length"`: the reply is discarded and the same request is retried with `max_tokens` doubled (cap 16384),
+  because a retry at temperature 0 with the same cap would truncate again. Counted in `trace["truncations"]`, separate
+  from `tool_rejections`; more than `max_retries` of them ends the run as `end_reason = "truncated"` (infra noise).
+- Empty `choices` or `content_filter`: treated as a rejected reply (feedback + retry, shared `tool_rejections` budget).
+- Any other / missing `finish_reason` is treated as `stop`. An empty reply with `stop` is a legitimate "done".
+- The prompt no longer says "reply Done."; it says the final answer is requested separately.
+
+Known limit, not fixed: "intent without action" ("Let me check the orders table", `stop`) looks the same as done.
+Measure it from the traces (questions answered with 0 `sql` steps), do not patch it with text matching.
+
+Hypothesis: score is unchanged within noise (these failures are rare); `truncations` is about 0-2 over 20 questions and
+no run ends silently. The real effect is that any truncation is now visible and recovered instead of hidden.
+Status: code and unit tests only; not run against the API.

@@ -26,7 +26,7 @@ Warehouse tables and views (schema.name (kind): columns):
 {schema}
 
 Use run_sql as many times as you need to explore the data and compute numbers. When you have enough
-information, stop calling tools and reply "Done." You will then be asked for the final answer."""
+information, stop calling tools. The final answer is requested separately afterwards."""
 
 RUN_SQL_TOOL = {
     "name": "run_sql",
@@ -101,6 +101,7 @@ class AgentConfig:
     max_tokens: int = 4096
     temperature: float = 0.0
     max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
+    max_tokens_cap: int = 16384  # a reply cut off by max_tokens is retried with the limit doubled, up to this
 
 
 def build_system_prompt(con) -> str:
@@ -124,32 +125,55 @@ def _rejection_reason(exc: Exception) -> str:
     return text.strip().splitlines()[0][:200]
 
 
+def _reject(trace, config, messages, turn, reason) -> bool:
+    """Record a rejected reply and send feedback to the model. False when the retry budget is spent."""
+    trace["tool_rejections"] += 1
+    trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": reason})
+    if trace["tool_rejections"] > config.max_retries:
+        trace["end_reason"] = "api_error"
+        return False
+    messages.append({"role": "user", "content": REJECTED.format(reason=reason)})
+    return True
+
+
 def _create(client, config, messages, trace, turn, **kwargs):
-    """One model call. A rejected reply is sent back with feedback and retried, up to config.max_retries per
-    question. Returns the response, or None when the cap is hit (trace["end_reason"] is then "api_error")."""
+    """One model call. A rejected, empty or truncated reply is retried, up to config.max_retries per question.
+    Returns the response, or None when the cap is hit (trace["end_reason"] is then "api_error" or "truncated")."""
     while True:
         try:
             response = client.chat.completions.create(
                 model=config.model,
                 messages=messages,
                 temperature=config.temperature,
-                max_tokens=config.max_tokens,
+                max_tokens=trace["max_tokens"],
                 **kwargs,
             )
         except Exception as exc:
             if not _is_rejected_tool_call(exc):
                 raise
-            trace["tool_rejections"] += 1
-            reason = _rejection_reason(exc)
-            trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": reason})
-            if trace["tool_rejections"] > config.max_retries:
-                trace["end_reason"] = "api_error"
+            if not _reject(trace, config, messages, turn, _rejection_reason(exc)):
                 return None
-            messages.append({"role": "user", "content": REJECTED.format(reason=reason)})
             continue
         usage = response.usage
         trace["usage"]["input_tokens"] += (usage.prompt_tokens or 0) if usage else 0
         trace["usage"]["output_tokens"] += (usage.completion_tokens or 0) if usage else 0
+        choice = response.choices[0] if response.choices else None
+        finish = getattr(choice, "finish_reason", None)
+        trace["steps"].append({"turn": turn, "type": "finish", "finish_reason": finish})
+        if finish == "length":
+            # Cut off by max_tokens. The partial reply is dropped; the same request is retried with a higher limit,
+            # because at temperature 0 the same limit would cut it off at the same place.
+            trace["truncations"] += 1
+            if trace["truncations"] > config.max_retries:
+                trace["end_reason"] = "truncated"
+                return None
+            trace["max_tokens"] = min(trace["max_tokens"] * 2, config.max_tokens_cap)
+            continue
+        if choice is None or finish == "content_filter":
+            reason = "the reply was empty" if choice is None else "the reply was filtered"
+            if not _reject(trace, config, messages, turn, reason):
+                return None
+            continue
         return response
 
 
@@ -203,11 +227,13 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "answer": None,
         "end_reason": None,
         "tool_rejections": 0,
+        "truncations": 0,
+        "max_tokens": config.max_tokens,
     }
     started = time.perf_counter()
 
     try:
-        # Exploration turns: run_sql is the only tool. A reply with no tool call means "done"; the answer
+        # Exploration turns: run_sql is the only tool. A reply with no tool call and finish_reason stop means "done"; the answer
         # is then requested separately. The last turn skips straight to the final answer.
         for turn in range(config.max_turns - 1):
             response = _create(client, config, messages, trace, turn, tools=TOOLS, tool_choice="auto")

@@ -13,9 +13,9 @@ def _call(name, id_="c", **args):
     return NS(id=id_, function=NS(name=name, arguments=json.dumps(args)))
 
 
-def _response(*calls, text=None, tokens=(100, 25)):
+def _response(*calls, text=None, tokens=(100, 25), finish="stop"):
     msg = NS(content=text, tool_calls=list(calls) or None)
-    return NS(choices=[NS(message=msg)], usage=NS(prompt_tokens=tokens[0], completion_tokens=tokens[1]))
+    return NS(choices=[NS(message=msg, finish_reason=finish)], usage=NS(prompt_tokens=tokens[0], completion_tokens=tokens[1]))
 
 
 class FakeClient:
@@ -177,3 +177,59 @@ def test_other_api_errors_still_raise(monkeypatch):
     err.status_code = 500
     with pytest.raises(Exception, match="boom"):
         agent_mod.ask("q", client=RejectingClient([err]), con=FakeCon())
+
+
+def test_finish_reason_is_recorded(monkeypatch):
+    _patch_db(monkeypatch, [])
+    trace = agent_mod.ask("q", client=FakeClient([_text("Done."), _text(ANSWER)]), con=FakeCon())
+    assert [s["finish_reason"] for s in trace["steps"] if s["type"] == "finish"] == ["stop", "stop"]
+
+
+def test_truncated_reply_is_retried_with_higher_limit(monkeypatch):
+    _patch_db(monkeypatch, [])
+    cut = _response(_call("run_sql", sql="select 1"), finish="length")
+    client = FakeClient([cut, _text(None), _text(ANSWER)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["end_reason"] == "submitted" and trace["truncations"] == 1 and trace["tool_rejections"] == 0
+    assert client.requests[1]["max_tokens"] == 2 * client.requests[0]["max_tokens"]
+    # the cut-off reply is dropped: it never reaches the conversation, and its query is not run
+    assert client.requests[1]["messages"] == client.requests[0]["messages"] and trace["sql_calls"] == 0
+
+
+def test_truncation_is_capped_and_flagged(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_response(text="thinking", finish="length") for _ in range(10)])
+    config = agent_mod.AgentConfig(model="m", max_retries=2, max_tokens=100, max_tokens_cap=300)
+    trace = agent_mod.ask("q", client=client, con=FakeCon(), config=config)
+    assert trace["end_reason"] == "truncated" and trace["answer"] is None and trace["truncations"] == 3
+    assert [r["max_tokens"] for r in client.requests] == [100, 200, 300]
+
+
+def test_empty_choices_is_rejected_not_done(monkeypatch):
+    _patch_db(monkeypatch, [])
+    empty = NS(choices=[], usage=NS(prompt_tokens=1, completion_tokens=0))
+    client = FakeClient([empty, _text("Done."), _text(ANSWER)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["end_reason"] == "submitted" and trace["tool_rejections"] == 1
+    assert "empty" in client.requests[1]["messages"][-1]["content"]
+
+
+def test_content_filter_is_rejected(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_response(text="x", finish="content_filter"), _text("Done."), _text(ANSWER)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["tool_rejections"] == 1 and trace["end_reason"] == "submitted"
+
+
+def test_stop_with_empty_content_is_a_legitimate_done(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_text(None), _text(ANSWER)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["end_reason"] == "submitted" and trace["tool_rejections"] == 0 and trace["truncations"] == 0
+
+
+def test_unknown_or_missing_finish_reason_counts_as_stop(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_response(text="ok", finish="weird_value"), _response(text=ANSWER, finish=None)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["end_reason"] == "submitted" and trace["tool_rejections"] == 0

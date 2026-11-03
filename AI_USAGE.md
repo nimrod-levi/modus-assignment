@@ -44,4 +44,10 @@ Running log. The final write-up for the submission is distilled from this.
 - Claude analysed the step-00 run (`eval/analysis/`) and spotted that 8 of 20 results were API crashes, not agent
   mistakes. The author decided to record the 35% as-is, flagged, and to keep evals deterministic for now.
 
+- Claude's step-1 loop (written earlier with Claude) treated any reply without a tool call as "done" and never read
+  `finish_reason`, and told the model to say "Done." The author objected to the scripted turn; asked "can the model
+  return something that is neither a tool call nor an answer?", Claude found truncated, empty and filtered replies were
+  silently accepted. Step 1b adds explicit handling. Claude's first design (retry with feedback) would have failed on
+  truncation at temperature 0, which was caught in review of the plan and fixed by raising `max_tokens` on retry.
+
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

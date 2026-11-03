@@ -15,8 +15,10 @@ higher score**, with every step measured and reproducible.
 
 ## Current step
 
-Step 0 (baseline) is done: `agent/agent.py` with schema names + `run_sql` + `submit_answer`.
-Next: the eval harness in `eval/`. Don't change the baseline agent while building the eval.
+Step 0 (baseline) is done: `agent/agent.py` with schema names + `run_sql` + `submit_answer`, on
+Groq (`llama-3.3-70b-versatile`). The eval harness is built (`eval/`, 1 run per question).
+Next: run `make eval STEP=step-00-baseline`, record the score in STEPS.md, tag `step-00-baseline`,
+then start the fix ladder. Don't change the baseline agent.
 
 ## Rules
 
@@ -39,6 +41,7 @@ Next: the eval harness in `eval/`. Don't change the baseline agent while buildin
 
 ```bash
 make test                         # no API key needed
+make eval STEP=step-00-baseline   # run the eval (needs GROQ_API_KEY)
 make ask Q="..."                  # one question, prints SQL steps, saves runs/*.json
 make schema                       # the exact system prompt
 make db                           # rebuild the warehouse (needs the DuckDB write lock)

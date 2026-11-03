@@ -3,7 +3,7 @@
 An AI agent that answers business questions over a DuckDB warehouse, plus the eval
 that measures it. The warehouse is dbt Labs' jaffle-shop sample, built locally with dbt.
 
-**Status:** Step 0, the baseline agent, is built. The eval and the fixes come next (see
+**Status:** Step 0 (baseline agent) and the eval harness are built. Run the baseline eval, then the fixes come next (see
 [Next steps](#next-steps)).
 
 ## Setup (once)
@@ -98,7 +98,7 @@ Recompute these with `make profile` after your first build and treat that output
 - [ ] Ask 5–10 questions by hand (`make ask`); read the traces; note where it fails
 - [ ] Commit, then `git tag step-00-baseline`
 - [ ] Email Modus the customer questions (revenue definition, fiscal calendar, "new customer", access rules)
-- [ ] Build the eval: `eval/questions.yaml` (20 questions + `gold_sql`), `eval/run_eval.py`
+- [x] Build the eval: `eval/questions.yaml` (20 questions + `gold_sql`), `eval/run_eval.py`
       (1 run per question by default, deterministic grading, `scoreboard.csv`), `eval/holdout.yaml`
 - [ ] Record the step 0 score in `STEPS.md`, then start the fix ladder
 

@@ -35,7 +35,7 @@ schema:
 ask:
 	$(BIN)/python -m agent --trace "$(Q)"
 
-## eval: make eval STEP=step-00-baseline [ONLY=q01,q02] [RUNS=1]  (needs GROQ_API_KEY)
+## eval: make eval STEP=step-00-baseline [ONLY=q01,q02] [RUNS=1]  (needs OPENROUTER_API_KEY)
 eval:
 	@test -n "$(STEP)" || { echo "usage: make eval STEP=step-00-baseline [ONLY=q01,q02]"; exit 1; }
 	$(BIN)/python -m eval.run_eval --step "$(STEP)" $(if $(ONLY),--only $(ONLY)) $(if $(RUNS),--runs $(RUNS))

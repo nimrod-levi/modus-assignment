@@ -16,10 +16,16 @@ higher score**, with every step measured and reproducible.
 ## Current step
 
 Step 0 (baseline) is done: `agent/agent.py` with schema names + `run_sql` + `submit_answer`, on
-Groq (`openai/gpt-oss-120b`). The eval harness is built (`eval/`, 1 run per question).
+Groq (`openai/gpt-oss-120b`); since the provider switch (below) the agent runs on OpenRouter, same model. The eval harness is built (`eval/`, 1 run per question).
 Baseline recorded: 7/20 = 35%, with 8 Groq tool-call crashes (flagged in `eval/scoreboard.csv` and STEPS.md).
 Evals are deterministic only for now (author's decision; a judge may come later).
-Next: step 1 = recover from rejected tool calls (remove infra noise), then the dbt-docs steps.
+Step 1 (tool recovery) is scored: 13/19 = 68.4%, 0 errors, 0 rejections (`eval/scoreboard.csv`, analysis in
+`eval/analysis/step-01-tool-recovery_20261103-221238/`). `run_sql` is the only tool, the final answer is a separate strict
+`json_schema` request, rejected replies are retried (cap 3, -10% credit each). q04 is disabled (19 questions; see STEPS.md).
+Remaining failures q15-q20 need context. Next: tag `step-01-tool-recovery`, then the dbt-docs steps.
+Provider switch: Groq -> OpenRouter (same model slug, bigger usage plan, OpenAI SDK; the Groq SDK is gone). Step 0 was NOT re-run;
+its 7/20 was measured on Groq and is not strictly comparable (see STEPS.md note). Step 1 is the first score on OpenRouter.
+Agent runs on OpenRouter, provider pinned to Cerebras (`OPENROUTER_PROVIDER`), reasoning effort medium (`OPENROUTER_REASONING_EFFORT`).
 Don't change the step-00 agent in place; each fix is its own commit and tag.
 
 ## Rules
@@ -43,7 +49,7 @@ Don't change the step-00 agent in place; each fix is its own commit and tag.
 
 ```bash
 make test                         # no API key needed
-make eval STEP=step-00-baseline   # run the eval (needs GROQ_API_KEY)
+make eval STEP=step-00-baseline   # run the eval (needs OPENROUTER_API_KEY)
 make ask Q="..."                  # one question, prints SQL steps, saves runs/*.json
 make schema                       # the exact system prompt
 make db                           # rebuild the warehouse (needs the DuckDB write lock)

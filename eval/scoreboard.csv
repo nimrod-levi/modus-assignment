@@ -1,2 +1,3 @@
-timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,pass_all,errors,tokens_per_run,sql_calls_per_run
-2026-11-03T13:01:07+00:00,step-00-baseline,questions,df52ed8,True,openai/gpt-oss-120b,c0470d807604,20,1,0.350,0.350,8,4070,1.4
+timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,raw_score,pass_all,errors,rejections,tokens_per_run,sql_calls_per_run
+2026-11-03T13:01:07+00:00,step-00-baseline,questions,df52ed8,True,openai/gpt-oss-120b,c0470d807604,20,1,0.350,0.350,0.350,8,,4070,1.4
+2026-11-03T22:13:39+00:00,step-01-tool-recovery,questions,792551d,True,openai/gpt-oss-120b,73b8c9730f4b,19,1,0.684,0.684,0.684,0,0,19090,4.0

@@ -8,12 +8,12 @@ deterministic only for now. Next: step 1, recover from rejected tool calls (see 
 
 ## Setup (once)
 
-You need Python 3.10–3.13, internet access (pip and dbt Hub) and a Groq API key.
+You need Python 3.10–3.13, internet access (pip and dbt Hub) and an OpenRouter API key.
 
 ```bash
 cd ~/code/modus-assignment
 make setup                      # venv + deps + builds data/jaffle.duckdb (~1-2 min)
-cp .env.example .env            # then paste your GROQ_API_KEY
+cp .env.example .env            # then paste your OPENROUTER_API_KEY
 make test                       # should be all green; no API key needed
 ```
 

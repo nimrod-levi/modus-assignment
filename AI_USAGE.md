@@ -44,4 +44,24 @@ Running log. The final write-up for the submission is distilled from this.
 - Claude analysed the step-00 run (`eval/analysis/`) and spotted that 8 of 20 results were API crashes, not agent
   mistakes. The author decided to record the 35% as-is, flagged, and to keep evals deterministic for now.
 
+- Step 1: Claude first read the Groq `tool_use_failed` errors as "the model calls a tool that does not exist" and planned
+  retries plus clearer wording. The author questioned it; the raw `failed_generation` showed `json` / `commentary` are
+  gpt-oss output-format names, not tools, and some "calls" were plain prose. Claude's own added "JSON object" wording in the
+  prompt was probably part of the trigger (10 rejections remained). Fix: `run_sql` is the only tool and the final answer is a
+  separate strict `json_schema` request. Checked only with unit tests and 2 single-question smoke runs on gpt-oss-20b
+  (q10, q07: 0 rejections); the real check is the eval on the 120b.
+- Claude ran several experiments through `| tail`, so output was invisible, and misread Groq's daily-token-limit
+  429 wait (silently slept by the throttle wrapper) as a hang. Found by calling the API directly.
+
+- q20 "hung" in the 20b eval for 20+ minutes. Claude first suspected a model loop; it was Groq's daily token limit
+  (429, 12 min wait) slept through silently by the throttle wrapper. Fixed: the wrapper now fails fast on waits over 120s
+  and prints when it waits; the eval now saves results after every question.
+
+- Switched the model client from Groq to OpenRouter (OpenAI SDK, one `make_client()`). Claude planned it, the user decided:
+  OpenRouter only, no step-0 re-run, just a note. Claude's first worktree started from an old commit instead of the step-01
+  branch and had to be reset; checked before editing.
+- First OpenRouter eval attempt ran on gpt-oss-20b (stale `AGENT_MODEL` in `.env`) and failed to produce final JSON. Claude had
+  planned the switch without checking that OpenRouter providers differ on strict `json_schema`; a probe across providers found
+  it, so the provider is now pinned.
+
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

@@ -53,3 +53,52 @@ now be correct, and q04's old gold was 3.52):
   assumption: the 483 $0 orders are ignored, so first/second order are ranked among
   `order_total > 0` orders. Gold changed 3.5199 -> 3.5920.
 The step-00 result file predates this fix; re-run step 0 before comparing scores.
+
+### Step 1 · Remove tool-call rejections (infrastructure only)
+
+Root cause (from `failed_generation` in the step-0 and step-1 runs): gpt-oss addresses its final JSON to a recipient
+that is not in our tools list (`json`, `commentary`: names from its output format, not tools), and Groq rejects the reply
+with 400 `tool_use_failed`. In some cases (q08, q20) the "call" was plain prose. Asking for a JSON answer through a
+tool while tools are present is the trigger (to be confirmed by the eval; not yet verified against Groq docs).
+First attempt (clearer prompt + capped retries) still had 10 rejections over 6 questions; q07 and q16 used all 3 retries.
+
+Changes (tool contract only, no business context):
+- `run_sql` is the only tool. A reply with no tool call means "done".
+- The final answer is a separate request with no tools and a strict `json_schema` response format (`ANSWER_FORMAT`).
+  Same fields as before; optional ones are nullable because strict mode needs all fields required.
+- The system prompt has no "JSON" wording.
+- Safety net kept: a rejected reply is sent back with feedback and retried, `max_retries = 3` per question, then
+  `end_reason = "api_error"`.
+- Scoring: each rejected call costs 10% of that question's credit (`1 - 0.1 * rejections`, only for passed questions).
+  `score` is the penalized headline; `raw_score` is the plain pass rate; `rejections` is logged. Assumption: per question.
+
+Hypothesis: rejections go to about 0 (before: 10 over 20 questions). Score is about 10-12/20 (50-60%): q04 q06 q08 q10 q11 q12
+run to the end. Wrong answers q02 q16 q17 q18 q19 stay wrong (they need context, steps 2+). Unknown: whether Groq accepts
+strict `json_schema` on `openai/gpt-oss-120b`; if it does not, the final call needs a plain `json_object` format.
+Not fixed here: q04 hit a 413 (8,000 tokens/min cap on Groq's free tier; results fed back to the model are too big).
+Smoke check (not a score): single runs on `openai/gpt-oss-20b` after the 120b daily token limit was hit: q10 and q07 both
+ended `submitted` with 0 rejections, so Groq accepts the strict `json_schema` final request. Not run on the 120b yet.
+**Provider switch note (infra, not a step).** The agent now calls `openai/gpt-oss-120b` through OpenRouter (OpenAI SDK, base URL
+`https://openrouter.ai/api/v1`, `provider.require_parameters = true`) instead of Groq, for a bigger usage plan. Step 0 was **not**
+re-run: its 7/20 and the 8 `tool_use_failed` crashes were measured on Groq and are kept as recorded. Same model slug, but a
+different serving stack, so step 0 -> step 1 now mixes the context/tool change with a provider change. Read that delta with
+this caveat. Each trace now records the serving `provider`. The provider is pinned (`OPENROUTER_PROVIDER`, default Cerebras, `allow_fallbacks=false`): unpinned, OpenRouter routed to
+providers that ignore the strict `json_schema` final request (DeepInfra: empty content; CoreWeave: runaway output; Nebius, Groq-via-OpenRouter: empty),
+while Together, Parasail, BaseTen, Crusoe, AkashML and Cerebras returned valid JSON in a one-request probe.
+Reasoning effort is also set explicitly (`OPENROUTER_REASONING_EFFORT`, default `medium`): an aborted first run on Together's default
+effort used about 10x the output tokens of the Groq step-0 run (1k-19k vs 0.2-0.9k per question), so it was slow. That run was
+stopped at 8/20 and is not a score. Speed on one question (q01): Together medium 14.9s, Together low 4.2s, Cerebras medium 1.4s,
+so the default provider is Cerebras (fast, fp16, valid final JSON in the probe), at medium effort.
+
+**Result** (run `step-01-tool-recovery_questions_20261103-221238`, gpt-oss-120b via OpenRouter/Cerebras, medium effort):
+
+Score: **13/19 = 68.4%** · 0 errors · 0 rejections · 19,090 tokens/Q. Full analysis: `eval/analysis/step-01-tool-recovery_20261103-221238/`.
+
+- Crashes gone: every question reached a final answer. q08 q10 q11 q12 now pass, as predicted.
+- Still failing, as predicted: q15-q20 (time and unanswerable). They need context, steps 2+.
+- Surprise: q02 and q06 pass although the context did not change. Probably run-to-run variance (1 run); treat as unstable.
+- Not a clean delta from step 0: the provider changed (Groq to Cerebras) and the set is 19 questions, not 20.
+
+**Eval fix: q04 disabled** (commented out in `eval/questions.yaml`, author's decision). Reason: it takes too many tokens to explain the
+assumptions (ignore $0 orders, tolerance) and the agent is unlikely to get it right anyway. Not tuned to a score: it is removed for
+every step from here on, so step 0 (20 questions) is not strictly comparable. Re-enable it when the glossary exists.

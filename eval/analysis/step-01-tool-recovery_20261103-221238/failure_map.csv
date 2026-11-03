@@ -1,0 +1,20 @@
+id,category,result,sql_calls,output_tokens,latency_s,failure_layer,root_cause,evidence,fix_that_targets_it
+q01,metric-definition,PASS,1,330,2,-,-,-,-
+q02,metric-definition,PASS,6,1220,5,-,-,-,-
+q03,metric-definition,PASS,1,304,1,-,-,-,-
+q05,units,PASS,1,277,1,-,-,-,-
+q06,grain,PASS,2,660,2,-,-,-,-
+q07,grain,PASS,3,1320,3,-,-,-,-
+q08,grain,PASS,1,323,2,-,-,-,-
+q09,grain,PASS,1,262,2,-,-,-,-
+q10,grain,PASS,3,661,2,-,-,-,-
+q11,entity,PASS,1,332,1,-,-,-,-
+q12,entity,PASS,11,1288,6,-,-,-,-
+q13,entity,PASS,6,1957,4,-,-,-,-
+q14,time,PASS,4,832,4,-,-,-,-
+q15,time,FAIL,2,721,2,context,Answered for 'the most recent month in the data' (Aug 2025) instead of asking which month: 'last month' relative to today (Nov 2026) has no orders,"revenue 94,152.63 for Aug 2025",generated profile facts (date range) + clarification rule
+q16,time,FAIL,1,667,1,context,"Compared Q3 2025 with Q2 2025 but Q3 has only July and August, so the 'fall' is a partial-quarter artefact","-66,204 'fell'",generated profile facts (months present per quarter)
+q17,unanswerable,FAIL,11,1470,6,context,Midnight-only timestamps: there is no time of day. Answered 8 a.m. from them (11 SQL calls),busiest hour 8 a.m.,data facts (dates only) + 'cannot_answer when the warehouse cannot support it' rule
+q18,unanswerable,FAIL,7,1154,5,context,No refund data exists. Produced a refund rate anyway,refund rate 0.78%,data facts (no refunds) + cannot_answer rule
+q19,unanswerable,FAIL,3,501,3,context,"Called revenue minus supplies 'net profit'. Only supply costs exist, no labour, rent or other costs",net margin 80.37%,data facts (only supply costs) + cannot_answer rule
+q20,unanswerable,FAIL,11,1904,7,context,No sales targets in the warehouse. Asked the user for a target instead of declaring it cannot be answered,"status needs_clarification, expected cannot_answer",cannot_answer rule (distinguish missing data from a missing parameter)

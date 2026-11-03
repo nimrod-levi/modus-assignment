@@ -25,11 +25,8 @@ by querying its DuckDB warehouse with the run_sql tool.
 Warehouse tables and views (schema.name (kind): columns):
 {schema}
 
-How to respond:
-- You have exactly two tools: run_sql and submit_answer. Every reply must be a call to one of them, using exactly
-  that name. No other tool exists (there is no tool called "json" or "answer").
-- Tool arguments are a JSON object that matches the tool's schema. Put no prose or markdown around it.
-- Use run_sql as many times as you need to explore and compute. When you are done, call submit_answer exactly once."""
+Use run_sql as many times as you need to explore the data and compute numbers. When you have enough
+information, stop calling tools and reply "Done." You will then be asked for the final answer."""
 
 RUN_SQL_TOOL = {
     "name": "run_sql",
@@ -45,50 +42,55 @@ RUN_SQL_TOOL = {
     },
 }
 
-SUBMIT_ANSWER_TOOL = {
-    "name": "submit_answer",
-    "description": (
-        "Give the final answer and end the session. Call it exactly once, only when you are done querying. "
-        "Set status to 'answered' when the warehouse answers the question, 'needs_clarification' when the "
-        "question is ambiguous and you must ask the user something, or 'cannot_answer' when the "
-        "warehouse cannot support the question."
-    ),
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "answer": {
-                "type": "string",
-                "description": "The answer for the user: a number, a short list or one or two sentences.",
+# The final answer is not a tool call: it is a separate request with a strict JSON schema (see _final_answer).
+# Strict mode needs every field listed in `required`, so optional ones are nullable.
+ANSWER_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "final_answer",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string",
+                    "description": "The answer for the user: a number, a short list or one or two sentences.",
+                },
+                "numeric_value": {
+                    "type": ["number", "null"],
+                    "description": "The headline number, if the answer is a single number. Null otherwise.",
+                },
+                "unit": {"type": ["string", "null"], "description": "Unit of numeric_value, e.g. USD, orders, customers."},
+                "sql": {"type": ["string", "null"], "description": "The final query that produced the answer."},
+                "definition_used": {
+                    "type": ["string", "null"],
+                    "description": "How you defined the metric, e.g. 'sum of order_total including tax'.",
+                },
+                "assumptions": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Assumptions you made, e.g. about time ranges or ambiguous terms. Empty if none.",
+                },
+                "status": {
+                    "type": "string",
+                    "enum": ["answered", "needs_clarification", "cannot_answer"],
+                    "description": (
+                        "'answered' when the warehouse answers the question; 'needs_clarification' when the "
+                        "question is ambiguous and you must ask the user something; 'cannot_answer' when the "
+                        "warehouse cannot support the question."
+                    ),
+                },
             },
-            "numeric_value": {
-                "type": "number",
-                "description": "The headline number, if the answer is a single number. Omit otherwise.",
-            },
-            "unit": {"type": "string", "description": "Unit of numeric_value, e.g. USD, orders, customers."},
-            "sql": {"type": "string", "description": "The final query that produced the answer."},
-            "definition_used": {
-                "type": "string",
-                "description": "How you defined the metric, e.g. 'sum of order_total including tax'.",
-            },
-            "assumptions": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Assumptions you made, e.g. about time ranges or ambiguous terms.",
-            },
-            "status": {
-                "type": "string",
-                "enum": ["answered", "needs_clarification", "cannot_answer"],
-            },
+            "required": ["answer", "numeric_value", "unit", "sql", "definition_used", "assumptions", "status"],
+            "additionalProperties": False,
         },
-        "required": ["answer", "status"],
     },
 }
 
-TOOLS = [{"type": "function", "function": t} for t in (RUN_SQL_TOOL, SUBMIT_ANSWER_TOOL)]
-NUDGE = "Please call submit_answer with your final answer now."
+TOOLS = [{"type": "function", "function": RUN_SQL_TOOL}]
+FINAL_REQUEST = "Now give your final answer to the question."
 REJECTED = (
-    "Your last tool call was rejected and not run ({reason}). Reply with a call to run_sql or submit_answer: "
-    "those are the only tools, use these exact names, and give the arguments as a JSON object only."
+    "Your last reply was rejected ({reason}). run_sql is the only tool; call it by that exact name, or reply in plain text."
 )
 
 
@@ -122,6 +124,61 @@ def _rejection_reason(exc: Exception) -> str:
     return text.strip().splitlines()[0][:200]
 
 
+def _create(client, config, messages, trace, turn, **kwargs):
+    """One model call. A rejected reply is sent back with feedback and retried, up to config.max_retries per
+    question. Returns the response, or None when the cap is hit (trace["end_reason"] is then "api_error")."""
+    while True:
+        try:
+            response = client.chat.completions.create(
+                model=config.model,
+                messages=messages,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                **kwargs,
+            )
+        except Exception as exc:
+            if not _is_rejected_tool_call(exc):
+                raise
+            trace["tool_rejections"] += 1
+            reason = _rejection_reason(exc)
+            trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": reason})
+            if trace["tool_rejections"] > config.max_retries:
+                trace["end_reason"] = "api_error"
+                return None
+            messages.append({"role": "user", "content": REJECTED.format(reason=reason)})
+            continue
+        usage = response.usage
+        trace["usage"]["input_tokens"] += (usage.prompt_tokens or 0) if usage else 0
+        trace["usage"]["output_tokens"] += (usage.completion_tokens or 0) if usage else 0
+        return response
+
+
+def _final_answer(client, config, messages, trace, turn) -> None:
+    """Ask for the final answer in a request with no tools and a strict JSON schema, then store it in the trace."""
+    messages.append({"role": "user", "content": FINAL_REQUEST})
+    for _ in range(config.max_retries + 1):
+        response = _create(client, config, messages, trace, turn, response_format=ANSWER_FORMAT)
+        if response is None:
+            return
+        msg = response.choices[0].message if response.choices else None
+        try:
+            answer = json.loads((msg.content or "") if msg else "")
+            if not isinstance(answer, dict):
+                raise ValueError("not a JSON object")
+        except ValueError as exc:
+            trace["tool_rejections"] += 1
+            trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": f"final answer was not valid JSON: {exc}"})
+            if trace["tool_rejections"] > config.max_retries:
+                break
+            messages.append({"role": "assistant", "content": msg.content or "" if msg else ""})
+            messages.append({"role": "user", "content": REJECTED.format(reason="the final answer must be a JSON object")})
+            continue
+        trace["answer"] = answer
+        trace["end_reason"] = "submitted"
+        return
+    trace["end_reason"] = "api_error"
+
+
 def ask(question: str, *, client=None, con=None, config: AgentConfig | None = None) -> dict[str, Any]:
     """Answer one question. Returns a trace dict; trace["answer"] holds the submitted answer."""
     config = config or AgentConfig()
@@ -148,105 +205,60 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "tool_rejections": 0,
     }
     started = time.perf_counter()
-    nudged = False
 
     try:
-        for turn in range(config.max_turns):
-            last_turn = turn == config.max_turns - 1
-            # On the last turn submit_answer is the only tool the model may call.
-            tool_choice = (
-                {"type": "function", "function": {"name": "submit_answer"}} if last_turn else "auto"
-            )
-            # On the last turn only submit_answer is offered, so run_sql cannot be called.
-            tools = [t for t in TOOLS if t["function"]["name"] == "submit_answer"] if last_turn else TOOLS
-            while True:
-                try:
-                    response = client.chat.completions.create(
-                        model=config.model,
-                        messages=messages,
-                        tools=tools,
-                        tool_choice=tool_choice,
-                        temperature=config.temperature,
-                        max_tokens=config.max_tokens,
-                    )
-                    break
-                except Exception as exc:
-                    if not _is_rejected_tool_call(exc):
-                        raise
-                    # Rejected calls do not use up a turn, but they are capped so we cannot loop forever.
-                    trace["tool_rejections"] += 1
-                    reason = _rejection_reason(exc)
-                    trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": reason})
-                    if trace["tool_rejections"] > config.max_retries:
-                        trace["end_reason"] = "api_error"
-                        return trace
-                    messages.append({"role": "user", "content": REJECTED.format(reason=reason)})
-            usage = response.usage
-            trace["usage"]["input_tokens"] += (usage.prompt_tokens or 0) if usage else 0
-            trace["usage"]["output_tokens"] += (usage.completion_tokens or 0) if usage else 0
-
-            # An empty reply (no choices) counts as "stopped without submitting".
+        # Exploration turns: run_sql is the only tool. A reply with no tool call means "done"; the answer
+        # is then requested separately. The last turn skips straight to the final answer.
+        for turn in range(config.max_turns - 1):
+            response = _create(client, config, messages, trace, turn, tools=TOOLS, tool_choice="auto")
+            if response is None:
+                return trace
             msg = response.choices[0].message if response.choices else None
             calls = (msg.tool_calls or []) if msg else []
-            if msg:
-                assistant: dict[str, Any] = {"role": "assistant", "content": msg.content or ""}
-                if calls:
-                    assistant["tool_calls"] = [
+            if msg and msg.content and msg.content.strip():
+                trace["steps"].append({"turn": turn, "type": "text", "text": msg.content})
+            if not calls:
+                break
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": msg.content or "",
+                    "tool_calls": [
                         {
                             "id": c.id,
                             "type": "function",
                             "function": {"name": c.function.name, "arguments": c.function.arguments},
                         }
                         for c in calls
-                    ]
-                messages.append(assistant)
-                if msg.content and msg.content.strip():
-                    trace["steps"].append({"turn": turn, "type": "text", "text": msg.content})
-
-            answered = False
+                    ],
+                }
+            )
             for call in calls:
-                name = call.function.name
                 try:
                     args = json.loads(call.function.arguments or "{}")
                 except json.JSONDecodeError as exc:
-                    messages.append(_tool_message(call, f"Arguments were not valid JSON: {exc}"))
+                    messages.append(_tool_message(call, f"Arguments were not valid JSON: {exc}", is_error=True))
                     continue
-                if name == "submit_answer":
-                    trace["answer"] = args
-                    trace["end_reason"] = "submitted"
-                    answered = True
-                    break
-                elif name == "run_sql":
-                    result = db.run_sql(con, args.get("sql", ""))
-                    trace["steps"].append(
-                        {
-                            "turn": turn,
-                            "type": "sql",
-                            "sql": result.sql,
-                            "row_count": result.row_count,
-                            "truncated": result.truncated,
-                            "error": result.error,
-                            "elapsed_ms": result.elapsed_ms,
-                            "preview": result.to_text()[:1500],
-                        }
-                    )
-                    messages.append(_tool_message(call, result.to_text(), is_error=result.error is not None))
-                else:
-                    messages.append(_tool_message(call, f"Unknown tool {name}.", is_error=True))
-            if answered:
-                return trace
-
-            if calls:
-                continue
-            if not nudged:
-                # The model stopped talking without submitting; ask once.
-                messages.append({"role": "user", "content": NUDGE})
-                nudged = True
-            else:
-                trace["end_reason"] = "no_answer"
-                return trace
-
-        trace["end_reason"] = "max_turns"
+                if call.function.name != "run_sql":
+                    messages.append(_tool_message(call, f"Unknown tool {call.function.name}.", is_error=True))
+                    continue
+                result = db.run_sql(con, args.get("sql", ""))
+                trace["steps"].append(
+                    {
+                        "turn": turn,
+                        "type": "sql",
+                        "sql": result.sql,
+                        "row_count": result.row_count,
+                        "truncated": result.truncated,
+                        "error": result.error,
+                        "elapsed_ms": result.elapsed_ms,
+                        "preview": result.to_text()[:1500],
+                    }
+                )
+                messages.append(_tool_message(call, result.to_text(), is_error=result.error is not None))
+        else:
+            trace["steps"].append({"turn": config.max_turns - 1, "type": "text", "text": "turn limit reached"})
+        _final_answer(client, config, messages, trace, config.max_turns - 1)
         return trace
     finally:
         trace["latency_ms"] = int((time.perf_counter() - started) * 1000)

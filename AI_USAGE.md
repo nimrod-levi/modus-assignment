@@ -57,4 +57,8 @@ Running log. The final write-up for the submission is distilled from this.
   (429, 12 min wait) slept through silently by the throttle wrapper. Fixed: the wrapper now fails fast on waits over 120s
   and prints when it waits; the eval now saves results after every question.
 
+- Switched the model client from Groq to OpenRouter (OpenAI SDK, one `make_client()`). Claude planned it, the user decided:
+  OpenRouter only, no step-0 re-run, just a note. Claude's first worktree started from an old commit instead of the step-01
+  branch and had to be reset; checked before editing.
+
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

@@ -29,8 +29,7 @@ import yaml
 
 from agent import db
 from agent.__main__ import load_dotenv
-from agent.agent import AgentConfig, ask
-from groq import Groq
+from agent.agent import AgentConfig, ask, make_client
 from eval import grade as grading
 
 EVAL_DIR = Path(__file__).resolve().parent
@@ -48,12 +47,12 @@ RETRY_PENALTY = 0.1  # credit lost per rejected tool call
 
 
 class ThrottledClient:
-    """Wraps the Groq client: spaces calls out and retries on 429 (rate limit).
+    """Wraps the model client: spaces calls out and retries on 429 (rate limit).
 
     The agent takes a `client=` argument, so the eval can add this without touching agent code.
     """
 
-    def __init__(self, client, min_interval_s: float = 2.0, max_retries: int = 6, sleep=time.sleep,
+    def __init__(self, client, min_interval_s: float = 0.5, max_retries: int = 6, sleep=time.sleep,
                  max_wait_s: float = MAX_WAIT_S):
         self._client = client
         self._min_interval = min_interval_s
@@ -77,13 +76,13 @@ class ThrottledClient:
                 delay = _retry_delay_s(exc)
                 if delay > self._max_wait:
                     # A daily token limit asks for many minutes. Do not sleep silently: fail with the reason.
-                    raise RuntimeError(f"rate limit: Groq asks to wait {delay:.0f}s (> {self._max_wait:.0f}s): {exc}") from exc
+                    raise RuntimeError(f"rate limit: provider asks to wait {delay:.0f}s (> {self._max_wait:.0f}s): {exc}") from exc
                 print(f"  rate limited, waiting {delay:.0f}s", flush=True)
                 self._sleep(delay)
 
 
 def _retry_delay_s(exc: Exception) -> float:
-    """Seconds Groq asks us to wait (Retry-After header, or 'try again in 7.66s'), else 30."""
+    """Seconds the provider asks us to wait (Retry-After header, or 'try again in 7.66s'), else 30."""
     headers = getattr(getattr(exc, "response", None), "headers", None) or {}
     if headers.get("retry-after"):
         return float(headers["retry-after"]) + 1
@@ -198,13 +197,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--file", type=Path, default=DEFAULT_QUESTIONS, help="Question file.")
     parser.add_argument("--only", help="Comma-separated question ids. A subset run is not added to the scoreboard.")
     parser.add_argument("--runs", type=int, default=1, help="Runs per question (default 1).")
-    parser.add_argument("--min-interval", type=float, default=2.0,
-                        help="Seconds between model calls (default 2.0 = 30 requests/min).")
+    parser.add_argument("--min-interval", type=float, default=0.5,
+                        help="Seconds between model calls (default 0.5).")
     args = parser.parse_args(argv)
 
     load_dotenv()
-    if not os.environ.get("GROQ_API_KEY"):
-        print("GROQ_API_KEY is not set. Copy .env.example to .env and add your key.", file=sys.stderr)
+    if not os.environ.get("OPENROUTER_API_KEY"):
+        print("OPENROUTER_API_KEY is not set. Copy .env.example to .env and add your key.", file=sys.stderr)
         return 2
 
     questions = load_questions(args.file)
@@ -224,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     con.close()
 
     config = AgentConfig()
-    client = ThrottledClient(Groq(api_key=os.environ["GROQ_API_KEY"]), args.min_interval)
+    client = ThrottledClient(make_client(), args.min_interval)
     records: list[dict] = []
     started_at = dt.datetime.now(dt.timezone.utc)
     RESULTS_DIR.mkdir(exist_ok=True)

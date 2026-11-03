@@ -6,7 +6,7 @@ dbt-duckdb>=1.9,<2
 duckdb>=1.1
 
 # Agent
-groq>=0.30
+openai>=1.40
 
 # Eval
 pyyaml>=6

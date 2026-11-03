@@ -78,4 +78,10 @@ strict `json_schema` on `openai/gpt-oss-120b`; if it does not, the final call ne
 Not fixed here: q04 hit a 413 (8,000 tokens/min cap on Groq's free tier; results fed back to the model are too big).
 Smoke check (not a score): single runs on `openai/gpt-oss-20b` after the 120b daily token limit was hit: q10 and q07 both
 ended `submitted` with 0 rejections, so Groq accepts the strict `json_schema` final request. Not run on the 120b yet.
+**Provider switch note (infra, not a step).** The agent now calls `openai/gpt-oss-120b` through OpenRouter (OpenAI SDK, base URL
+`https://openrouter.ai/api/v1`, `provider.require_parameters = true`) instead of Groq, for a bigger usage plan. Step 0 was **not**
+re-run: its 7/20 and the 8 `tool_use_failed` crashes were measured on Groq and are kept as recorded. Same model slug, but a
+different serving stack, so step 0 -> step 1 now mixes the context/tool change with a provider change. Read that delta with
+this caveat. Each trace now records the serving `provider`. The provider is not pinned (OpenRouter may route between providers).
+
 Status: ready for the full eval (`make eval STEP=step-01-tool-recovery`), then tag `step-01-tool-recovery`. Step 0 is not re-run.

@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-from groq import Groq
+from openai import OpenAI
 
 from agent import db
 
@@ -103,17 +103,29 @@ class AgentConfig:
     max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
 
 
+OPENROUTER_URL = "https://openrouter.ai/api/v1"
+# OpenRouter routes one model slug across providers. require_parameters skips providers that cannot honour
+# `tools` / `response_format`, so a request never silently runs without them. The serving provider is
+# recorded in each trace ("provider").
+EXTRA_BODY = {"provider": {"require_parameters": True}}
+
+
+def make_client() -> OpenAI:
+    """The only model client in the repo: OpenRouter via the OpenAI SDK. Needs OPENROUTER_API_KEY."""
+    return OpenAI(base_url=OPENROUTER_URL, api_key=os.environ["OPENROUTER_API_KEY"])
+
+
 def build_system_prompt(con) -> str:
     return SYSTEM_PROMPT.format(schema=db.describe_schema(con))
 
 
 def _tool_message(call, text: str, *, is_error: bool = False) -> dict[str, Any]:
-    """A tool call's reply. Groq has no is_error flag: errors are prefixed with "ERROR:"."""
+    """A tool call's reply. The chat API has no is_error flag: errors are prefixed with "ERROR:"."""
     return {"role": "tool", "tool_call_id": call.id, "content": f"ERROR: {text}" if is_error else text}
 
 
 def _is_rejected_tool_call(exc: Exception) -> bool:
-    """Groq answers 400 `tool_use_failed` when the model's tool call is malformed (e.g. unknown tool name)."""
+    """A provider may answer 400 `tool_use_failed` when the model's tool call is malformed (e.g. unknown tool name)."""
     return getattr(exc, "status_code", None) == 400 and "tool_use_failed" in str(exc)
 
 
@@ -134,6 +146,7 @@ def _create(client, config, messages, trace, turn, **kwargs):
                 messages=messages,
                 temperature=config.temperature,
                 max_tokens=config.max_tokens,
+                extra_body=EXTRA_BODY,
                 **kwargs,
             )
         except Exception as exc:
@@ -147,6 +160,7 @@ def _create(client, config, messages, trace, turn, **kwargs):
                 return None
             messages.append({"role": "user", "content": REJECTED.format(reason=reason)})
             continue
+        trace["provider"] = getattr(response, "provider", None) or trace.get("provider")  # OpenRouter: who served it
         usage = response.usage
         trace["usage"]["input_tokens"] += (usage.prompt_tokens or 0) if usage else 0
         trace["usage"]["output_tokens"] += (usage.completion_tokens or 0) if usage else 0
@@ -183,7 +197,7 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
     """Answer one question. Returns a trace dict; trace["answer"] holds the submitted answer."""
     config = config or AgentConfig()
     if client is None:
-        client = Groq(api_key=os.environ["GROQ_API_KEY"])
+        client = make_client()
     own_con = con is None
     con = con or db.connect()
 

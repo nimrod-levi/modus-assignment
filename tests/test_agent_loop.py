@@ -131,7 +131,7 @@ def test_invalid_final_json_then_valid(monkeypatch):
 
 
 class Rejected(Exception):
-    """Looks like Groq's 400 tool_use_failed."""
+    """Looks like a provider's 400 tool_use_failed."""
 
     status_code = 400
 

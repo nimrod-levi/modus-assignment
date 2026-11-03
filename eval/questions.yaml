@@ -1,0 +1,185 @@
+# The eval set (20 questions). DRAFTED BY CLAUDE, then to be hand-checked once by the author
+# (see AI_USAGE.md). Gold answers come from gold_sql; never edit a question or gold_sql to
+# make the agent pass. Fix a wrong one in a separate "eval fix" commit and log it in STEPS.md.
+#
+# Format:
+#   id / category / question / gold_sql
+#   grader.type: number | set | status
+#     number: unit (str or list), rel_tol (default 0.1%), abs_tol (default half a cent)
+#     set:    every gold item must appear in the answer text; exclude_sql = items that must not
+#     status: only the submitted status is checked
+#   grader.status: answered (default) | needs_clarification | cannot_answer | a list of these
+#
+# Categories (one root cause each, so each fix step moves one group):
+#   metric-definition  what a business word means (revenue, new customer, margin)
+#   units              cents vs dollars, percent vs fraction
+#   grain              fan-out when joining supplies to items; orders vs items
+#   entity             stores/customers that exist in one table but not in the data
+#   time               relative dates, partial periods, data window
+#   unanswerable       the warehouse has no data for it: the right move is to say so
+#
+# Data facts these rely on (verified with make profile / manual queries):
+#   - orders: 2024-09-01..2025-08-31, timestamps are all midnight (no time of day)
+#   - only Philadelphia and Brooklyn have orders; Brooklyn's first order is 2025-03-12 even
+#     though locations.opened_date says 2017-03-12
+#   - 483 orders have no items and a $0 total; customer names repeat (935 ids, 930 names)
+#   - customers.customer_type = 'new' means "exactly one lifetime order", not "joined recently"
+#   - the warehouse has no refunds, targets, labour/rent costs, channels or hour of day
+
+questions:
+  # ---- metric-definition ---------------------------------------------------------------
+  - id: q01
+    category: metric-definition
+    # "Revenue" is the CFO trap: order_total ($671,425.37) includes sales tax, which is not ours.
+    # Gold = pre-tax subtotal. ASSUMPTION: confirm with the customer; once the glossary answers
+    # it, this must still hold (if it doesn't, that is an "eval fix" commit, not a quiet edit).
+    question: "What was our total revenue over all the data we have?"
+    gold_sql: "select sum(subtotal) from main.orders"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: q02
+    category: metric-definition
+    # Gross profit needs: pre-tax revenue, and supply cost summed per item sold. Loopholes:
+    # sum(supply_cost) from supplies (65 rows, one unit of each) or revenue after the supplies join.
+    question: "What was our gross profit on pre-tax sales, counting supply costs (ingredients and packaging) as our cost of goods sold?"
+    gold_sql: "select sum(subtotal) - sum(order_cost) from main.orders"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: q03
+    category: metric-definition
+    # customers.customer_type = 'new' counts only 6 customers (one lifetime order). New in a
+    # month means first order in that month.
+    question: "How many new customers did we gain in January 2025?"
+    gold_sql: "select count(*) from main.customers where first_ordered_at >= date '2025-01-01' and first_ordered_at < date '2025-02-01'"
+    grader: {type: number, unit: [customers]}
+
+  - id: q04
+    category: metric-definition
+    # Needs the customer_order_number window or a self-join; ties on a day do not change the gap.
+    # 3% tolerance: dropping the 483 $0 orders gives 3.59, also defensible.
+    question: "On average, how many days pass between a customer's first order and their second order?"
+    gold_sql: "select avg(date_diff('day', a.ordered_at, b.ordered_at)) from main.orders a join main.orders b on a.customer_id = b.customer_id and a.customer_order_number = 1 and b.customer_order_number = 2"
+    grader: {type: number, unit: [days], rel_tol: 0.03}
+
+  # ---- units ---------------------------------------------------------------------------
+  - id: q05
+    category: units
+    # raw.raw_products.price is in cents (1400); main.products is dollars (14.00).
+    question: "What is the price of our most expensive menu item?"
+    gold_sql: "select max(product_price) from main.products"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  # ---- grain ---------------------------------------------------------------------------
+  - id: q06
+    category: grain
+    # Supplies are many rows per product; joining them to items multiplies rows (514,568).
+    # Only the supply cost is summed, so the join is right, but summing prices after it is not.
+    question: "How much did we spend on perishable supplies (the ones that spoil) across everything we sold?"
+    gold_sql: "select sum(s.supply_cost) from main.order_items i join main.supplies s on s.product_id = i.product_id where s.is_perishable_supply"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: q07
+    category: grain
+    # One product costs several supply rows; margin needs the SUM of its supplies vs its price.
+    # product_name has a trailing space in the data for one product; gold trims it.
+    question: "Which menu item has the lowest gross margin percentage, comparing its price to the cost of its supplies?"
+    gold_sql: |
+      select trim(p.product_name)
+      from main.products p join main.supplies s on s.product_id = p.product_id
+      group by p.product_name, p.product_price
+      order by (p.product_price - sum(s.supply_cost)) / p.product_price
+      limit 1
+    grader: {type: set}
+
+  - id: q08
+    category: grain
+    # Drinks sold (items, 70,819) is not orders that include a drink (60,334).
+    question: "How many drinks did we sell?"
+    gold_sql: "select count(*) from main.order_items where is_drink_item"
+    grader: {type: number, unit: [drinks, items]}
+
+  - id: q09
+    category: grain
+    # 935 customer ids but 930 distinct names: counting names undercounts.
+    question: "How many different customers have placed an order?"
+    gold_sql: "select count(distinct customer_id) from main.orders"
+    grader: {type: number, unit: [customers]}
+
+  - id: q10
+    category: grain
+    # Every customer shops at one store only. The answer is 0, which agents tend to avoid.
+    question: "How many customers have ordered from more than one of our stores?"
+    gold_sql: "select count(*) from (select customer_id from main.orders group by customer_id having count(distinct location_id) > 1)"
+    grader: {type: number, unit: [customers]}
+
+  # ---- entity --------------------------------------------------------------------------
+  - id: q11
+    category: entity
+    # locations lists 6 stores; only 2 have orders.
+    question: "How many of our stores have recorded sales?"
+    gold_sql: "select count(*) from main.locations l where exists (select 1 from main.orders o where o.location_id = l.location_id)"
+    grader: {type: number, unit: [stores]}
+
+  - id: q12
+    category: entity
+    # Chicago exists in locations but has no orders. A join returns no rows; the right answer is
+    # an explicit 0, not "cannot answer" and not an invented number.
+    question: "What was the Chicago store's pre-tax revenue?"
+    gold_sql: "select coalesce(sum(o.subtotal), 0) from main.orders o join main.locations l on l.location_id = o.location_id where l.location_name = 'Chicago'"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: q13
+    category: entity
+    # Brooklyn's locations.opened_date is 2017-03-12 but its first order is 2025-03-12: this is
+    # the real reason orders nearly doubled. Needs a per-store breakdown, not the opened_date.
+    question: "Orders almost doubled from February to March 2025. Which store explains the jump?"
+    gold_sql: "select l.location_name from main.orders o join main.locations l on l.location_id = o.location_id group by l.location_name having date_trunc('month', min(o.ordered_at)) = date '2025-03-01'"
+    grader: {type: set}
+
+  # ---- time ----------------------------------------------------------------------------
+  - id: q14
+    category: time
+    # Only 8 months of 2025 exist (Jan-Aug). Dividing by 12 gives 45,541.92.
+    question: "What was our average monthly pre-tax revenue in 2025?"
+    gold_sql: "select sum(subtotal) / count(distinct date_trunc('month', ordered_at)) from main.orders where year(ordered_at) = 2025"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: q15
+    category: time
+    # Today is past the end of the data (Aug 2025), so "last month" has no orders. The honest
+    # move is to ask which month is meant or say there is no data, not silently pick August.
+    question: "What was our revenue last month?"
+    grader: {type: status, status: [needs_clarification, cannot_answer]}
+
+  - id: q16
+    category: time
+    # Q3 2025 holds only July and August; comparing it to a full Q2 shows a fake 28% drop.
+    # Either flag the partial quarter (needs_clarification) or refuse the comparison.
+    question: "How much did our pre-tax revenue change in Q3 2025 compared with Q2 2025?"
+    grader: {type: status, status: [needs_clarification, cannot_answer]}
+
+  # ---- unanswerable --------------------------------------------------------------------
+  - id: q17
+    category: unanswerable
+    # Order timestamps are all midnight, so there is no hour of day.
+    question: "Which hour of the day are we busiest?"
+    grader: {type: status, status: cannot_answer}
+
+  - id: q18
+    category: unanswerable
+    # No refunds, returns or cancellations anywhere in the warehouse.
+    question: "What is our refund rate?"
+    grader: {type: status, status: cannot_answer}
+
+  - id: q19
+    category: unanswerable
+    # Only supply costs exist (no labour, rent, marketing). Calling revenue minus supplies
+    # "net profit" is the loophole.
+    question: "What was our net profit margin?"
+    grader: {type: status, status: cannot_answer}
+
+  - id: q20
+    category: unanswerable
+    # No targets, budgets or forecasts in the warehouse.
+    question: "Did we hit our sales target in August 2025?"
+    grader: {type: status, status: cannot_answer}

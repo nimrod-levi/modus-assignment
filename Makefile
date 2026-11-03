@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV   := .venv
 BIN    := $(VENV)/bin
 
-.PHONY: setup check-python venv db test profile schema ask clean
+.PHONY: setup check-python venv db test profile schema ask eval eval-holdout eval-test clean
 
 ## setup: create the venv, install deps and build the warehouse (run once)
 setup: venv db
@@ -34,6 +34,20 @@ schema:
 ## ask: make ask Q="What was our revenue last month?"
 ask:
 	$(BIN)/python -m agent --trace "$(Q)"
+
+## eval: make eval STEP=step-00-baseline [ONLY=q01,q02] [RUNS=1]  (needs GROQ_API_KEY)
+eval:
+	@test -n "$(STEP)" || { echo "usage: make eval STEP=step-00-baseline [ONLY=q01,q02]"; exit 1; }
+	$(BIN)/python -m eval.run_eval --step "$(STEP)" $(if $(ONLY),--only $(ONLY)) $(if $(RUNS),--runs $(RUNS))
+
+## eval-holdout: run eval/holdout.yaml (once, at the end of a step)
+eval-holdout:
+	@test -n "$(STEP)" || { echo "usage: make eval-holdout STEP=step-01-dbt-docs"; exit 1; }
+	$(BIN)/python -m eval.run_eval --step "$(STEP)" --file eval/holdout.yaml
+
+## eval-test: grader and runner tests (no API key)
+eval-test:
+	$(BIN)/python -m pytest -q tests/test_eval_grade.py
 
 clean:
 	rm -rf $(VENV) data/jaffle.duckdb data/jaffle.duckdb.wal dbt/target dbt/dbt_packages dbt/logs

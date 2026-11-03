@@ -99,7 +99,7 @@ Recompute these with `make profile` after your first build and treat that output
 - [ ] Commit, then `git tag step-00-baseline`
 - [ ] Email Modus the customer questions (revenue definition, fiscal calendar, "new customer", access rules)
 - [ ] Build the eval: `eval/questions.yaml` (20 questions + `gold_sql`), `eval/run_eval.py`
-      (3 runs per question, deterministic grading, `scoreboard.csv`), `eval/holdout.yaml`
+      (1 run per question by default, deterministic grading, `scoreboard.csv`), `eval/holdout.yaml`
 - [ ] Record the step 0 score in `STEPS.md`, then start the fix ladder
 
 ## Push to GitHub

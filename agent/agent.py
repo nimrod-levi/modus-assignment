@@ -108,9 +108,14 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1"
 # request and return empty content). So one provider is pinned, with no fallbacks: every run uses the same backend.
 # require_parameters also refuses a provider that cannot honour `tools` / `response_format`. The serving provider
 # is recorded in each trace ("provider"). Change it with OPENROUTER_PROVIDER.
+# Reasoning effort is set explicitly too: left to the provider default, gpt-oss produced ~10x more tokens (slow, costly).
 def provider_routing() -> dict[str, Any]:
-    name = os.environ.get("OPENROUTER_PROVIDER", "Together")
-    return {"provider": {"order": [name], "allow_fallbacks": False, "require_parameters": True}}
+    name = os.environ.get("OPENROUTER_PROVIDER", "Cerebras")
+    effort = os.environ.get("OPENROUTER_REASONING_EFFORT", "medium")
+    return {
+        "provider": {"order": [name], "allow_fallbacks": False, "require_parameters": True},
+        "reasoning": {"effort": effort},
+    }
 
 
 def make_client() -> OpenAI:

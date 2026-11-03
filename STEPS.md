@@ -82,8 +82,12 @@ ended `submitted` with 0 rejections, so Groq accepts the strict `json_schema` fi
 `https://openrouter.ai/api/v1`, `provider.require_parameters = true`) instead of Groq, for a bigger usage plan. Step 0 was **not**
 re-run: its 7/20 and the 8 `tool_use_failed` crashes were measured on Groq and are kept as recorded. Same model slug, but a
 different serving stack, so step 0 -> step 1 now mixes the context/tool change with a provider change. Read that delta with
-this caveat. Each trace now records the serving `provider`. The provider is pinned (`OPENROUTER_PROVIDER`, default Together, `allow_fallbacks=false`): unpinned, OpenRouter routed to
+this caveat. Each trace now records the serving `provider`. The provider is pinned (`OPENROUTER_PROVIDER`, default Cerebras, `allow_fallbacks=false`): unpinned, OpenRouter routed to
 providers that ignore the strict `json_schema` final request (DeepInfra: empty content; CoreWeave: runaway output; Nebius, Groq-via-OpenRouter: empty),
 while Together, Parasail, BaseTen, Crusoe, AkashML and Cerebras returned valid JSON in a one-request probe.
+Reasoning effort is also set explicitly (`OPENROUTER_REASONING_EFFORT`, default `medium`): an aborted first run on Together's default
+effort used about 10x the output tokens of the Groq step-0 run (1k-19k vs 0.2-0.9k per question), so it was slow. That run was
+stopped at 8/20 and is not a score. Speed on one question (q01): Together medium 14.9s, Together low 4.2s, Cerebras medium 1.4s,
+so the default provider is Cerebras (fast, fp16, valid final JSON in the probe), at medium effort.
 
 Status: ready for the full eval (`make eval STEP=step-01-tool-recovery`), then tag `step-01-tool-recovery`. Step 0 is not re-run.

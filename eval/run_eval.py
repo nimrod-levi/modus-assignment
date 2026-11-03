@@ -131,6 +131,7 @@ def run_question(question: dict, gold, runs: int, ask_fn: Callable[[str], dict])
             end_reason=trace["end_reason"],
             answer=trace["answer"],
             model=trace["model"],
+            provider=trace.get("provider"),
             system_prompt_sha=trace["system_prompt_sha"],
             input_tokens=usage["input_tokens"],
             output_tokens=usage["output_tokens"],

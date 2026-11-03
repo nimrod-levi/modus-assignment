@@ -177,3 +177,13 @@ def test_other_api_errors_still_raise(monkeypatch):
     err.status_code = 500
     with pytest.raises(Exception, match="boom"):
         agent_mod.ask("q", client=RejectingClient([err]), con=FakeCon())
+
+
+def test_provider_is_pinned_without_fallbacks(monkeypatch):
+    _patch_db(monkeypatch, [])
+    monkeypatch.setenv("OPENROUTER_PROVIDER", "Together")
+    client = FakeClient([_text("Done."), _text(ANSWER)])
+    agent_mod.ask("q", client=client, con=FakeCon())
+    for request in client.requests:
+        assert request["extra_body"]["provider"] == {
+            "order": ["Together"], "allow_fallbacks": False, "require_parameters": True}

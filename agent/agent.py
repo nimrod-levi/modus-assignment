@@ -104,10 +104,13 @@ class AgentConfig:
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
-# OpenRouter routes one model slug across providers. require_parameters skips providers that cannot honour
-# `tools` / `response_format`, so a request never silently runs without them. The serving provider is
-# recorded in each trace ("provider").
-EXTRA_BODY = {"provider": {"require_parameters": True}}
+# OpenRouter routes one model slug across ~25 providers, and they differ (some ignore the strict json_schema final
+# request and return empty content). So one provider is pinned, with no fallbacks: every run uses the same backend.
+# require_parameters also refuses a provider that cannot honour `tools` / `response_format`. The serving provider
+# is recorded in each trace ("provider"). Change it with OPENROUTER_PROVIDER.
+def provider_routing() -> dict[str, Any]:
+    name = os.environ.get("OPENROUTER_PROVIDER", "Together")
+    return {"provider": {"order": [name], "allow_fallbacks": False, "require_parameters": True}}
 
 
 def make_client() -> OpenAI:
@@ -146,7 +149,7 @@ def _create(client, config, messages, trace, turn, **kwargs):
                 messages=messages,
                 temperature=config.temperature,
                 max_tokens=config.max_tokens,
-                extra_body=EXTRA_BODY,
+                extra_body=provider_routing(),
                 **kwargs,
             )
         except Exception as exc:

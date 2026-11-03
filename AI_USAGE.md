@@ -60,5 +60,8 @@ Running log. The final write-up for the submission is distilled from this.
 - Switched the model client from Groq to OpenRouter (OpenAI SDK, one `make_client()`). Claude planned it, the user decided:
   OpenRouter only, no step-0 re-run, just a note. Claude's first worktree started from an old commit instead of the step-01
   branch and had to be reset; checked before editing.
+- First OpenRouter eval attempt ran on gpt-oss-20b (stale `AGENT_MODEL` in `.env`) and failed to produce final JSON. Claude had
+  planned the switch without checking that OpenRouter providers differ on strict `json_schema`; a probe across providers found
+  it, so the provider is now pinned.
 
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

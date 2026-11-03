@@ -25,13 +25,18 @@ by querying its DuckDB warehouse with the run_sql tool.
 Warehouse tables and views (schema.name (kind): columns):
 {schema}
 
-Use run_sql as many times as you need. When you are done, call submit_answer exactly once."""
+How to respond:
+- You have exactly two tools: run_sql and submit_answer. Every reply must be a call to one of them, using exactly
+  that name. No other tool exists (there is no tool called "json" or "answer").
+- Tool arguments are a JSON object that matches the tool's schema. Put no prose or markdown around it.
+- Use run_sql as many times as you need to explore and compute. When you are done, call submit_answer exactly once."""
 
 RUN_SQL_TOOL = {
     "name": "run_sql",
     "description": (
-        "Run one read-only SQL query (DuckDB dialect, SELECT or WITH only) against the "
-        f"warehouse. Returns up to {db.MAX_ROWS} rows as CSV text, or an error message."
+        "Use this to explore the data and to compute numbers. Runs one read-only SQL query "
+        f"(DuckDB dialect, SELECT or WITH only) against the warehouse. Returns up to {db.MAX_ROWS} rows "
+        "as CSV text, or an error message you can fix and retry. Not for giving the final answer."
     ),
     "parameters": {
         "type": "object",
@@ -42,7 +47,12 @@ RUN_SQL_TOOL = {
 
 SUBMIT_ANSWER_TOOL = {
     "name": "submit_answer",
-    "description": "Submit your final answer to the question. Call it once, at the end.",
+    "description": (
+        "Give the final answer and end the session. Call it exactly once, only when you are done querying. "
+        "Set status to 'answered' when the warehouse answers the question, 'needs_clarification' when the "
+        "question is ambiguous and you must ask the user something, or 'cannot_answer' when the "
+        "warehouse cannot support the question."
+    ),
     "parameters": {
         "type": "object",
         "properties": {
@@ -76,6 +86,10 @@ SUBMIT_ANSWER_TOOL = {
 
 TOOLS = [{"type": "function", "function": t} for t in (RUN_SQL_TOOL, SUBMIT_ANSWER_TOOL)]
 NUDGE = "Please call submit_answer with your final answer now."
+REJECTED = (
+    "Your last tool call was rejected and not run ({reason}). Reply with a call to run_sql or submit_answer: "
+    "those are the only tools, use these exact names, and give the arguments as a JSON object only."
+)
 
 
 @dataclass
@@ -84,6 +98,7 @@ class AgentConfig:
     max_turns: int = 12
     max_tokens: int = 4096
     temperature: float = 0.0
+    max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
 
 
 def build_system_prompt(con) -> str:
@@ -93,6 +108,18 @@ def build_system_prompt(con) -> str:
 def _tool_message(call, text: str, *, is_error: bool = False) -> dict[str, Any]:
     """A tool call's reply. Groq has no is_error flag: errors are prefixed with "ERROR:"."""
     return {"role": "tool", "tool_call_id": call.id, "content": f"ERROR: {text}" if is_error else text}
+
+
+def _is_rejected_tool_call(exc: Exception) -> bool:
+    """Groq answers 400 `tool_use_failed` when the model's tool call is malformed (e.g. unknown tool name)."""
+    return getattr(exc, "status_code", None) == 400 and "tool_use_failed" in str(exc)
+
+
+def _rejection_reason(exc: Exception) -> str:
+    body = getattr(exc, "body", None)
+    err = body.get("error", body) if isinstance(body, dict) else {}
+    text = err.get("message") or str(exc)
+    return text.strip().splitlines()[0][:200]
 
 
 def ask(question: str, *, client=None, con=None, config: AgentConfig | None = None) -> dict[str, Any]:
@@ -118,6 +145,7 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "usage": {"input_tokens": 0, "output_tokens": 0},
         "answer": None,
         "end_reason": None,
+        "tool_rejections": 0,
     }
     started = time.perf_counter()
     nudged = False
@@ -129,14 +157,30 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
             tool_choice = (
                 {"type": "function", "function": {"name": "submit_answer"}} if last_turn else "auto"
             )
-            response = client.chat.completions.create(
-                model=config.model,
-                messages=messages,
-                tools=TOOLS,
-                tool_choice=tool_choice,
-                temperature=config.temperature,
-                max_tokens=config.max_tokens,
-            )
+            # On the last turn only submit_answer is offered, so run_sql cannot be called.
+            tools = [t for t in TOOLS if t["function"]["name"] == "submit_answer"] if last_turn else TOOLS
+            while True:
+                try:
+                    response = client.chat.completions.create(
+                        model=config.model,
+                        messages=messages,
+                        tools=tools,
+                        tool_choice=tool_choice,
+                        temperature=config.temperature,
+                        max_tokens=config.max_tokens,
+                    )
+                    break
+                except Exception as exc:
+                    if not _is_rejected_tool_call(exc):
+                        raise
+                    # Rejected calls do not use up a turn, but they are capped so we cannot loop forever.
+                    trace["tool_rejections"] += 1
+                    reason = _rejection_reason(exc)
+                    trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": reason})
+                    if trace["tool_rejections"] > config.max_retries:
+                        trace["end_reason"] = "api_error"
+                        return trace
+                    messages.append({"role": "user", "content": REJECTED.format(reason=reason)})
             usage = response.usage
             trace["usage"]["input_tokens"] += (usage.prompt_tokens or 0) if usage else 0
             trace["usage"]["output_tokens"] += (usage.completion_tokens or 0) if usage else 0

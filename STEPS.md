@@ -53,3 +53,22 @@ now be correct, and q04's old gold was 3.52):
   assumption: the 483 $0 orders are ignored, so first/second order are ranked among
   `order_total > 0` orders. Gold changed 3.5199 -> 3.5920.
 The step-00 result file predates this fix; re-run step 0 before comparing scores.
+
+### Step 1 · Recover from rejected tool calls (infrastructure only)
+
+Root cause: Groq rejects a malformed tool call (400 `tool_use_failed`: tool named `json`, prose in the arguments,
+`name=submit_answer`, `run_sql` on the last turn) and the old agent loop crashed. 8 of 20 questions were lost this way in step 0.
+
+Changes (tool contract only, no business context):
+- A rejected call is sent back to the model as a user message listing the valid tools, and the turn is retried.
+  Hard cap: `max_retries = 3` rejected calls per question, then `end_reason = "api_error"` (the question fails).
+- The last turn offers only `submit_answer` (before: all tools + a forced `tool_choice`).
+- Clearer wording: a "How to respond" block in the system prompt (only two tools, exact names, JSON-only arguments), and
+  tool descriptions that say when to use each and what the three `status` values mean. This changes the prompt sha on purpose.
+- Scoring: each rejected call costs 10% of that question's credit (`1 - 0.1 * rejections`, only for passed questions).
+  `score` is the penalized headline; `raw_score` is the plain pass rate; `rejections` is logged. Assumption: the penalty is per question.
+
+Hypothesis: crashes go to ~0 and rejections become rare because of the clearer contract. Score rises to about 10-11/20
+(50-55%). Expected flips: q08 q10 q11 q12 pass. q04 q06 q15 q20 now run to the end but still fail (SQL definition, double
+count, window, abstain). The wrong answers q02 q16 q17 q18 q19 stay wrong: they need context (steps 2+).
+Step 0 is not re-run on the new harness; its row stays as recorded (35%, 8 crashes, flagged).

@@ -4,7 +4,8 @@ For each question: compute the gold answer from gold_sql, run the agent --runs t
 grade each run deterministically, write eval/results/<step>_<timestamp>.json and (for a
 full run) append one row to eval/scoreboard.csv.
 
-Score = mean over questions of the fraction of runs that passed.
+Score = mean over questions of the credit per run. A passed run earns 1 - 0.1 per rejected tool call
+(min 0); a failed run earns 0. raw_score is the plain pass rate.
 pass^k = fraction of questions where ALL k runs passed (the reliability number).
 """
 
@@ -38,8 +39,11 @@ RESULTS_DIR = EVAL_DIR / "results"
 SCOREBOARD = EVAL_DIR / "scoreboard.csv"
 SCOREBOARD_FIELDS = [
     "timestamp", "step", "suite", "git_sha", "dirty", "model", "system_prompt_sha",
-    "questions", "runs", "score", "pass_all", "errors", "tokens_per_run", "sql_calls_per_run",
+    "questions", "runs", "score", "raw_score", "pass_all", "errors", "rejections", "tokens_per_run", "sql_calls_per_run",
 ]
+
+
+RETRY_PENALTY = 0.1  # credit lost per rejected tool call
 
 
 class ThrottledClient:
@@ -109,11 +113,14 @@ def run_question(question: dict, gold, runs: int, ask_fn: Callable[[str], dict])
             records.append(record)
             continue
         g = grading.grade(question, gold, trace["answer"])
+        rejections = trace.get("tool_rejections", 0)
         usage = trace["usage"]
         record.update(
             passed=g.passed,
             reason=g.reason,
             error=False,
+            rejections=rejections,
+            credit=max(0.0, 1 - RETRY_PENALTY * rejections) if g.passed else 0.0,
             end_reason=trace["end_reason"],
             answer=trace["answer"],
             model=trace["model"],
@@ -132,7 +139,8 @@ def summarize(questions: list[dict], records: list[dict], runs: int) -> dict:
     by_q: dict[str, list[dict]] = defaultdict(list)
     for r in records:
         by_q[r["id"]].append(r)
-    per_q = {qid: sum(r["passed"] for r in rs) / len(rs) for qid, rs in by_q.items()}
+    per_q = {qid: sum(r.get("credit", float(r["passed"])) for r in rs) / len(rs) for qid, rs in by_q.items()}
+    raw = {qid: sum(r["passed"] for r in rs) / len(rs) for qid, rs in by_q.items()}
     category = {q["id"]: q["category"] for q in questions}
     by_cat: dict[str, list[float]] = defaultdict(list)
     for qid, frac in per_q.items():
@@ -142,7 +150,9 @@ def summarize(questions: list[dict], records: list[dict], runs: int) -> dict:
         "questions": len(per_q),
         "runs": runs,
         "score": sum(per_q.values()) / len(per_q) if per_q else 0.0,
-        "pass_all": sum(f == 1.0 for f in per_q.values()) / len(per_q) if per_q else 0.0,
+        "raw_score": sum(raw.values()) / len(raw) if raw else 0.0,
+        "pass_all": sum(f == 1.0 for f in raw.values()) / len(raw) if raw else 0.0,
+        "rejections": sum(r.get("rejections", 0) for r in records),
         "errors": sum(r["error"] for r in records),
         "tokens_per_run": sum(r["input_tokens"] + r["output_tokens"] for r in ok) / len(ok) if ok else 0,
         "sql_calls_per_run": sum(r["sql_calls"] for r in ok) / len(ok) if ok else 0,
@@ -160,8 +170,9 @@ def _git(*args: str) -> str:
 
 
 def append_scoreboard(meta: dict, summary: dict, path: Path = SCOREBOARD) -> None:
-    row = {**meta, **{k: summary[k] for k in ("questions", "runs", "errors")}}
+    row = {**meta, **{k: summary[k] for k in ("questions", "runs", "errors", "rejections")}}
     row["score"] = f"{summary['score']:.3f}"
+    row["raw_score"] = f"{summary['raw_score']:.3f}"
     row["pass_all"] = f"{summary['pass_all']:.3f}"
     row["tokens_per_run"] = round(summary["tokens_per_run"])
     row["sql_calls_per_run"] = f"{summary['sql_calls_per_run']:.1f}"

@@ -126,3 +126,70 @@ def test_last_turn_forces_submit(monkeypatch):
     assert trace["end_reason"] == "submitted"
     assert client.requests[-1]["tool_choice"] == {"type": "function", "function": {"name": "submit_answer"}}
     assert client.requests[0]["tool_choice"] == "auto"
+
+
+class Rejected(Exception):
+    """Looks like Groq's 400 tool_use_failed."""
+
+    status_code = 400
+
+    def __str__(self):
+        return "Error code: 400 - tool_use_failed: Tool call validation failed: attempted to call tool 'json'"
+
+
+class RejectingClient(FakeClient):
+    """Like FakeClient, but an Exception in the script is raised instead of returned."""
+
+    def create(self, **kwargs):
+        self.requests.append({**kwargs, "messages": list(kwargs["messages"])})
+        item = self.responses.pop(0)
+        if isinstance(item, Exception):
+            raise item
+        return item
+
+
+def test_rejected_tool_call_is_retried_with_feedback(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = RejectingClient([Rejected(), _response(_call("submit_answer", answer="x", status="answered"))])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["end_reason"] == "submitted" and trace["tool_rejections"] == 1
+    assert any(s["type"] == "rejected_call" for s in trace["steps"])
+    feedback = client.requests[1]["messages"][-1]
+    assert feedback["role"] == "user" and "run_sql or submit_answer" in feedback["content"]
+
+
+def test_retries_are_capped(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = RejectingClient([Rejected() for _ in range(10)])
+    config = agent_mod.AgentConfig(model="test-model", max_retries=3)
+    trace = agent_mod.ask("q", client=client, con=FakeCon(), config=config)
+    assert trace["end_reason"] == "api_error" and trace["answer"] is None
+    assert trace["tool_rejections"] == 4 and len(client.requests) == 4
+
+
+def test_rejections_do_not_use_up_turns(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = RejectingClient([Rejected(), Rejected(), _response(_call("submit_answer", answer="x", status="answered"))])
+    config = agent_mod.AgentConfig(model="test-model", max_turns=1)
+    trace = agent_mod.ask("q", client=client, con=FakeCon(), config=config)
+    assert trace["end_reason"] == "submitted"
+
+
+def test_other_api_errors_still_raise(monkeypatch):
+    import pytest
+
+    _patch_db(monkeypatch, [])
+    err = Exception("boom")
+    err.status_code = 500
+    with pytest.raises(Exception, match="boom"):
+        agent_mod.ask("q", client=RejectingClient([err]), con=FakeCon())
+
+
+def test_last_turn_offers_only_submit_answer(monkeypatch):
+    _patch_db(monkeypatch, [])
+    query = _response(_call("run_sql", sql="select 1"))
+    submit = _response(_call("submit_answer", answer="x", status="answered"))
+    client = FakeClient([query, submit])
+    agent_mod.ask("q", client=client, con=FakeCon(), config=agent_mod.AgentConfig(model="m", max_turns=2))
+    assert [t["function"]["name"] for t in client.requests[0]["tools"]] == ["run_sql", "submit_answer"]
+    assert [t["function"]["name"] for t in client.requests[1]["tools"]] == ["submit_answer"]

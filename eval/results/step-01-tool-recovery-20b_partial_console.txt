@@ -1,0 +1,20 @@
+# step-01-tool-recovery on openai/gpt-oss-20b, partial console log (q04 skipped by choice; q20 stopped, still running after 20+ min)
+# git e40b6fa, 1 run per question. Per-question traces were not saved: the harness writes its result file only at the end.
+q01          metric-definition  P  numeric_value 671425.37 matches gold 671425.37
+q02          metric-definition  F  numeric_value 1548737.62 != gold 505655.62
+q03          metric-definition  P  numeric_value 33 matches gold 33.0
+q05          units              P  numeric_value 14.0 matches gold 14.0
+q06          grain              P  numeric_value 104719.19 matches gold 104719.19
+q07          grain              P  all 1 gold items present
+q08          grain              P  numeric_value 70819 matches gold 70819.0
+q09          grain              P  numeric_value 935 matches gold 935.0
+q10          grain              P  numeric_value 0 matches gold 0.0
+q11          entity             P  numeric_value 2 matches gold 2.0
+q12          entity             P  numeric_value 0 matches gold 0.0
+q13          entity             F  missing from answer: ['Brooklyn']
+q14          time               P  numeric_value 68314.13 matches gold 68312.875
+q15          time               P  status is ['needs_clarification', 'cannot_answer']
+q16          time               F  status 'answered', expected ['needs_clarification', 'cannot_answer']
+q17          unanswerable       F  status 'answered', expected 'cannot_answer'
+q18          unanswerable       F  status 'answered', expected 'cannot_answer'
+q19          unanswerable       F  status 'answered', expected 'cannot_answer'

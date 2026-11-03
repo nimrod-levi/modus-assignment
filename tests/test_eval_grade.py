@@ -240,3 +240,20 @@ def test_retry_penalty_in_score():
     assert recs[0]["passed"] and recs[0]["credit"] == pytest.approx(0.8)
     s = runner.summarize([q], recs, 1)
     assert s["score"] == pytest.approx(0.8) and s["raw_score"] == 1.0 and s["rejections"] == 2
+
+
+def test_throttled_client_gives_up_on_long_rate_limit_waits():
+    from eval import run_eval as runner
+
+    class Limited(Exception):
+        status_code = 429
+
+        def __str__(self):
+            return "429 tokens per day. Please try again in 12m7.0s."
+
+    inner = types.SimpleNamespace(chat=types.SimpleNamespace(completions=types.SimpleNamespace(create=lambda **kw: (_ for _ in ()).throw(Limited()))))
+    slept = []
+    client = runner.ThrottledClient(inner, 0, sleep=slept.append)
+    with pytest.raises(RuntimeError, match="rate limit"):
+        client.create(model="m")
+    assert slept == []

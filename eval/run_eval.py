@@ -43,6 +43,7 @@ SCOREBOARD_FIELDS = [
 ]
 
 
+MAX_WAIT_S = 120.0  # longest rate-limit wait we accept before giving up
 RETRY_PENALTY = 0.1  # credit lost per rejected tool call
 
 
@@ -52,11 +53,13 @@ class ThrottledClient:
     The agent takes a `client=` argument, so the eval can add this without touching agent code.
     """
 
-    def __init__(self, client, min_interval_s: float = 2.0, max_retries: int = 6, sleep=time.sleep):
+    def __init__(self, client, min_interval_s: float = 2.0, max_retries: int = 6, sleep=time.sleep,
+                 max_wait_s: float = MAX_WAIT_S):
         self._client = client
         self._min_interval = min_interval_s
         self._max_retries = max_retries
         self._sleep = sleep
+        self._max_wait = max_wait_s
         self._last_call = 0.0
         self.chat = types.SimpleNamespace(completions=self)
 
@@ -71,7 +74,12 @@ class ThrottledClient:
             except Exception as exc:
                 if getattr(exc, "status_code", None) != 429 or attempt == self._max_retries:
                     raise
-                self._sleep(_retry_delay_s(exc))
+                delay = _retry_delay_s(exc)
+                if delay > self._max_wait:
+                    # A daily token limit asks for many minutes. Do not sleep silently: fail with the reason.
+                    raise RuntimeError(f"rate limit: Groq asks to wait {delay:.0f}s (> {self._max_wait:.0f}s): {exc}") from exc
+                print(f"  rate limited, waiting {delay:.0f}s", flush=True)
+                self._sleep(delay)
 
 
 def _retry_delay_s(exc: Exception) -> float:
@@ -218,12 +226,17 @@ def main(argv: list[str] | None = None) -> int:
     config = AgentConfig()
     client = ThrottledClient(Groq(api_key=os.environ["GROQ_API_KEY"]), args.min_interval)
     records: list[dict] = []
+    started_at = dt.datetime.now(dt.timezone.utc)
+    RESULTS_DIR.mkdir(exist_ok=True)
+    out = RESULTS_DIR / f"{args.step}_{args.file.stem}_{started_at.strftime('%Y%m%d-%H%M%S')}.json"
     for q in questions:
         recs = run_question(q, golds[q["id"]], args.runs, lambda text: ask(text, client=client, config=config))
         for r in recs:
             r["category"] = q["category"]
             r["gold"] = golds[q["id"]]
         records += recs
+        # Save after every question, so a stopped or crashed run keeps what it finished.
+        out.write_text(json.dumps({"partial": True, "records": records}, indent=2, default=str))
         marks = "".join("E" if r["error"] else ("P" if r["passed"] else "F") for r in recs)
         print(f"{q['id']:<12} {q['category']:<18} {marks}  {recs[-1]['reason']}")
 
@@ -239,8 +252,6 @@ def main(argv: list[str] | None = None) -> int:
         "model": first_ok.get("model", config.model),
         "system_prompt_sha": first_ok.get("system_prompt_sha", ""),
     }
-    RESULTS_DIR.mkdir(exist_ok=True)
-    out = RESULTS_DIR / f"{args.step}_{args.file.stem}_{now.strftime('%Y%m%d-%H%M%S')}.json"
     out.write_text(json.dumps({"meta": meta, "summary": summary, "records": records}, indent=2, default=str))
 
     full_run = not args.only

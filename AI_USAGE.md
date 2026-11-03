@@ -53,4 +53,8 @@ Running log. The final write-up for the submission is distilled from this.
 - Claude ran several experiments through `| tail`, so output was invisible, and misread Groq's daily-token-limit
   429 wait (silently slept by the throttle wrapper) as a hang. Found by calling the API directly.
 
+- q20 "hung" in the 20b eval for 20+ minutes. Claude first suspected a model loop; it was Groq's daily token limit
+  (429, 12 min wait) slept through silently by the throttle wrapper. Fixed: the wrapper now fails fast on waits over 120s
+  and prints when it waits; the eval now saves results after every question.
+
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

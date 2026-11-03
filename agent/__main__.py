@@ -65,8 +65,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if not args.question:
         parser.error("give a question, or --schema")
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        print("ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key.", file=sys.stderr)
+    if not os.environ.get("GEMINI_API_KEY"):
+        print("GEMINI_API_KEY is not set. Copy .env.example to .env and add your key.", file=sys.stderr)
         return 2
 
     config = AgentConfig(model=args.model) if args.model else AgentConfig()

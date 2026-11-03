@@ -3,7 +3,13 @@
 Run with `make profile`. Use it to sanity-check gold answers, not as agent context.
 """
 
-from agent import db
+import sys
+from pathlib import Path
+
+# Running a file from scripts/ puts scripts/ on sys.path, not the repo root.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from agent import db  # noqa: E402
 
 QUERIES = {
     "Row counts": """

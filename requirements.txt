@@ -1,10 +1,12 @@
 # Warehouse build
-dbt-core>=1.9,<2
+# <1.12: dbt-core 1.12 pulls in a parser package that downloads a wheel from GitHub at
+# install time, which fails on Python builds without CA certificates.
+dbt-core>=1.9,<1.12
 dbt-duckdb>=1.9,<2
 duckdb>=1.1
 
 # Agent
-anthropic>=0.60
+google-genai>=2.34
 
 # Dev
 pytest>=8

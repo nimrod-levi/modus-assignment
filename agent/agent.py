@@ -14,6 +14,9 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+from google import genai
+from google.genai import types
+
 from agent import db
 
 SYSTEM_PROMPT = """You are a data analyst. You answer business questions about the company's data \
@@ -30,7 +33,7 @@ RUN_SQL_TOOL = {
         "Run one read-only SQL query (DuckDB dialect, SELECT or WITH only) against the "
         f"warehouse. Returns up to {db.MAX_ROWS} rows as CSV text, or an error message."
     ),
-    "input_schema": {
+    "parameters_json_schema": {
         "type": "object",
         "properties": {"sql": {"type": "string", "description": "A single SELECT or WITH query."}},
         "required": ["sql"],
@@ -40,7 +43,7 @@ RUN_SQL_TOOL = {
 SUBMIT_ANSWER_TOOL = {
     "name": "submit_answer",
     "description": "Submit your final answer to the question. Call it once, at the end.",
-    "input_schema": {
+    "parameters_json_schema": {
         "type": "object",
         "properties": {
             "answer": {
@@ -71,13 +74,13 @@ SUBMIT_ANSWER_TOOL = {
     },
 }
 
-TOOLS = [RUN_SQL_TOOL, SUBMIT_ANSWER_TOOL]
+TOOLS = [types.Tool(function_declarations=[RUN_SQL_TOOL, SUBMIT_ANSWER_TOOL])]
 NUDGE = "Please call submit_answer with your final answer now."
 
 
 @dataclass
 class AgentConfig:
-    model: str = field(default_factory=lambda: os.environ.get("AGENT_MODEL", "claude-sonnet-5-5"))
+    model: str = field(default_factory=lambda: os.environ.get("AGENT_MODEL", "models/gemini-3.5-flash-lite"))
     max_turns: int = 12
     max_tokens: int = 4096
     temperature: float = 0.0
@@ -87,18 +90,38 @@ def build_system_prompt(con) -> str:
     return SYSTEM_PROMPT.format(schema=db.describe_schema(con))
 
 
+def _generation_config(system: str, config: AgentConfig, *, force_submit: bool) -> types.GenerateContentConfig:
+    """Model settings for one turn. force_submit makes submit_answer the only callable tool."""
+    calling = (
+        types.FunctionCallingConfig(mode="ANY", allowed_function_names=["submit_answer"])
+        if force_submit
+        else types.FunctionCallingConfig(mode="AUTO")
+    )
+    return types.GenerateContentConfig(
+        system_instruction=system,
+        temperature=config.temperature,
+        max_output_tokens=config.max_tokens,
+        tools=TOOLS,
+        tool_config=types.ToolConfig(function_calling_config=calling),
+    )
+
+
+def _tool_response(call: types.FunctionCall, *, result: str | None = None, error: str | None = None) -> types.Part:
+    """A function call's reply. Gemini has no is_error flag: an "error" key marks a failure."""
+    payload = {"error": error} if error is not None else {"output": result}
+    return types.Part(function_response=types.FunctionResponse(id=call.id, name=call.name, response=payload))
+
+
 def ask(question: str, *, client=None, con=None, config: AgentConfig | None = None) -> dict[str, Any]:
     """Answer one question. Returns a trace dict; trace["answer"] holds the submitted answer."""
     config = config or AgentConfig()
     if client is None:
-        import anthropic
-
-        client = anthropic.Anthropic()
+        client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     own_con = con is None
     con = con or db.connect()
 
     system = build_system_prompt(con)
-    messages: list[dict[str, Any]] = [{"role": "user", "content": question}]
+    contents = [types.UserContent(parts=[types.Part(text=question)])]
     trace: dict[str, Any] = {
         "question": question,
         "model": config.model,
@@ -116,29 +139,34 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
     try:
         for turn in range(config.max_turns):
             last_turn = turn == config.max_turns - 1
-            response = client.messages.create(
+            response = client.models.generate_content(
                 model=config.model,
-                max_tokens=config.max_tokens,
-                temperature=config.temperature,
-                system=system,
-                messages=messages,
-                tools=TOOLS,
-                tool_choice={"type": "tool", "name": "submit_answer"} if last_turn else {"type": "auto"},
+                contents=contents,
+                config=_generation_config(system, config, force_submit=last_turn),
             )
-            trace["usage"]["input_tokens"] += response.usage.input_tokens
-            trace["usage"]["output_tokens"] += response.usage.output_tokens
-            messages.append({"role": "assistant", "content": response.content})
+            usage = response.usage_metadata
+            trace["usage"]["input_tokens"] += usage.prompt_token_count or 0
+            # Thinking tokens are billed as output but reported separately.
+            trace["usage"]["output_tokens"] += (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0)
+
+            # A blocked or empty reply has no content: treat it as "stopped without submitting".
+            content = response.candidates[0].content if response.candidates else None
+            parts = (content.parts or []) if content else []
+            if content:
+                # Send the model's turn back unchanged: it carries Gemini's thought signatures.
+                contents.append(content)
 
             tool_results = []
-            for block in response.content:
-                if block.type == "text" and block.text.strip():
-                    trace["steps"].append({"turn": turn, "type": "text", "text": block.text})
-                elif block.type == "tool_use" and block.name == "submit_answer":
-                    trace["answer"] = dict(block.input)
+            for part in parts:
+                call = part.function_call
+                if part.text and part.text.strip() and not part.thought:
+                    trace["steps"].append({"turn": turn, "type": "text", "text": part.text})
+                elif call and call.name == "submit_answer":
+                    trace["answer"] = dict(call.args or {})
                     trace["end_reason"] = "submitted"
                     return trace
-                elif block.type == "tool_use" and block.name == "run_sql":
-                    result = db.run_sql(con, block.input.get("sql", ""))
+                elif call and call.name == "run_sql":
+                    result = db.run_sql(con, (call.args or {}).get("sql", ""))
                     trace["steps"].append(
                         {
                             "turn": turn,
@@ -151,29 +179,18 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
                             "preview": result.to_text()[:1500],
                         }
                     )
-                    tool_results.append(
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": result.to_text(),
-                            "is_error": result.error is not None,
-                        }
-                    )
-                elif block.type == "tool_use":
-                    tool_results.append(
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": f"Unknown tool {block.name}.",
-                            "is_error": True,
-                        }
-                    )
+                    if result.error is not None:
+                        tool_results.append(_tool_response(call, error=result.to_text()))
+                    else:
+                        tool_results.append(_tool_response(call, result=result.to_text()))
+                elif call:
+                    tool_results.append(_tool_response(call, error=f"Unknown tool {call.name}."))
 
             if tool_results:
-                messages.append({"role": "user", "content": tool_results})
+                contents.append(types.UserContent(parts=tool_results))
             elif not nudged:
                 # The model stopped talking without submitting; ask once.
-                messages.append({"role": "user", "content": NUDGE})
+                contents.append(types.UserContent(parts=[types.Part(text=NUDGE)]))
                 nudged = True
             else:
                 trace["end_reason"] = "no_answer"

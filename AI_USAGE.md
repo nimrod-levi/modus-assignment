@@ -12,6 +12,8 @@ Running log. The final write-up for the submission is distilled from this.
 
 - Switched the step 0 agent from the Anthropic API to Gemini (`google-genai`) before any
   score was recorded, so every step uses the same model.
+- Switched the step 0 agent from Gemini to Groq (`groq` SDK, `llama-3.3-70b-versatile`) for higher
+  rate limits. Same tools and loop; only the client layer changed. No score had been recorded yet.
 
 Reviewed by me: _(note what you checked or changed)_
 

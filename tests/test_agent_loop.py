@@ -1,26 +1,19 @@
 """The agent loop, with a scripted fake LLM. No API key or database needed."""
 
-from google.genai import types
+import json
+from types import SimpleNamespace as NS
 
 from agent import agent as agent_mod
 from agent import db
 
 
-def _text(text):
-    return types.Part(text=text)
+def _call(name, id_="c", **args):
+    return NS(id=id_, function=NS(name=name, arguments=json.dumps(args)))
 
 
-def _call(name, id_=None, **args):
-    return types.Part(function_call=types.FunctionCall(id=id_, name=name, args=args))
-
-
-def _response(*parts):
-    return types.GenerateContentResponse(
-        candidates=[types.Candidate(content=types.Content(role="model", parts=list(parts)))],
-        usage_metadata=types.GenerateContentResponseUsageMetadata(
-            prompt_token_count=100, candidates_token_count=20, thoughts_token_count=5
-        ),
-    )
+def _response(*calls, text=None, tokens=(100, 25)):
+    msg = NS(content=text, tool_calls=list(calls) or None)
+    return NS(choices=[NS(message=msg)], usage=NS(prompt_tokens=tokens[0], completion_tokens=tokens[1]))
 
 
 class FakeClient:
@@ -29,11 +22,11 @@ class FakeClient:
     def __init__(self, responses):
         self.responses = list(responses)
         self.requests = []
-        self.models = self
+        self.chat = NS(completions=self)
 
-    def generate_content(self, **kwargs):
-        # snapshot: the agent keeps appending to the same contents list
-        self.requests.append({**kwargs, "contents": list(kwargs["contents"])})
+    def create(self, **kwargs):
+        # snapshot: the agent keeps appending to the same messages list
+        self.requests.append({**kwargs, "messages": list(kwargs["messages"])})
         return self.responses.pop(0)
 
 
@@ -52,19 +45,12 @@ def _patch_db(monkeypatch, calls, error=None):
     monkeypatch.setattr(db, "run_sql", fake_run_sql)
 
 
-def _calling_config(request):
-    return request["config"].tool_config.function_calling_config
-
-
 def test_query_then_submit(monkeypatch):
     calls = []
     _patch_db(monkeypatch, calls)
     client = FakeClient(
         [
-            _response(
-                _text("Let me sum the orders."),
-                _call("run_sql", "t1", sql="select sum(order_total) from main.orders"),
-            ),
+            _response(_call("run_sql", "t1", sql="select sum(order_total) from main.orders"), text="Let me sum."),
             _response(_call("submit_answer", "t2", answer="$671,425.37", numeric_value=671425.37, status="answered")),
         ]
     )
@@ -74,12 +60,13 @@ def test_query_then_submit(monkeypatch):
     assert trace["answer"]["numeric_value"] == 671425.37
     assert calls == ["select sum(order_total) from main.orders"]
     assert trace["sql_calls"] == 1
-    assert trace["usage"] == {"input_tokens": 200, "output_tokens": 50}  # output includes thinking tokens
-    # the tool result went back to the model as a user turn
-    turn = client.requests[1]["contents"][-1]
-    reply = turn.parts[0].function_response
-    assert turn.role == "user" and reply.id == "t1" and reply.name == "run_sql"
-    assert "671425.37" in reply.response["output"]
+    assert trace["usage"] == {"input_tokens": 200, "output_tokens": 50}
+    # the system prompt leads, and the tool result went back keyed to the call id
+    first = client.requests[0]["messages"]
+    assert first[0]["role"] == "system" and first[1] == {"role": "user", "content": "What was revenue?"}
+    reply = client.requests[1]["messages"][-1]
+    assert reply["role"] == "tool" and reply["tool_call_id"] == "t1" and "671425.37" in reply["content"]
+    assert client.requests[1]["messages"][-2]["tool_calls"][0]["id"] == "t1"
 
 
 def test_sql_error_goes_back_as_error(monkeypatch):
@@ -91,8 +78,8 @@ def test_sql_error_goes_back_as_error(monkeypatch):
         ]
     )
     agent_mod.ask("q", client=client, con=FakeCon())
-    reply = client.requests[1]["contents"][-1].parts[0].function_response
-    assert "Binder Error" in reply.response["error"] and "output" not in reply.response
+    content = client.requests[1]["messages"][-1]["content"]
+    assert content.startswith("ERROR:") and "Binder Error" in content
 
 
 def test_unknown_tool_goes_back_as_error(monkeypatch):
@@ -101,23 +88,29 @@ def test_unknown_tool_goes_back_as_error(monkeypatch):
         [_response(_call("drop_table")), _response(_call("submit_answer", answer="x", status="answered"))]
     )
     agent_mod.ask("q", client=client, con=FakeCon())
-    reply = client.requests[1]["contents"][-1].parts[0].function_response
-    assert reply.response == {"error": "Unknown tool drop_table."}
+    assert client.requests[1]["messages"][-1]["content"] == "ERROR: Unknown tool drop_table."
+
+
+def test_bad_json_arguments_go_back_as_error(monkeypatch):
+    _patch_db(monkeypatch, [])
+    bad = NS(id="b", function=NS(name="run_sql", arguments="{not json"))
+    client = FakeClient([_response(bad), _response(_call("submit_answer", answer="x", status="answered"))])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["end_reason"] == "submitted"
+    assert "not valid JSON" in client.requests[1]["messages"][-1]["content"]
 
 
 def test_nudges_once_then_gives_up(monkeypatch):
     _patch_db(monkeypatch, [])
-    client = FakeClient([_response(_text("Revenue is high.")), _response(_text("Done."))])
+    client = FakeClient([_response(text="Revenue is high."), _response(text="Done.")])
     trace = agent_mod.ask("What was revenue?", client=client, con=FakeCon())
     assert trace["end_reason"] == "no_answer"
-    assert client.requests[1]["contents"][-1].parts[0].text == agent_mod.NUDGE
+    assert client.requests[1]["messages"][-1] == {"role": "user", "content": agent_mod.NUDGE}
 
 
 def test_empty_response_is_treated_as_no_answer(monkeypatch):
     _patch_db(monkeypatch, [])
-    empty = types.GenerateContentResponse(
-        candidates=[], usage_metadata=types.GenerateContentResponseUsageMetadata(prompt_token_count=100)
-    )
+    empty = NS(choices=[], usage=None)
     client = FakeClient([empty, empty])
     trace = agent_mod.ask("q", client=client, con=FakeCon())
     assert trace["end_reason"] == "no_answer"
@@ -131,6 +124,5 @@ def test_last_turn_forces_submit(monkeypatch):
     config = agent_mod.AgentConfig(model="test-model", max_turns=3)
     trace = agent_mod.ask("q", client=client, con=FakeCon(), config=config)
     assert trace["end_reason"] == "submitted"
-    forced = _calling_config(client.requests[-1])
-    assert forced.mode == "ANY" and forced.allowed_function_names == ["submit_answer"]
-    assert _calling_config(client.requests[0]).mode == "AUTO"
+    assert client.requests[-1]["tool_choice"] == {"type": "function", "function": {"name": "submit_answer"}}
+    assert client.requests[0]["tool_choice"] == "auto"

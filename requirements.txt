@@ -6,7 +6,7 @@ dbt-duckdb>=1.9,<2
 duckdb>=1.1
 
 # Agent
-google-genai>=2.34
+groq>=0.30
 
 # Dev
 pytest>=8

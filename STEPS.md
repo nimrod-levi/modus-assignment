@@ -26,3 +26,15 @@ Model: `llama-3.3-70b-versatile` on Groq (switched from Gemini for higher rate l
 score was recorded).
 
 Score: _pending, run `make eval STEP=step-00-baseline`_ · tokens/Q: _ · model: llama-3.3-70b-versatile
+
+### Eval fix · q01 and q04 (made after the first step-00 run, `step-00-baseline_questions_20261103-094307`)
+
+Reason (author's call, not to make the agent pass; the original run's q01 answer of 671,425.37 would
+now be correct, and q04's old gold was 3.52):
+- **q01** asked for "revenue" with no definition, so the gold (pre-tax) was an unstated assumption.
+  The question now asks for revenue *including sales tax* and the gold is `sum(order_total)`
+  (671,425.37). Consequence: q01 no longer tests the tax trap. Pre-tax revenue is still tested by q02, q14 and q16.
+- **q04** had `rel_tol: 0.03` to allow 3.52 or 3.59. Tolerance removed (default 0.1%). Customer
+  assumption: the 483 $0 orders are ignored, so first/second order are ranked among
+  `order_total > 0` orders. Gold changed 3.5199 -> 3.5920.
+The step-00 result file predates this fix; re-run step 0 before comparing scores.

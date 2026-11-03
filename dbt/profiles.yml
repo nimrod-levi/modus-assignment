@@ -1,0 +1,10 @@
+# Local DuckDB profile. The project's dbt_project.yml uses `profile: default`.
+# Seeds land in the `raw` schema, staging views and marts in `main`
+# (see macros/generate_schema_name.sql).
+default:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('JAFFLE_DB_PATH', '../data/jaffle.duckdb') }}"
+      threads: 4

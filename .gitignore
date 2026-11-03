@@ -1,0 +1,19 @@
+.venv/
+.env
+__pycache__/
+.pytest_cache/
+.DS_Store
+
+# built warehouse: rebuild with `make db`
+data/*.duckdb
+data/*.duckdb.wal
+
+# dbt build output
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+logs/
+
+# ad-hoc traces from `make ask` (eval results will live in eval/results/ and are committed)
+runs/*
+!runs/.gitkeep

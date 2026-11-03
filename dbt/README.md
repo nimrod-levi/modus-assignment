@@ -1,0 +1,15 @@
+# dbt project (vendored jaffle-shop)
+
+This is dbt Labs' sample project [jaffle-shop](https://github.com/dbt-labs/jaffle-shop),
+copied from the `jaffle-shop-old` branch (commit `7be2c58`), which runs on dbt-core 1.x.
+The `main` branch now requires dbt 2.0.
+
+Changes from upstream:
+
+- Removed `dbt-audit-helper` from `packages.yml` (unused) and the stale `package-lock.yml`.
+- Added `profiles.yml` for a local DuckDB file at `../data/jaffle.duckdb`.
+- Removed upstream CI, pre-commit and dbt Cloud setup files.
+
+Build it from the repo root with `make db`. This project is the customer's "business
+context": model docs, tests, semantic models and metrics live in the `*.yml` files under
+`models/`. Later steps mine them (`target/manifest.json`) instead of hand-writing prompts.

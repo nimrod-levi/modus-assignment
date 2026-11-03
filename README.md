@@ -88,7 +88,7 @@ Recompute these with `make profile` after your first build and treat that output
   submitting, it gets one nudge. On the last turn it is forced to call `submit_answer`.
 - **Safety (`agent/db.py`):** the file opens read-only; external file and URL access is
   off and locked (so `read_csv('/etc/passwd')` fails); only one SELECT/WITH per call;
-  200-row cap; 20 s timeout.
+  5-row cap on what the model sees; 20 s timeout.
 - **Trace (`runs/*.json`):** model, temperature, system-prompt hash, every SQL call with
   row count, error and timing, total tokens, latency and the submitted answer.
 

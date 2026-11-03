@@ -25,8 +25,10 @@ by querying its DuckDB warehouse with the run_sql tool.
 Warehouse tables and views (schema.name (kind): columns):
 {schema}
 
-Use run_sql as many times as you need to explore the data and compute numbers. When you have enough
-information, stop calling tools and reply "Done." You will then be asked for the final answer."""
+Each query shows at most {max_rows} rows, and every result is re-read on each later turn, so aggregate in SQL
+(sum, count, group by, limit) instead of listing rows. Prefer one query that answers the question; if you need several
+independent queries, send them together in one turn. When you have enough information, stop calling tools; you will then
+be asked for the final answer."""
 
 RUN_SQL_TOOL = {
     "name": "run_sql",
@@ -89,6 +91,11 @@ ANSWER_FORMAT = {
 
 TOOLS = [{"type": "function", "function": RUN_SQL_TOOL}]
 FINAL_REQUEST = "Now give your final answer to the question."
+# Added by the harness (not the model) when a query hit the row cap, so the user knows the answer saw a sample.
+TRUNCATION_ASSUMPTION = (
+    f"Only the first {db.MAX_ROWS} rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+)
+REPEATED_SQL = "Same query as an earlier call in this conversation; its result is above."
 REJECTED = (
     "Your last reply was rejected ({reason}). run_sql is the only tool; call it by that exact name, or reply in plain text."
 )
@@ -124,7 +131,7 @@ def make_client() -> OpenAI:
 
 
 def build_system_prompt(con) -> str:
-    return SYSTEM_PROMPT.format(schema=db.describe_schema(con))
+    return SYSTEM_PROMPT.format(schema=db.describe_schema(con), max_rows=db.MAX_ROWS)
 
 
 def _tool_message(call, text: str, *, is_error: bool = False) -> dict[str, Any]:
@@ -195,6 +202,9 @@ def _final_answer(client, config, messages, trace, turn) -> None:
             messages.append({"role": "assistant", "content": msg.content or "" if msg else ""})
             messages.append({"role": "user", "content": REJECTED.format(reason="the final answer must be a JSON object")})
             continue
+        if any(st.get("truncated") for st in trace["steps"] if st["type"] == "sql"):
+            assumptions = answer.get("assumptions")
+            answer["assumptions"] = (assumptions if isinstance(assumptions, list) else []) + [TRUNCATION_ASSUMPTION]
         trace["answer"] = answer
         trace["end_reason"] = "submitted"
         return
@@ -226,6 +236,7 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "end_reason": None,
         "tool_rejections": 0,
     }
+    seen_sql: set[str] = set()
     started = time.perf_counter()
 
     try:
@@ -264,7 +275,13 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
                 if call.function.name != "run_sql":
                     messages.append(_tool_message(call, f"Unknown tool {call.function.name}.", is_error=True))
                     continue
-                result = db.run_sql(con, args.get("sql", ""))
+                sql = args.get("sql", "")
+                if sql.strip() in seen_sql:  # the same query again: don't re-send its rows
+                    trace["steps"].append({"turn": turn, "type": "repeated_sql", "sql": sql})
+                    messages.append(_tool_message(call, REPEATED_SQL))
+                    continue
+                seen_sql.add(sql.strip())
+                result = db.run_sql(con, sql)
                 trace["steps"].append(
                     {
                         "turn": turn,
@@ -274,7 +291,7 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
                         "truncated": result.truncated,
                         "error": result.error,
                         "elapsed_ms": result.elapsed_ms,
-                        "preview": result.to_text()[:1500],
+                        "preview": result.to_text(),
                     }
                 )
                 messages.append(_tool_message(call, result.to_text(), is_error=result.error is not None))

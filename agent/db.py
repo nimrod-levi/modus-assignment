@@ -25,9 +25,9 @@ import duckdb
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB_PATH = REPO_ROOT / "data" / "jaffle.duckdb"
 
-MAX_ROWS = 200  # rows handed back to the model per query
+MAX_ROWS = 5  # rows handed back to the model per query: results are re-sent on every later turn, so keep them tiny
 QUERY_TIMEOUT_S = 20.0
-MAX_CELL_CHARS = 120
+MAX_CELL_CHARS = 60
 
 _ALLOWED_START = re.compile(r"^\s*(select|with)\b", re.IGNORECASE)
 _STRING_LITERAL = re.compile(r"'(?:[^']|'')*'")
@@ -95,7 +95,7 @@ class QueryResult:
         if not self.rows:
             lines.append("(0 rows)")
         elif self.truncated:
-            lines.append(f"(showing first {len(self.rows)} rows; more rows exist)")
+            lines.append(f"(showing first {len(self.rows)} rows; more exist: aggregate or filter in SQL)")
         return "\n".join(lines)
 
 
@@ -152,11 +152,17 @@ def describe_schema(con: duckdb.DuckDBPyConnection) -> str:
     ).fetchall()
     tables: dict[tuple[str, str], list[str]] = {}
     for schema, table, column, dtype in rows:
-        tables.setdefault((schema, table), []).append(f"{column} {dtype}")
+        tables.setdefault((schema, table), []).append(f"{column} {_short_type(dtype)}")
     return "\n".join(
         f"{schema}.{table} ({kinds.get((schema, table), 'table')}): {', '.join(cols)}"
         for (schema, table), cols in tables.items()
     )
+
+
+def _short_type(dtype: str) -> str:
+    """Compact type for the prompt: the schema is re-sent every turn. DECIMAL(38,2) -> decimal, VARCHAR -> text."""
+    base = dtype.split("(")[0].lower()
+    return {"varchar": "text", "timestamp": "ts", "hugeint": "int", "bigint": "int", "integer": "int"}.get(base, base)
 
 
 def _fmt(value: object) -> str:

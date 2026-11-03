@@ -95,3 +95,15 @@ def test_file_access_is_blocked(con):
 def test_timeout(con):
     result = db.run_sql(con, "select count(*) from range(100000000000)", timeout_s=1)
     assert result.error and "timed out" in result.error
+
+
+def test_default_cap_is_five_rows(con):
+    result = db.run_sql(con, "select * from range(1000)")
+    assert db.MAX_ROWS == 5 and result.row_count == 5 and result.truncated
+    assert "aggregate or filter in SQL" in result.to_text()
+
+
+@needs_db
+def test_schema_types_are_compact(con):
+    schema = db.describe_schema(con)
+    assert "VARCHAR" not in schema and "DECIMAL(" not in schema

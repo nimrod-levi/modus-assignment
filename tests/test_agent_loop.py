@@ -188,3 +188,40 @@ def test_provider_is_pinned_without_fallbacks(monkeypatch):
         assert request["extra_body"]["provider"] == {
             "order": ["Cerebras"], "allow_fallbacks": False, "require_parameters": True}
         assert request["extra_body"]["reasoning"] == {"effort": "medium"}
+
+
+def test_truncated_result_adds_assumption(monkeypatch):
+    monkeypatch.setattr(db, "describe_schema", lambda con: "t")
+    monkeypatch.setattr(
+        db, "run_sql",
+        lambda con, sql, **kw: db.QueryResult(sql=sql, columns=["n"], rows=[(1,)] * db.MAX_ROWS, truncated=True))
+    client = FakeClient([_response(_call("run_sql", "t1", sql="select n from t")), _text("ok"), _text(ANSWER)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert trace["answer"]["assumptions"] == [agent_mod.TRUNCATION_ASSUMPTION]
+    assert "not a requested feature" in agent_mod.TRUNCATION_ASSUMPTION
+
+
+def test_no_assumption_when_not_truncated(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_response(_call("run_sql", "t1", sql="select 1")), _text("ok"), _text(ANSWER)])
+    assert agent_mod.ask("q", client=client, con=FakeCon())["answer"]["assumptions"] == []
+
+
+def test_repeated_sql_is_not_run_or_resent(monkeypatch):
+    calls = []
+    _patch_db(monkeypatch, calls)
+    client = FakeClient([
+        _response(_call("run_sql", "a", sql="select 1")),
+        _response(_call("run_sql", "b", sql=" select 1 ")),
+        _text("ok"),
+        _text(ANSWER),
+    ])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert calls == ["select 1"] and trace["sql_calls"] == 1
+    assert client.requests[2]["messages"][-1]["content"] == agent_mod.REPEATED_SQL
+
+
+def test_prompt_states_row_cap_and_no_done(monkeypatch):
+    monkeypatch.setattr(db, "describe_schema", lambda con: "t")
+    prompt = agent_mod.build_system_prompt(FakeCon())
+    assert f"at most {db.MAX_ROWS} rows" in prompt and "Done" not in prompt

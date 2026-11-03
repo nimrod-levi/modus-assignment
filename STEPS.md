@@ -102,3 +102,35 @@ Score: **13/19 = 68.4%** · 0 errors · 0 rejections · 19,090 tokens/Q. Full an
 **Eval fix: q04 disabled** (commented out in `eval/questions.yaml`, author's decision). Reason: it takes too many tokens to explain the
 assumptions (ignore $0 orders, tolerance) and the agent is unlikely to get it right anyway. Not tuned to a score: it is removed for
 every step from here on, so step 0 (20 questions) is not strictly comparable. Re-enable it when the glossary exists.
+
+### Step 2 · Optimization: fewer tokens, fewer calls, max 5 rows (infrastructure, no business context)
+
+Where step 1's tokens went (from `results/step-01-tool-recovery_questions_20261103-221238.json`): mean 19,090/Q is
+misleading. The median is about 4.7k; one question (q20) used 202k (11 SQL calls, up to 200 rows each, all re-sent every turn).
+Input tokens are about 90% of the total. A one-query question already costs about 3.3k: the ~1k-token schema prompt is re-sent on
+each of 3 requests (query, "Done.", final answer). So the cost drivers are (1) rows in tool results, which are
+re-sent on every later turn, (2) the number of turns, (3) the size of the fixed prompt.
+
+Changes (same model, same questions, same context; no business knowledge added):
+- `run_sql` returns at most **5 rows** (was 200), cells cut at 60 chars (was 120). The truncation note tells the model to aggregate in SQL.
+- **Assumption when truncated:** if any query in a run hit the cap, the harness appends to the answer's `assumptions`:
+  "Only the first 5 rows were retrieved; a full listing is not a requested feature, ask if you need it." Added in code, not left to the model.
+- Fewer calls: the prompt asks for one aggregating query and for independent queries to be sent together
+  (the loop already runs several calls per turn; no API parameter added, to avoid provider rejections); an identical SQL repeated within a question gets a one-line reply instead of the rows again.
+- Smaller fixed prompt: type precision and long type names dropped from the schema listing (`DECIMAL(38,2)` -> `decimal`).
+- The system prompt no longer tells the model to reply "Done."; it is only told to stop calling tools. (The extra no-tool turn
+  still exists; removing it is a loop change, left for later.)
+- Not changed, to keep the delta clean: reasoning effort, provider, model, prompt caching.
+
+Hypothesis: tokens/Q falls from 19,090 to about 6-9k (mostly the q20-type outliers), SQL calls/Q from 4.0 to about 3, and the score
+stays at 13/19 +/- 1 (1 run per question, step 1 already showed q02/q06 are unstable). q07 and q13 (set answers, 1-row golds) must not break.
+Risk: a question that needs a long list sees only 5 rows; none in the eval does. If the score drops by 2 or more, look at traces
+for "truncated" before blaming variance.
+
+**Result** (run `step-02-optimization_questions_20261103-224026`, same model/provider as step 1):
+
+Score: **13/19 = 68.4%** (unchanged) · 0 errors · **7,043 tokens/Q (was 19,090, -63%)** · **2.5 SQL calls/Q (was 4.0)**.
+
+- Hypothesis held: tokens fell into the predicted 6-9k band and calls fell below 3; score did not regress. q07 and q13 still pass.
+- Same questions fail as in step 1 (q15-q19 need context, steps 3+); q20 now passes and one other question flipped. With 1 run/question that is variance, not a gain: read the score as "no regression".
+- Not measured here: how often the truncation assumption was added (no eval question needs a list). Still open: the extra no-tool turn before the final answer, reasoning effort, prompt caching.

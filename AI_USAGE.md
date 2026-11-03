@@ -65,3 +65,8 @@ Running log. The final write-up for the submission is distilled from this.
   it, so the provider is now pinned.
 
 _(add moments as they happen: what it produced, how you caught it, what you changed)_
+
+## Step 2 · optimization
+Claude Code diagnosed the token cost from step 1's result file (mean skewed by one 202k-token question), implemented the 5-row cap,
+the harness-added truncation assumption, the repeated-SQL reply and the compact schema, and wrote the tests. Note: it first created the
+worktree from a stale branch (`baseline-gemini`) and had to reset it onto `main`. The author chose the step number and asked to drop "Done." from the prompt.

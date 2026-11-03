@@ -80,7 +80,7 @@ NUDGE = "Please call submit_answer with your final answer now."
 
 @dataclass
 class AgentConfig:
-    model: str = field(default_factory=lambda: os.environ.get("AGENT_MODEL", "llama-3.3-70b-versatile"))
+    model: str = field(default_factory=lambda: os.environ.get("AGENT_MODEL", "openai/gpt-oss-120b"))
     max_turns: int = 12
     max_tokens: int = 4096
     temperature: float = 0.0

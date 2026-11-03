@@ -22,10 +22,10 @@ Predictions per category (written before the first run, 20 questions x 1 run):
   midnight timestamps; q18 and q20 are 50/50.
 Expected overall: roughly 35-50% (1 run per question, so pass^1 equals the score).
 
-Model: `llama-3.3-70b-versatile` on Groq (switched from Gemini for higher rate limits, before any
+Model: `openai/gpt-oss-120b` on Groq (switched from Gemini, then from llama-3.3-70b-versatile, for higher rate limits, before any
 score was recorded).
 
-Score: _pending, run `make eval STEP=step-00-baseline`_ · tokens/Q: _ · model: llama-3.3-70b-versatile
+Score: _pending, run `make eval STEP=step-00-baseline`_ · tokens/Q: _ · model: openai/gpt-oss-120b
 
 ### Eval fix · q01 and q04 (made after the first step-00 run, `step-00-baseline_questions_20261103-094307`)
 

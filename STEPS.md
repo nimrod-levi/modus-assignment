@@ -76,4 +76,6 @@ Hypothesis: rejections go to about 0 (before: 10 over 20 questions). Score is ab
 run to the end. Wrong answers q02 q16 q17 q18 q19 stay wrong (they need context, steps 2+). Unknown: whether Groq accepts
 strict `json_schema` on `openai/gpt-oss-120b`; if it does not, the final call needs a plain `json_object` format.
 Not fixed here: q04 hit a 413 (8,000 tokens/min cap on Groq's free tier; results fed back to the model are too big).
-Status: code and unit tests done; not yet run against the API (daily token limit hit). Step 0 is not re-run.
+Smoke check (not a score): single runs on `openai/gpt-oss-20b` after the 120b daily token limit was hit: q10 and q07 both
+ended `submitted` with 0 rejections, so Groq accepts the strict `json_schema` final request. Not run on the 120b yet.
+Status: ready for the full eval (`make eval STEP=step-01-tool-recovery`), then tag `step-01-tool-recovery`. Step 0 is not re-run.

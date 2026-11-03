@@ -19,7 +19,10 @@ Step 0 (baseline) is done: `agent/agent.py` with schema names + `run_sql` + `sub
 Groq (`openai/gpt-oss-120b`). The eval harness is built (`eval/`, 1 run per question).
 Baseline recorded: 7/20 = 35%, with 8 Groq tool-call crashes (flagged in `eval/scoreboard.csv` and STEPS.md).
 Evals are deterministic only for now (author's decision; a judge may come later).
-Next: step 1 = recover from rejected tool calls (remove infra noise), then the dbt-docs steps.
+Step 1 (branch `step-01-tool-recovery`) is coded and committed, not yet scored: `run_sql` is the only tool, the final
+answer is a separate strict `json_schema` request, rejected replies are retried (cap 3, -10% credit each). Next: run
+`make eval STEP=step-01-tool-recovery` (120b daily token limit permitting), tag it, then the dbt-docs steps.
+Known open infra issue: q04 hit Groq's 8,000 tokens/min cap (413) because SQL results fed back are large.
 Don't change the step-00 agent in place; each fix is its own commit and tag.
 
 ## Rules

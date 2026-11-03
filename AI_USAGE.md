@@ -44,4 +44,13 @@ Running log. The final write-up for the submission is distilled from this.
 - Claude analysed the step-00 run (`eval/analysis/`) and spotted that 8 of 20 results were API crashes, not agent
   mistakes. The author decided to record the 35% as-is, flagged, and to keep evals deterministic for now.
 
+- Step 1: Claude first read the Groq `tool_use_failed` errors as "the model calls a tool that does not exist" and planned
+  retries plus clearer wording. The author questioned it; the raw `failed_generation` showed `json` / `commentary` are
+  gpt-oss output-format names, not tools, and some "calls" were plain prose. Claude's own added "JSON object" wording in the
+  prompt was probably part of the trigger (10 rejections remained). Fix: `run_sql` is the only tool and the final answer is a
+  separate strict `json_schema` request. Checked only with unit tests and 2 single-question smoke runs on gpt-oss-20b
+  (q10, q07: 0 rejections); the real check is the eval on the 120b.
+- Claude ran several experiments through `| tail`, so output was invisible, and misread Groq's daily-token-limit
+  429 wait (silently slept by the throttle wrapper) as a hang. Found by calling the API directly.
+
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

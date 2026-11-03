@@ -1,0 +1,659 @@
+{
+  "meta": {
+    "timestamp": "2026-11-03T13:01:07+00:00",
+    "step": "step-00-baseline",
+    "suite": "questions",
+    "git_sha": "df52ed8",
+    "dirty": true,
+    "model": "openai/gpt-oss-120b",
+    "system_prompt_sha": "c0470d807604"
+  },
+  "summary": {
+    "questions": 20,
+    "runs": 1,
+    "score": 0.35,
+    "pass_all": 0.35,
+    "errors": 8,
+    "tokens_per_run": 4070.4166666666665,
+    "sql_calls_per_run": 1.4166666666666667,
+    "per_question": {
+      "q01": 1.0,
+      "q02": 0.0,
+      "q03": 1.0,
+      "q04": 0.0,
+      "q05": 1.0,
+      "q06": 0.0,
+      "q07": 1.0,
+      "q08": 0.0,
+      "q09": 1.0,
+      "q10": 0.0,
+      "q11": 0.0,
+      "q12": 0.0,
+      "q13": 1.0,
+      "q14": 1.0,
+      "q15": 0.0,
+      "q16": 0.0,
+      "q17": 0.0,
+      "q18": 0.0,
+      "q19": 0.0,
+      "q20": 0.0
+    },
+    "per_category": {
+      "entity": 0.3333333333333333,
+      "grain": 0.4,
+      "metric-definition": 0.5,
+      "time": 0.3333333333333333,
+      "unanswerable": 0.0,
+      "units": 1.0
+    }
+  },
+  "records": [
+    {
+      "id": "q01",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 671425.37 matches gold 671425.37",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The total revenue including sales tax across all data is $671,425.37.",
+        "assumptions": [
+          "Revenue is defined as the sum of the order_total column, which already includes tax."
+        ],
+        "definition_used": "Sum of order_total from main.orders (includes tax).",
+        "numeric_value": 671425.37,
+        "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+        "status": "answered",
+        "unit": "USD"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 2232,
+      "output_tokens": 230,
+      "sql_calls": 1,
+      "latency_ms": 2589,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "total_revenue\n671425.37"
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 671425.37
+    },
+    {
+      "id": "q02",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 1548737.62 != gold 505655.62",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our gross profit on pre\u2011tax sales, after accounting for supply costs as COGS, was $1,548,737.62.",
+        "assumptions": [
+          "Gross profit is defined as total pre\u2011tax sales (order subtotal) minus total supply costs from order_items.supply_cost."
+        ],
+        "definition_used": "gross profit = SUM(orders.subtotal) - SUM(order_items.supply_cost)",
+        "numeric_value": 1548737.62,
+        "sql": "SELECT SUM(o.subtotal) AS total_pretax_sales, SUM(oi.supply_cost) AS total_cogs FROM main.orders o JOIN main.order_items oi ON o.order_id = oi.order_id",
+        "status": "answered",
+        "unit": "USD"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 3671,
+      "output_tokens": 682,
+      "sql_calls": 1,
+      "latency_ms": 5983,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(o.subtotal) AS total_pretax_sales, SUM(oi.supply_cost) AS total_cogs FROM main.orders o JOIN main.order_items oi ON o.order_id = oi.order_id",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 17,
+          "preview": "total_pretax_sales,total_cogs\n1680526.00,131788.38"
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 505655.62
+    },
+    {
+      "id": "q03",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 33 matches gold 33.0",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We gained 33 new customers in January 2025.",
+        "assumptions": [
+          "A 'new customer' is defined as a customer whose first order date falls within January 2025."
+        ],
+        "definition_used": "Count of distinct customers where first_ordered_at is between 2025-01-01 and 2025-01-31 inclusive.",
+        "numeric_value": 33,
+        "status": "answered",
+        "unit": "customers"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 2278,
+      "output_tokens": 285,
+      "sql_calls": 1,
+      "latency_ms": 3973,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS new_customers_jan2025\nFROM main.customers\nWHERE DATE(first_ordered_at) >= DATE '2025-01-01'\n  AND DATE(first_ordered_at) <= DATE '2025-01-31'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "new_customers_jan2025\n33"
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 33.0
+    },
+    {
+      "id": "q04",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'json' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"json\", \"arguments\": {\\n  \"answer\": \"On average, about 3.5 days pass between a customer\\'s first and second order.\",\\n  \"assumptions\": [\\n    \"Only customers with at least two orders are included.\",\\n    \"The difference is calculated in whole days using the order timestamps.\"\\n  ],\\n  \"definition_used\": \"Average of DATEDIFF(\\'day\\', first order timestamp, second order timestamp) per customer.\",\\n  \"numeric_value\": 3.52,\\n  \"unit\": \"days\",\\n  \"status\": \"answered\",\\n  \"sql\": \"WITH ranked AS (\\\\n    SELECT customer_id, ordered_at,\\\\n           ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY ordered_at) AS rn\\\\n    FROM main.orders\\\\n)\\\\nSELECT AVG(DATEDIFF(\\'day\\', first.first_date, second.second_date)) AS avg_days\\\\nFROM (\\\\n    SELECT customer_id, ordered_at AS first_date\\\\n    FROM ranked\\\\n    WHERE rn = 1\\\\n) first\\\\nJOIN (\\\\n    SELECT customer_id, ordered_at AS second_date\\\\n    FROM ranked\\\\n    WHERE rn = 2\\\\n) second USING (customer_id);\"\\n}}'}}",
+      "category": "metric-definition",
+      "gold": 3.592034445640474
+    },
+    {
+      "id": "q05",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 14 matches gold 14.0",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The most expensive menu item costs $14.00.",
+        "definition_used": "Maximum product_price from the products table.",
+        "numeric_value": 14,
+        "sql": "SELECT MAX(product_price) AS max_price FROM main.products;",
+        "status": "answered",
+        "unit": "USD"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 2222,
+      "output_tokens": 179,
+      "sql_calls": 1,
+      "latency_ms": 3517,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "max_price\n14.00"
+        }
+      ],
+      "category": "units",
+      "gold": 14.0
+    },
+    {
+      "id": "q06",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'json' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"json\", \"arguments\": {\\n  \"answer\": \"We spent $396,061.34 on perishable supplies across all sales.\",\\n  \"assumptions\": [\\n    \"Supply cost is recorded per order item in the order_items table.\",\\n    \"All perishable supplies are identified by the is_perishable_supply flag in the supplies table.\"\\n  ],\\n  \"definition_used\": \"Sum of supply_cost for order items where the associated supply is marked as perishable.\",\\n  \"numeric_value\": 396061.34,\\n  \"unit\": \"USD\",\\n  \"sql\": \"SELECT SUM(oi.supply_cost) AS total_perishable_spend FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true\",\\n  \"status\": \"answered\"\\n}}'}}",
+      "category": "grain",
+      "gold": 104719.19
+    },
+    {
+      "id": "q07",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The menu item with the lowest gross margin percentage is **\"chai and mighty\"** (product ID BEV-002) with a gross margin of about **65%**.",
+        "assumptions": [
+          "Gross margin is calculated as (product_price - total_supply_cost) / product_price.",
+          "Total supply cost for a product is the sum of supply_cost from the supplies table linked by product_id.",
+          "All products have a non\u2011zero price."
+        ],
+        "definition_used": "gross margin = (price - cost of supplies) / price",
+        "numeric_value": 0.65,
+        "sql": "SELECT p.product_id, p.product_name, p.product_price, COALESCE(SUM(s.supply_cost),0) AS total_supply_cost,\n       (p.product_price - COALESCE(SUM(s.supply_cost),0))/p.product_price AS gross_margin_pct\nFROM main.products p\nLEFT JOIN main.supplies s ON p.product_id = s.product_id\nGROUP BY p.product_id, p.product_name, p.product_price\nORDER BY gross_margin_pct ASC\nLIMIT 1;",
+        "status": "answered",
+        "unit": "ratio"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 4073,
+      "output_tokens": 871,
+      "sql_calls": 2,
+      "latency_ms": 26195,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost\nFROM main.products p\nLEFT JOIN main.supplies s ON p.product_id = s.product_id\nGROUP BY p.product_id, p.product_name, p.product_price\nORDER BY total_supply_cost DESC LIMIT 5",
+          "row_count": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 11,
+          "preview": "product_id,product_name,product_price,total_supply_cost\nJAF-003,the krautback,12.00,3.66\nJAF-004,flame impala,14.00,3.43\nJAF-002,doctor stew,11.00,2.51\nJAF-005,mel-bun,12.00,2.39\nBEV-002,chai and mighty,5.00,1.75"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT p.product_id, p.product_name, p.product_price, COALESCE(SUM(s.supply_cost),0) AS total_supply_cost,\n       CASE WHEN p.product_price = 0 THEN NULL ELSE (p.product_price - COALESCE(SUM(s.supply_cost),0))/p.product_price END AS gross_margin_pct\nFROM main.products p\nLEFT JOIN main.supplies s ON p.product_id = s.product_id\nGROUP BY p.product_id, p.product_name, p.product_price\nORDER BY gross_margin_pct ASC\nLIMIT 10",
+          "row_count": 10,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 13,
+          "preview": "product_id,product_name,product_price,total_supply_cost,gross_margin_pct\nBEV-002,chai and mighty,5.00,1.75,0.65\nJAF-003,the krautback,12.00,3.66,0.695\nBEV-003,vanilla ice,6.00,1.54,0.7433333333333333\nJAF-004,flame impala,14.00,3.43,0.755\nJAF-002,doctor stew,11.00,2.51,0.7718181818181818\nJAF-005,mel-bun,12.00,2.39,0.8008333333333333\nBEV-005,adele-ade,4.00,0.63,0.8425\nBEV-001,tangaroo,6.00,0.82,0.8633333333333333\nBEV-004,for richer or pourover ,7.00,0.82,0.8828571428571428\nJAF-001,nutellaphone who dis?,11.00,1.21,0.8899999999999999"
+        }
+      ],
+      "category": "grain",
+      "gold": {
+        "items": [
+          "chai and mighty"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q08",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"answer\", \"arguments\": **Answer:** 70,819 drinks were sold.\\n\\n**Assumptions:**  \\n- Each row in `main.order_items` represents a single sold item.  \\n- \u201cDrinks sold\u201d is interpreted as the total count of drink items (i.e., rows where `is_drink_item = true`).  \\n\\n**Definition used:** Count of rows in `main.order_items` with `is_drink_item = true`.  \\n\\n**Numeric value:** 70819  \\n\\n**Unit:** drinks  \\n\\n**SQL used:**  \\n```sql\\nSELECT COUNT(*) AS drink_items_sold\\nFROM main.order_items\\nWHERE is_drink_item = true;\\n```\"}'}}",
+      "category": "grain",
+      "gold": 70819.0
+    },
+    {
+      "id": "q09",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 935 matches gold 935.0",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "935 different customers have placed an order.",
+        "definition_used": "Count of distinct customer_id in the orders table.",
+        "numeric_value": 935,
+        "status": "answered",
+        "unit": "customers"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 3424,
+      "output_tokens": 235,
+      "sql_calls": 1,
+      "latency_ms": 14143,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "distinct_customers\n935"
+        }
+      ],
+      "category": "grain",
+      "gold": 935.0
+    },
+    {
+      "id": "q10",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'json' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"json\", \"arguments\": {\\n  \"answer\": \"0 customers have ordered from more than one store.\",\\n  \"assumptions\": [\\n    \"We consider a customer to have ordered from multiple stores if they have orders with different location_id values in the main.orders table.\"\\n  ],\\n  \"definition_used\": \"Count of distinct location_id per customer > 1\",\\n  \"numeric_value\": 0,\\n  \"sql\": \"SELECT COUNT(*) AS customers_multi_store FROM (SELECT customer_id, COUNT(DISTINCT location_id) AS store_count FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) sub;\",\\n  \"status\": \"answered\",\\n  \"unit\": \"customers\"\\n}}'}}",
+      "category": "grain",
+      "gold": 0.0
+    },
+    {
+      "id": "q11",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'name=submit_answer' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"name=submit_answer\", \"arguments\": {\\n  \"answer\": \"2 stores have recorded sales.\",\\n  \"assumptions\": [\"We consider a store to have recorded sales if there is at least one order with a positive order_total.\"],\\n  \"definition_used\": \"Count of distinct location_id in orders where order_total > 0.\",\\n  \"numeric_value\": 2,\\n  \"sql\": \"SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders WHERE order_total > 0\",\\n  \"status\": \"answered\",\\n  \"unit\": \"stores\"\\n}}'}}",
+      "category": "entity",
+      "gold": 2.0
+    },
+    {
+      "id": "q12",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'run_sql' which does not match request.tool_choice: 'submit_answer'\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"run_sql\", \"arguments\": {\"sql\":\"SELECT * FROM raw.raw_orders LIMIT 5;\"}}'}}",
+      "category": "entity",
+      "gold": 0.0
+    },
+    {
+      "id": "q13",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Brooklyn store (location_id\u202f=\u202f40e6ddd6\u2011b8f6\u20114e17\u20118bd6\u20115e53966809d2) explains the jump \u2013 it had zero orders in February and 2,017 orders in March, accounting for the bulk of the near\u2011doubling of total orders.",
+        "assumptions": [
+          "We consider orders placed between 2025\u201102\u201101 (inclusive) and 2025\u201104\u201101 (exclusive).",
+          "The metric is the count of rows in the main.orders table (i.e., number of orders)."
+        ],
+        "definition_used": "Count of orders per location per month.",
+        "numeric_value": 2017,
+        "sql": "WITH feb AS (\n    SELECT location_id, COUNT(*) AS feb_orders\n    FROM main.orders\n    WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01'\n    GROUP BY location_id\n), mar AS (\n    SELECT location_id, COUNT(*) AS mar_orders\n    FROM main.orders\n    WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01'\n    GROUP BY location_id\n)\nSELECT \n    COALESCE(feb.location_id, mar.location_id) AS location_id,\n    l.location_name,\n    COALESCE(feb.feb_orders,0) AS feb_orders,\n    COALESCE(mar.mar_orders,0) AS mar_orders,\n    (mar.mar_orders - COALESCE(feb.feb_orders,0)) AS diff\nFROM feb FULL OUTER JOIN mar ON feb.location_id = mar.location_id\nJOIN main.locations l ON l.location_id = COALESCE(feb.location_id, mar.location_id)\nORDER BY diff DESC\nLIMIT 20;",
+        "status": "answered",
+        "unit": "orders"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 5877,
+      "output_tokens": 1434,
+      "sql_calls": 3,
+      "latency_ms": 42177,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH monthly_counts AS (\n    SELECT \n        location_id,\n        DATE_TRUNC('month', ordered_at)::DATE AS month,\n        COUNT(*) AS order_count\n    FROM main.orders\n    WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01'\n    GROUP BY 1,2\n)\nSELECT \n    mc_feb.location_id,\n    l.location_name,\n    mc_feb.order_count AS feb_orders,\n    mc_mar.order_count AS mar_orders,\n    (mc_mar.order_count - mc_feb.order_count) AS diff\nFROM monthly_counts mc_feb\nJOIN monthly_counts mc_mar ON mc_feb.location_id = mc_mar.location_id\n    AND mc_feb.month = DATE '2025-02-01' AND mc_mar.month = DATE '2025-03-01'\nJOIN main.locations l ON l.location_id = mc_feb.location_id\nORDER BY diff DESC\nLIMIT 10",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 25,
+          "preview": "location_id,location_name,feb_orders,mar_orders,diff\n4b6c2304-2b9e-41e4-942a-cf11a1819378,Philadelphia,3446,4164,718"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at)::DATE AS month, COUNT(*) AS orders FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY 1 ORDER BY 1",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "month,orders\n2025-02-01,3446\n2025-03-01,6181"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "WITH feb AS (\n    SELECT location_id, COUNT(*) AS feb_orders\n    FROM main.orders\n    WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01'\n    GROUP BY location_id\n), mar AS (\n    SELECT location_id, COUNT(*) AS mar_orders\n    FROM main.orders\n    WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01'\n    GROUP BY location_id\n)\nSELECT \n    COALESCE(feb.location_id, mar.location_id) AS location_id,\n    l.location_name,\n    COALESCE(feb.feb_orders,0) AS feb_orders,\n    COALESCE(mar.mar_orders,0) AS mar_orders,\n    CASE WHEN COALESCE(feb.feb_orders,0)=0 THEN NULL ELSE (mar.mar_orders::DOUBLE / feb.feb_orders) END AS ratio,\n    (mar.mar_orders - COALESCE(feb.feb_orders,0)) AS diff\nFROM feb FULL OUTER JOIN mar ON feb.location_id = mar.location_id\nJOIN main.locations l ON l.location_id = COALESCE(feb.location_id, mar.location_id)\nORDER BY diff DESC\nLIMIT 20",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "location_id,location_name,feb_orders,mar_orders,ratio,diff\n40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,Brooklyn,0,2017,,2017\n4b6c2304-2b9e-41e4-942a-cf11a1819378,Philadelphia,3446,4164,1.208357515960534,718"
+        }
+      ],
+      "category": "entity",
+      "gold": {
+        "items": [
+          "Brooklyn"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q14",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 68312.875 matches gold 68312.875",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The average monthly pre\u2011tax revenue in 2025 was $68,312.88.",
+        "assumptions": [
+          "Revenue is measured using the 'subtotal' column, which represents pre\u2011tax order amounts.",
+          "All orders with an ordered_at timestamp in the year 2025 are included."
+        ],
+        "definition_used": "Average of monthly sums of the 'subtotal' field for 2025.",
+        "numeric_value": 68312.875,
+        "sql": "SELECT AVG(month_pretax_revenue) AS avg_monthly_pretax_revenue FROM (SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS month_pretax_revenue FROM main.orders WHERE EXTRACT(year FROM ordered_at) = 2025 GROUP BY month) sub;",
+        "status": "answered",
+        "unit": "USD"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 5479,
+      "output_tokens": 772,
+      "sql_calls": 2,
+      "latency_ms": 24503,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS month_pretax_revenue\nFROM main.orders\nWHERE EXTRACT(year FROM ordered_at) = 2025\nGROUP BY month\nORDER BY month",
+          "row_count": 8,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 16,
+          "preview": "month,month_pretax_revenue\n2025-01-01 00:00:00,37824.00\n2025-02-01 00:00:00,37023.00\n2025-03-01 00:00:00,64006.00\n2025-04-01 00:00:00,72599.00\n2025-05-01 00:00:00,81715.00\n2025-06-01 00:00:00,82613.00\n2025-07-01 00:00:00,80994.00\n2025-08-01 00:00:00,89729.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT AVG(month_pretax_revenue) AS avg_monthly_pretax_revenue\nFROM (\n    SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS month_pretax_revenue\n    FROM main.orders\n    WHERE EXTRACT(year FROM ordered_at) = 2025\n    GROUP BY month\n) sub",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "avg_monthly_pretax_revenue\n68312.875"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "{\n  \"answer\": \"The average monthly pre\u2011tax revenue in 2025 was $68,312.88.\",\n  \"assumptions\": [\n    \"Revenue is measured using the 'subtotal' column, which represents pre\u2011tax order amounts.\",\n    \"All orders with an ordered_at timestamp in the year 2025 are included.\"\n  ],\n  \"definition_used\": \"Average of monthly sums of the 'subtotal' field for 2025.\",\n  \"numeric_value\": 68312.875,\n  \"unit\": \"USD\",\n  \"sql\": \"SELECT AVG(month_pretax_revenue) AS avg_monthly_pretax_revenue FROM (SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS month_pretax_revenue FROM main.orders WHERE EXTRACT(year FROM ordered_at) = 2025 GROUP BY month) sub;\",\n  \"status\": \"answered\"\n}"
+        }
+      ],
+      "category": "time",
+      "gold": 68312.875
+    },
+    {
+      "id": "q15",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'json' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"json\", \"arguments\": {\\n  \"answer\": \"There is no order data for October\\u202f2026, so revenue for the most recent full month (October\\u202f2026) is $0.\",\\n  \"assumptions\": [\\n    \"\u2018Last month\u2019 is interpreted as the most recent full calendar month relative to today (2026\u201111\u201103), i.e., October\\u202f2026.\",\\n    \"Revenue is defined as the sum of the order_total column (which already includes tax).\"\\n  ],\\n  \"definition_used\": \"sum of order_total (including tax) for orders placed in the month.\",\\n  \"numeric_value\": 0,\\n  \"unit\": \"USD\",\\n  \"status\": \"answered\"\\n}}'}}",
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q16",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue fell by $66,204 in Q3\u202f2025 compared with Q2\u202f2025.",
+        "assumptions": [
+          "Pre\u2011tax revenue is represented by the sum of the 'subtotal' column in the orders table.",
+          "Quarter definitions: Q2 = April\u2011June, Q3 = July\u2011September."
+        ],
+        "definition_used": "sum of order subtotal (pre\u2011tax) per quarter",
+        "numeric_value": -66204,
+        "sql": "SELECT SUM(CASE WHEN EXTRACT(MONTH FROM ordered_at) BETWEEN 7 AND 9 THEN subtotal END) AS q3_subtotal,\n       SUM(CASE WHEN EXTRACT(MONTH FROM ordered_at) BETWEEN 4 AND 6 THEN subtotal END) AS q2_subtotal,\n       SUM(CASE WHEN EXTRACT(MONTH FROM ordered_at) BETWEEN 7 AND 9 THEN subtotal END) -\n       SUM(CASE WHEN EXTRACT(MONTH FROM ordered_at) BETWEEN 4 AND 6 THEN subtotal END) AS change\nFROM main.orders\nWHERE EXTRACT(YEAR FROM ordered_at) = 2025;",
+        "status": "answered",
+        "unit": "USD"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 2345,
+      "output_tokens": 695,
+      "sql_calls": 1,
+      "latency_ms": 24751,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT \n  SUM(subtotal) AS total_subtotal,\n  SUM(CASE WHEN EXTRACT(MONTH FROM ordered_at) BETWEEN 4 AND 6 THEN subtotal END) AS q2_subtotal,\n  SUM(CASE WHEN EXTRACT(MONTH FROM ordered_at) BETWEEN 7 AND 9 THEN subtotal END) AS q3_subtotal\nFROM main.orders\nWHERE EXTRACT(YEAR FROM ordered_at) = 2025",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 12,
+          "preview": "total_subtotal,q2_subtotal,q3_subtotal\n546503.00,236927.00,170723.00"
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q17",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The busiest hour is 0 (midnight), with the highest number of orders.",
+        "assumptions": [
+          "We consider total order count per hour across all dates."
+        ],
+        "definition_used": "Count of orders (rows in main.orders) grouped by the hour extracted from ordered_at.",
+        "numeric_value": 0,
+        "sql": "SELECT EXTRACT(HOUR FROM ordered_at) AS hour_of_day, COUNT(*) AS order_count FROM main.orders GROUP BY hour_of_day ORDER BY order_count DESC LIMIT 1;",
+        "status": "answered",
+        "unit": "hour of day"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 2251,
+      "output_tokens": 333,
+      "sql_calls": 1,
+      "latency_ms": 2720,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT EXTRACT(HOUR FROM ordered_at) AS hour_of_day, COUNT(*) AS order_count\nFROM main.orders\nGROUP BY hour_of_day\nORDER BY order_count DESC\nLIMIT 1",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "hour_of_day,order_count\n0,61948"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q18",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our refund rate is 0%.",
+        "assumptions": [
+          "Refunds are identified as orders where order_total is negative."
+        ],
+        "definition_used": "refund rate = (number of orders with negative order_total) / (total number of orders)",
+        "numeric_value": 0,
+        "sql": "SELECT COUNT(*) AS total_orders, SUM(CASE WHEN order_total < 0 THEN 1 ELSE 0 END) AS refund_orders FROM main.orders",
+        "status": "answered",
+        "unit": "percent"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 3524,
+      "output_tokens": 415,
+      "sql_calls": 1,
+      "latency_ms": 6051,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS total_orders, SUM(CASE WHEN order_total < 0 THEN 1 ELSE 0 END) AS refund_orders FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "total_orders,refund_orders\n61948,0"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q19",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our net profit margin is approximately 80.37%.",
+        "assumptions": [
+          "Net profit margin is calculated as (total revenue - total cost) / total revenue using the order_total and order_cost fields from the orders table."
+        ],
+        "definition_used": "(total revenue - total cost) / total revenue",
+        "numeric_value": 0.8037184981556476,
+        "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders;",
+        "status": "answered",
+        "unit": "ratio"
+      },
+      "model": "openai/gpt-oss-120b",
+      "system_prompt_sha": "c0470d807604",
+      "input_tokens": 4792,
+      "output_tokens": 546,
+      "sql_calls": 2,
+      "latency_ms": 8941,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue, SUM(order_cost) AS total_cost FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "total_revenue,total_cost\n671425.37,131788.38"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 13,
+          "preview": "net_profit_margin\n0.8037184981556476"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "{\n  \"answer\": \"Our net profit margin is approximately 80.37%.\",\n  \"assumptions\": [\n    \"Net profit margin is calculated as (total revenue - total cost) / total revenue using the order_total and order_cost fields from the orders table.\"\n  ],\n  \"definition_used\": \"(total revenue - total cost) / total revenue\",\n  \"numeric_value\": 0.8037184981556476,\n  \"sql\": \"SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders;\",\n  \"status\": \"answered\",\n  \"unit\": \"ratio\"\n}"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q20",
+      "run": 0,
+      "error": true,
+      "passed": false,
+      "reason": "agent error: BadRequestError: Error code: 400 - {'error': {'message': 'Failed to parse tool call arguments as JSON', 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"commentary\", \"arguments\": I\u2019m not sure what the sales target figure is for August\\u202f2025. Could you let me know the target amount (e.g., $X in revenue) you\u2019d like to compare the month\u2019s sales against?\"}'}}",
+      "category": "unanswerable",
+      "gold": null
+    }
+  ]
+}

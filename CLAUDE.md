@@ -17,8 +17,10 @@ higher score**, with every step measured and reproducible.
 
 Step 0 (baseline) is done: `agent/agent.py` with schema names + `run_sql` + `submit_answer`, on
 Groq (`openai/gpt-oss-120b`). The eval harness is built (`eval/`, 1 run per question).
-Next: run `make eval STEP=step-00-baseline`, record the score in STEPS.md, tag `step-00-baseline`,
-then start the fix ladder. Don't change the baseline agent.
+Baseline recorded: 7/20 = 35%, with 8 Groq tool-call crashes (flagged in `eval/scoreboard.csv` and STEPS.md).
+Evals are deterministic only for now (author's decision; a judge may come later).
+Next: step 1 = recover from rejected tool calls (remove infra noise), then the dbt-docs steps.
+Don't change the step-00 agent in place; each fix is its own commit and tag.
 
 ## Rules
 

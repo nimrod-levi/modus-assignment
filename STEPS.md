@@ -25,7 +25,22 @@ Expected overall: roughly 35-50% (1 run per question, so pass^1 equals the score
 Model: `openai/gpt-oss-120b` on Groq (switched from Gemini, then from llama-3.3-70b-versatile, for higher rate limits, before any
 score was recorded).
 
-Score: _pending, run `make eval STEP=step-00-baseline`_ · tokens/Q: _ · model: openai/gpt-oss-120b
+**Result** (run `step-00-baseline_questions_20261103-130107`, after the q01/q04 eval fix):
+
+Score: **7/20 = 35%** · 8 crashes · tokens/Q: 4,070 · model: openai/gpt-oss-120b
+
+- Recorded as-is and **flagged**: 8 questions crashed on Groq 400 `tool_use_failed` (nonexistent tool `json`,
+  prose in the tool arguments, malformed tool name, `run_sql` on the last turn). The harness marks such a run
+  INVALID; the scoreboard row was added by hand with `errors=8`. Without the crashes the score would be about 10-11/20.
+- Per category: units 100%, metric-definition 50%, grain 40%, entity 33%, time 33%, unanswerable 0%.
+- The prediction (35-50%) held, but for a partly different reason: a lot of the loss is infrastructure, not context.
+- Decision: the agent was not changed (step 0 stays the control). **Step 1 = recover from rejected tool calls**, so noise is removed before the context fixes are measured.
+- Full breakdown: [`eval/analysis/step-00-baseline_20261103-130107/README.md`](eval/analysis/step-00-baseline_20261103-130107/README.md).
+
+**Decision · deterministic evals only, for now.** All 20 questions are graded by code (numbers with tolerance and
+unit, sets, `status`). There is no LLM judge and no grading of the agent's reasoning. This is the author's call, to
+start improving the agent sooner. A richer eval (an LLM judge with a rubric for free text, reasoning checks) may be added
+later, depending on time and on what the agent's results show.
 
 ### Eval fix · q01 and q04 (made after the first step-00 run, `step-00-baseline_questions_20261103-094307`)
 

@@ -1,0 +1,21 @@
+id,category,result,failure_layer,root_cause,evidence,would_pass_without_crash,fix_that_targets_it
+q01,metric-definition,PASS,-,Question now states "including sales tax" so order_total is right,-,-,-
+q02,metric-definition,FAIL,context,"Joined orders to order_items and summed orders.subtotal per item row, so subtotal is counted once per item (fan-out). Never used orders.order_cost",1548737.62 vs gold 505655.62 (SQL: sum(o.subtotal), sum(oi.supply_cost) from orders o join order_items oi),no,dbt docs: grain of each model and that orders already has order_cost
+q03,metric-definition,PASS,-,first_ordered_at found in customers,-,-,-
+q04,metric-definition,CRASH,infra + context,"Groq rejected tool 'json'. Intended SQL ranks all orders (includes $0 orders), so it also misses the new gold",Intended 3.52 vs new gold 3.592 (ignores $0 orders),no,tool-call fix + glossary ($0 orders are not real orders)
+q05,units,PASS,-,main.products is in dollars,-,-,-
+q06,grain,CRASH,infra + context,"Groq rejected tool 'json'. Intended SQL sums order_items.supply_cost (already total per item) after joining supplies again, so it double counts","Intended 396061.34 vs gold 104719.19",no,tool-call fix + dbt docs (column meaning and grain)
+q07,grain,PASS,-,Summed supply_cost per product before comparing to price,-,-,-
+q08,grain,CRASH,infra,"Final message was markdown prose where tool arguments belong ('Failed to parse tool call arguments as JSON')","Intended 70,819 == gold",yes,tool-call fix
+q09,grain,PASS,-,count(distinct customer_id),-,-,-
+q10,grain,CRASH,infra,"Groq rejected tool 'json'","Intended 0 == gold",yes,tool-call fix
+q11,entity,CRASH,infra,"Groq rejected tool 'name=submit_answer' (malformed name)","Intended 2 == gold, but with an unneeded order_total>0 filter (correct by luck)",yes,tool-call fix
+q12,entity,CRASH,infra (harness),"On the last turn only submit_answer is allowed (tool_choice). Model wanted another run_sql, Groq rejected it","Last SQL it tried: select * from raw.raw_orders limit 5. Previous run reasoned its way to 0",probably,tool-call fix; consider the forced-submit rule
+q13,entity,PASS,-,Per-store monthly breakdown found Brooklyn,-,-,-
+q14,time,PASS,-,Averaged the monthly sums (8 months) instead of dividing by 12,68312.875 == gold (this question crashed in the first run),-,-
+q15,time,CRASH,infra + context,"Groq rejected tool 'json'. Intended answer treats 'last month' as Oct 2026, returns $0 using tax-inclusive order_total, status=answered","Expected needs_clarification or cannot_answer",no,tool-call fix + data window facts + abstain rule
+q16,time,FAIL,context,"Compared Q3 (only Jul and Aug exist) with full Q2 and reported a -66204 drop with no partial-quarter caveat",status=answered; expected needs_clarification or cannot_answer,no,generated data profile (months per quarter) + clarification rule
+q17,unanswerable,FAIL,context,"Extracted HOUR from midnight-only timestamps and called hour 0 the busiest",status=answered; expected cannot_answer,no,profile facts (no time of day) + abstain rule
+q18,unanswerable,FAIL,context,"Searched for negative order totals, found none, reported 0%. Absence of a refunds table is not 0 refunds",status=answered; expected cannot_answer,no,abstain rule (no refund data exists)
+q19,unanswerable,FAIL,context,"Net margin = (order_total - order_cost)/order_total: tax counted as revenue and supply cost treated as all costs",80.37% answered; expected cannot_answer,no,glossary + abstain rule (only supply costs exist)
+q20,unanswerable,CRASH,infra + context,"Wrote a plain-text clarification question ('commentary') instead of a tool call. Even if accepted it would be needs_clarification; expected cannot_answer (no targets in the warehouse)",-,no,tool-call fix + abstain rule

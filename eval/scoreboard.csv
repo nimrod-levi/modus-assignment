@@ -1,0 +1,2 @@
+timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,pass_all,errors,tokens_per_run,sql_calls_per_run
+2026-11-03T13:01:07+00:00,step-00-baseline,questions,df52ed8,True,openai/gpt-oss-120b,c0470d807604,20,1,0.350,0.350,8,4070,1.4

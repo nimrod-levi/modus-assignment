@@ -41,4 +41,7 @@ Running log. The final write-up for the submission is distilled from this.
   added to `.env.example` was printed in the session output. The key was moved to `.env`
   before anything was committed.
 
+- Claude analysed the step-00 run (`eval/analysis/`) and spotted that 8 of 20 results were API crashes, not agent
+  mistakes. The author decided to record the 35% as-is, flagged, and to keep evals deterministic for now.
+
 _(add moments as they happen: what it produced, how you caught it, what you changed)_

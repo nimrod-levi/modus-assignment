@@ -3,8 +3,8 @@
 An AI agent that answers business questions over a DuckDB warehouse, plus the eval
 that measures it. The warehouse is dbt Labs' jaffle-shop sample, built locally with dbt.
 
-**Status:** Step 0 (baseline agent) and the eval harness are built. Run the baseline eval, then the fixes come next (see
-[Next steps](#next-steps)).
+**Status:** Step 0 baseline recorded: 7/20 (35%), with 8 Groq tool-call crashes (see [STEPS.md](STEPS.md)). Evals are
+deterministic only for now. Next: step 1, recover from rejected tool calls (see [Next steps](#next-steps)).
 
 ## Setup (once)
 

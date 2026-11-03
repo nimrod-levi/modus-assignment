@@ -8,5 +8,8 @@ duckdb>=1.1
 # Agent
 groq>=0.30
 
+# Eval
+pyyaml>=6
+
 # Dev
 pytest>=8

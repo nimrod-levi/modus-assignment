@@ -14,16 +14,24 @@ Running log. The final write-up for the submission is distilled from this.
   score was recorded, so every step uses the same model.
 - Switched the step 0 agent from Gemini to Groq (`groq` SDK, `llama-3.3-70b-versatile`) for higher
   rate limits. Same tools and loop; only the client layer changed. No score had been recorded yet.
+- Ported the eval runner's rate-limit wrapper to Groq and made it run 1 run per question.
 
-Reviewed by me: _(note what you checked or changed)_
+- Built the eval harness (`eval/grade.py`, `eval/run_eval.py`, tests, Makefile targets).
+- Drafted the 20 eval questions in `eval/questions.yaml` after probing the warehouse (Brooklyn's
+  `opened_date` vs first order, 483 empty $0 orders, duplicate customer names, midnight-only
+  timestamps, partial Q3, `customer_type` meaning). I asked for this, so the question wording and
+  failure categories started as AI output.
 
 ## Not delegated to AI
 
-- The failure taxonomy and the eval questions
-- Gold answers (computed by SQL, checked by hand)
-- Grading rules
+- Hand-checking each gold result once, and deciding which questions stay (TODO: do this before the baseline run)
+- Deciding that "revenue" means pre-tax (q01 gold): an assumption to confirm with the customer
+- Gold answers are computed by SQL, never typed
 
 ## Where AI got it wrong
+
+- Claude's `pip download groq` dropped 20 `.whl` files into the repo root, and the first Groq
+  commit left `pyyaml` out of `requirements.txt`. Both were found while cleaning up and fixed.
 
 - `make profile` crashed with `No module named 'agent'`: the scaffolded script never put the
   repo root on `sys.path`. Caught by running it; fixed in `scripts/profile_data.py`.

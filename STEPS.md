@@ -387,3 +387,14 @@ value when "exactly" is asked. The grader for q04 is now `rel_tol: 0, abs_tol: 0
   So 4a' is not comparable to the next run on q04: re-run the whole eval to compare (`step-04a3-q04-exact`, same agent and glossary as 4a').
 - Expectation: the model rounds its answers by habit, so q04 probably fails again (17/20). If it passes, the wording "exactly" is enough. If it still fails, the lever is
   the answer-schema description for `numeric_value` ("unrounded, as returned by the query"), a generic change and its own step.
+
+**Result** (run `step-04a3-q04-exact_questions_20261104-164447`, commit `2a487ad`; same agent, glossary and system prompt as 4a'):
+
+Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQL calls/run. 1 run per question, not optimal.
+- The only difference from 4a' is q04, as expected: the query returned 3.592034445640474 and the agent submitted `numeric_value` 3.59, which fails zero tolerance. "Exactly"
+  in the question is not enough; the model rounds when it fills the answer field. Next candidate: say in the answer schema that `numeric_value` is the unrounded query result.
+  That is a generic change (no question-specific rule) and would be its own step.
+- **All 20 answers and all 20 token counts are identical to 4a'** (same inputs, temperature 0). Either the provider is deterministic for an identical request or the reply is cached;
+  this run cannot tell which. Consequence: a re-run of an unchanged agent adds no information here, and the variance seen in earlier steps (q02, q06, q20 flipping) came from
+  runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
+- Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).

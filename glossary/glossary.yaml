@@ -6,6 +6,7 @@
 #         reference         a fact the data cannot hold (always sent with the question)
 # status: confirmed = the customer signed it off; assumed = default we use until the customer confirms.
 #
+# Concepts only: no dates, no figures, no examples taken from the data. Facts about the data come from the generated context.
 # What the warehouse does not have (refunds, targets, costs, order times) is NOT listed here: the agent must find that out itself.
 # EVERY ENTRY BELOW IS ASSUMED: these are the defaults supplied by the author until Maya (the customer) confirms them.
 entries:
@@ -56,11 +57,11 @@ entries:
     owner: Maya (defaults until confirmed)
     date: 2026-11-04
 
-  - id: brooklyn_open_date
+  - id: store_start_date
     kind: rule
-    terms: [Brooklyn, store opened, opening date, when did the store start, new store, store launch]
+    terms: [store opened, opening date, when did the store start, new store, store launch]
     applies_to: [locations.opened_date, orders.ordered_at]
-    text: For when a store started trading, trust orders (Brooklyn's first order is 2025-03-12) over locations.opened_date, and flag the gap between the two.
+    text: For when a store started trading, trust the store's first order in orders over locations.opened_date, and flag any gap between the two.
     status: assumed
     owner: Maya (defaults until confirmed)
     date: 2026-11-04
@@ -69,7 +70,7 @@ entries:
     kind: rule
     terms: [customers, how many customers, distinct customers, customer count, unique customers]
     applies_to: [orders.customer_id]
-    text: Count customers by customer_id, not by name (names repeat).
+    text: Count customers by customer_id, not by name.
     status: assumed
     owner: Maya (defaults until confirmed)
     date: 2026-11-04
@@ -78,16 +79,16 @@ entries:
     kind: reference
     terms: [today, now, last month, this month, this quarter, last quarter, recent, recently]
     applies_to: [orders.ordered_at]
-    text: The data ends 2025-08-31. For relative periods such as "last month" or "this quarter", ask which period is meant and state the data end date.
+    text: The last date in the data is not today. For relative periods such as "last month" or "this quarter", ask which period is meant and state the last date in the data.
     status: assumed
     owner: Maya (defaults until confirmed)
     date: 2026-11-04
 
   - id: partial_periods
     kind: rule
-    terms: [quarter, Q3 2025, compared with, change versus, period over period, quarter over quarter, month over month, growth]
+    terms: [quarter, compared with, change versus, period over period, quarter over quarter, month over month, growth]
     applies_to: [orders.ordered_at]
-    text: If a period is incomplete (for example Q3 2025 holds only July and August), say so and ask before comparing it with a full period.
+    text: If the data covers only part of a period, say so and ask before comparing it with a full period.
     status: assumed
     owner: Maya (defaults until confirmed)
     date: 2026-11-04

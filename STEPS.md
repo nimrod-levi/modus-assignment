@@ -334,3 +334,26 @@ when an exact figure is asked for.
   when q04 passes, the gain belongs to the wording, not to the glossary.
 - What to look for in the next run: that `numeric_value` is 3.592034... and not 3.6. If it is still rounded, the question wording is not the lever, and the
   answer-schema description ("unrounded") is the next candidate.
+
+### Author's note · edge cases and ranges must become dynamic (written after step 4a)
+
+The edge-case checklist (`agent/edge_cases.py`) and the data facts in `agent/semantic.py` (date ranges, partial periods, row counts, values) are computed
+when the prompt is built, so they follow the data as long as the data does not change between runs. The author notes that the real warehouse will not
+be static: the ranges will move, new months will arrive, new stores will start selling, and a context built once (or cached) goes stale. Edge cases,
+ranges and the rest of the generated context will have to be recomputed as the data changes (for example on every new load, or with a freshness
+check on the cached context). **Left for later; not started and not part of step 4.**
+
+### Step 4a' · The glossary holds concepts only (author's decision, after the 4a score)
+
+The author removed every specific date, name and example from `glossary/glossary.yaml`: the glossary says what a word means, not what the data
+contains. Facts about the data (the last date, which quarter is incomplete, which store opened late, that names repeat) belong to the generated context,
+which can follow the data (see the note above). Changes:
+- `relative_dates`: no longer says the data ends on a given date; it says the last date in the data is not today, so ask and state that date.
+- `partial_periods`: no longer names Q3 2025; it says that if the data covers only part of a period, say so and ask before comparing.
+- `brooklyn_open_date` is now `store_start_date`, without the store name or date: trust the store's first order over `locations.opened_date`, flag a gap.
+- `customer_identity`: "(names repeat)" removed.
+
+What this tests: whether the agent can combine a concept ("a partial period needs a question") with the facts in the generated context (which period is
+partial), instead of reading both from one sentence. The 4a score came partly from entries that carried the answer's data; this removes it.
+Expectation: q03 and the 15 stable questions hold. q15 and q16 may get worse or better: the model must now find the last date by itself (a query), which could
+also reduce the no-query answers seen in 4a. This is a new run, so a new score: `make eval STEP=step-04a2-glossary-concepts`; the 4a result stays as measured.

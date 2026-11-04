@@ -22,7 +22,10 @@ Evals are deterministic only for now (author's decision; a judge may come later)
 Step 1 (tool recovery) is scored: 13/19 = 68.4%, 0 errors, 0 rejections (`eval/scoreboard.csv`, analysis in
 `eval/analysis/step-01-tool-recovery_20261103-221238/`). `run_sql` is the only tool, the final answer is a separate strict
 `json_schema` request, rejected replies are retried (cap 3, -10% credit each). q04 is disabled (19 questions; see STEPS.md).
-Remaining failures q15-q20 need context. Next: tag `step-01-tool-recovery`, then the dbt-docs steps.
+Remaining failures q15-q20 need context.
+Step 2 (optimization) and step 3 (generated context from manifest + warehouse; 3b refusal sentence, 3c notes, 3d fixed edge-case checklist in
+`agent/edge_cases.py`) are scored: 3d = 15/20 = 75% at 1 run (not optimal; see STEPS.md). q04 is back on (20 questions). Remaining failures q03 q04 q15 q16 q19
+are definitions and missing concepts. Next: holdout run, then the glossary file, then the MetricFlow metric tool.
 Provider switch: Groq -> OpenRouter (same model slug, bigger usage plan, OpenAI SDK; the Groq SDK is gone). Step 0 was NOT re-run;
 its 7/20 was measured on Groq and is not strictly comparable (see STEPS.md note). Step 1 is the first score on OpenRouter.
 Agent runs on OpenRouter, provider pinned to Cerebras (`OPENROUTER_PROVIDER`), reasoning effort medium (`OPENROUTER_REASONING_EFFORT`).

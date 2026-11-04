@@ -81,3 +81,5 @@ models, not the marts); found by printing the output and reading it, then fixed.
   wrong; found by listing the files by name and recomputing. The first notes layer printed 7 identical "null in 483 rows" lines and
   repeated midnight notes; found by reading the generated prompt and fixed by grouping. The 3c result is a 3-run mean compared with a
   1-run 3b figure, so the effect of the notes alone is not measured.
+- Step 3d: Claude wrote the checklist after seeing the failures and said so in STEPS.md. In the wrap-up it compared 3d with 3c per question
+  and found the only differences were a grader fix (q08) and an unstable question (q06), so the 75% is not evidence that the checklist helps.

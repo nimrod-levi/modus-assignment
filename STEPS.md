@@ -264,3 +264,18 @@ Hypothesis (vs step 3c, 66.7% mean over 3 runs): score within +/-1 question of 3
 Q3, stores without orders, sibling join) are the same ones as before, now produced by general checks. A clear change would mean the extra
 generic findings help or hurt, which is the thing to look at in the traces. Tokens: about +0.1k to +0.3k per request (the "Checked, nothing found"
 lines and the cents note). Run with `RUNS=3`; compare also with the 3b baseline at `RUNS=3`.
+
+**Result** (run `step-03d-edge-case-checklist_questions_20261104-083512`, commit `deffa23`, analysis in `eval/analysis/step-03d-edge-case-checklist_20261104-083512/`):
+
+Score: **15/20 = 75.0%** · 0 errors · **11,506 tokens/run (3c: 8,670)** · 2.0 SQL calls/run. **1 run per question, chosen to save tokens; this is not optimal**
+(single questions flipped between runs in steps 1-3), so read it as +/- 1-2 questions.
+- Hypothesis (within +/-1 of 3c) held on the questions the checklist can affect: q17 stays fixed, q03 q04 q15 q16 q19 fail as before. The two differences
+  from 3c are not checklist effects: q08 passes because of the unit eval fix (3c would score about 71.7% with it), and q06 is unstable (1 of 3 in 3c).
+- Tokens +33% vs 3c with no measured gain; the "Checked, nothing found" lines are the first candidate to cut.
+- What this shows: the checklist reproduces the 3c finding through general checks with no loss. It does not show the checklist finds anything the eval does not test; run the holdout.
+
+### Step 3 · wrap-up
+
+Step 3 went from "no context" (13/19) to generated structure (10/20), a refusal sentence (14/20), hand-picked notes (66.7% over 3 runs) and the
+edge-case checklist (15/20). The remaining failures are definitions (q03 q04), an undefined "today" and partial periods (q15 q16) and a missing concept
+(q19). None is a structure problem. Next: holdout run, then the glossary step, then the metric tool. Tag `step-03-structural-context` was not placed yet.

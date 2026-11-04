@@ -1,0 +1,9 @@
+id,category,3b_1run,3c_3runs,3d_1run,failure_layer,root_cause,fix_that_targets_it
+q03,metric-definition,F,FFF,FAIL,definition,Filters customer_type='new' (ordered once) and answers 0; the question means first order in the month (33),glossary: definition of a new customer
+q04,metric-definition,F,FFF,FAIL,definition,Does not ignore the 483 $0 orders (3.52 vs 3.592),glossary: $0 orders are not real orders
+q06,grain,P,PFF,PASS,unstable,Passed this run; failed 2 of 3 in 3c with a wrong fan-out fix,more runs; not a 3d effect
+q08,grain,P,FFF,PASS,eval fix,Passes because "drink items" is now an accepted unit (eac8bc8); the answer never changed,-
+q15,time,F,FFF,FAIL,behaviour,"Reads the data range, picks August 2025 as 'last month' and answers",ask-for-clarification behaviour; what 'today' means is a glossary/user fact
+q16,time,F,FFF,FAIL,behaviour,Compares Q3 (Jul-Aug only) with Q2 and reports -66204; this time the assumptions no longer mention the missing September,behaviour or grader rule for partial periods
+q17,unanswerable,F,PPP,PASS,fixed in 3c,Midnight-only timestamps now cause cannot_answer,-
+q19,unanswerable,F,FFF,FAIL,missing concept,Net margin from supply cost only; no data says other costs are missing,glossary / list of absent concepts

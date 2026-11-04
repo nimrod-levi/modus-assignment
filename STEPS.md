@@ -376,3 +376,14 @@ Score: **18/20 = 90.0%** (4a: 16/20, 3d: 15/20) · 0 errors · **10,822 tokens/r
    deployment has to let the company decide its own truths: what revenue means, what a new customer is, whether $0 orders count, what the fiscal calendar is. Those answers
    can differ from ours and would change the correct answer to the eval questions. The eval only measures that the pipeline uses a definition when one is given.
    The process around the file (who confirms, how a change is reviewed, how `assumed` becomes `confirmed`) is not built.
+
+### Eval fix · q04 graded with zero tolerance (made after step 4a', author's call)
+
+Reason: in 4a' q04 passed with 3.59, a rounded answer that happened to fall inside the 0.1% tolerance, so the pass did not show that the agent returns an exact
+value when "exactly" is asked. The grader for q04 is now `rel_tol: 0, abs_tol: 0`: `numeric_value` must equal the gold, 3.592034445640474, and 3.59 or 3.6 fails.
+- Changed: the grader tolerance of q04 only (and its comment). The question text, gold SQL, the $0-order assumption and the unit are unchanged. A unit test
+  (`test_zero_tolerance_accepts_only_the_exact_value`) shows the exact value passes and 3.59 / 3.6 do not.
+- This makes q04 stricter, not easier. Earlier results keep their verdicts (4a' passed q04 under the 0.1% tolerance; under this one it would have failed with 3.59).
+  So 4a' is not comparable to the next run on q04: re-run the whole eval to compare (`step-04a3-q04-exact`, same agent and glossary as 4a').
+- Expectation: the model rounds its answers by habit, so q04 probably fails again (17/20). If it passes, the wording "exactly" is enough. If it still fails, the lever is
+  the answer-schema description for `numeric_value` ("unrounded, as returned by the query"), a generic change and its own step.

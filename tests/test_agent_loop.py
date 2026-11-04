@@ -66,7 +66,7 @@ def test_query_then_final_answer(monkeypatch):
             _text(ANSWER),
         ]
     )
-    trace = agent_mod.ask("What was revenue?", client=client, con=FakeCon())
+    trace = agent_mod.ask("What was revenue?", client=client, con=FakeCon(), config=agent_mod.AgentConfig(glossary="off"))
 
     assert trace["end_reason"] == "submitted" and trace["answer"]["numeric_value"] == 671425.37
     assert calls == ["select sum(order_total) from main.orders"] and trace["sql_calls"] == 1
@@ -228,3 +228,16 @@ def test_prompt_states_row_cap_and_no_done(monkeypatch):
     monkeypatch.setattr(semantic, "describe", lambda con: "t")
     prompt = agent_mod.build_system_prompt(FakeCon())
     assert f"at most {db.MAX_ROWS} rows" in prompt and "Done" not in prompt
+
+
+def test_glossary_block_goes_with_the_question_not_the_system_prompt(monkeypatch):
+    _patch_db(monkeypatch, [])
+    entry = {"id": "g1", "kind": "rule", "text": "Ignore test orders.", "status": "assumed", "owner": "o", "date": "d"}
+    monkeypatch.setattr(agent_mod.glossary, "load", lambda: [entry])
+    client = FakeClient([_text("done"), _text(ANSWER)])
+    trace = agent_mod.ask("What was revenue?", client=client, con=FakeCon(), config=agent_mod.AgentConfig(glossary="all"))
+
+    system, user = client.requests[0]["messages"][:2]
+    assert "Ignore test orders." not in system["content"]
+    assert user["content"].startswith("What was revenue?") and "[g1] Ignore test orders. (assumed)" in user["content"]
+    assert trace["glossary_ids"] == ["g1"] and trace["question"] == "What was revenue?"

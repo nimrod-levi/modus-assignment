@@ -1,0 +1,102 @@
+# CUSTOMER-PROVIDED GLOSSARY. Not generated from the dbt project or the data.
+# Edit this file, then run `make glossary-check` (it checks tables, columns and SQL against the warehouse).
+#
+# kind:   definition        what a business word means
+#         rule              which rows count, which do not, how to behave
+#         reference         a fact the data cannot hold (always sent with the question)
+# status: confirmed = the customer signed it off; assumed = default we use until the customer confirms.
+#
+# What the warehouse does not have (refunds, targets, costs, order times) is NOT listed here: the agent must find that out itself.
+# EVERY ENTRY BELOW IS ASSUMED: these are the defaults supplied by the author until Maya (the customer) confirms them.
+entries:
+  - id: revenue
+    kind: definition
+    terms: [revenue, sales, turnover, pre-tax revenue]
+    applies_to: [orders.subtotal]
+    text: Revenue is pre-tax sales, the sum of orders.subtotal. State this definition in every answer that gives a revenue figure.
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: revenue_incl_tax
+    kind: definition
+    terms: [revenue including tax, revenue with sales tax, tax-inclusive revenue, order total]
+    applies_to: [orders.order_total]
+    text: Revenue including sales tax is the sum of orders.order_total. Use it only when asked for explicitly.
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: new_customer
+    kind: definition
+    terms: [new customer, new customers, customer acquisition, acquired customers, first-time buyers]
+    applies_to: [customers.first_ordered_at]
+    text: A customer is new in a period if their first-ever order falls in that period. Do not use customers.customer_type = 'new' for this.
+    sql: first_ordered_at >= :start and first_ordered_at < :end
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: fiscal_year
+    kind: reference
+    terms: [fiscal year, financial year, fiscal quarter, year to date]
+    applies_to: [orders.ordered_at]
+    text: The fiscal year is the calendar year.
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: empty_orders
+    kind: rule
+    terms: [orders, order count, average order, first order, second order, order sequence, days between orders, empty orders, zero-dollar orders]
+    applies_to: [orders.order_total]
+    text: Orders with a $0 total and no items are excluded from counts, averages and order sequence (first order, second order, and so on). customer_order_number counts them, so rank the orders yourself.
+    sql: order_total > 0
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: brooklyn_open_date
+    kind: rule
+    terms: [Brooklyn, store opened, opening date, when did the store start, new store, store launch]
+    applies_to: [locations.opened_date, orders.ordered_at]
+    text: For when a store started trading, trust orders (Brooklyn's first order is 2025-03-12) over locations.opened_date, and flag the gap between the two.
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: customer_identity
+    kind: rule
+    terms: [customers, how many customers, distinct customers, customer count, unique customers]
+    applies_to: [orders.customer_id]
+    text: Count customers by customer_id, not by name (names repeat).
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: relative_dates
+    kind: reference
+    terms: [today, now, last month, this month, this quarter, last quarter, recent, recently]
+    applies_to: [orders.ordered_at]
+    text: The data ends 2025-08-31. For relative periods such as "last month" or "this quarter", ask which period is meant and state the data end date.
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: partial_periods
+    kind: rule
+    terms: [quarter, Q3 2025, compared with, change versus, period over period, quarter over quarter, month over month, growth]
+    applies_to: [orders.ordered_at]
+    text: If a period is incomplete (for example Q3 2025 holds only July and August), say so and ask before comparing it with a full period.
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04
+
+  - id: gross_profit
+    kind: definition
+    terms: [gross profit, gross margin, cost of goods sold, COGS, margin on menu items]
+    applies_to: [orders.order_cost]
+    text: Gross profit is pre-tax revenue minus supply costs (orders.order_cost).
+    status: assumed
+    owner: Maya (defaults until confirmed)
+    date: 2026-11-04

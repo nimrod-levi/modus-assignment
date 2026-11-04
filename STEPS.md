@@ -279,3 +279,34 @@ Score: **15/20 = 75.0%** · 0 errors · **11,506 tokens/run (3c: 8,670)** · 2.0
 Step 3 went from "no context" (13/19) to generated structure (10/20), a refusal sentence (14/20), hand-picked notes (66.7% over 3 runs) and the
 edge-case checklist (15/20). The remaining failures are definitions (q03 q04), an undefined "today" and partial periods (q15 q16) and a missing concept
 (q19). None is a structure problem. Next: holdout run, then the glossary step, then the metric tool. Tag `step-03-structural-context` was not placed yet.
+
+### Step 4 · Customer glossary (all entries sent with the question)
+
+Change: `glossary/glossary.yaml` holds 10 customer-provided entries (the author's defaults until the customer, Maya, confirms them) (kinds: definition, rule, reference), kept apart from the
+generated context. `agent/glossary.py` validates the file against the warehouse (`make glossary-check`: required fields, kinds, duplicate ids,
+`applies_to` tables and columns exist, `sql` snippets compile) and renders a labelled block. The block is added to the first user message, after
+the question, not to the system prompt. The trace records `glossary_ids`. Switch: `GLOSSARY=off|all` (default `all`); `off` reproduces 3d.
+- The 10 entries are the author's assumptions: revenue (pre-tax, state the definition in every answer), revenue incl. tax, new customer, fiscal year,
+  empty orders, Brooklyn's open date, customer identity, relative dates, partial periods, gross profit. **Every entry is
+  `assumed`**: the customer has not answered. The block shows `(assumed)` to the agent.
+- q15 and q16 stay as the grader has them: the glossary says the data ends 2025-08-31 and to ask for relative periods, and to ask before comparing an
+  incomplete period. This is a customer rule, not a way to edit the gold. If the customer says "today is 2025-09-01", the right answer for q15 changes
+  and that would be an eval fix with its own commit.
+
+Honest limits:
+- By the author's decision the glossary does NOT list what the warehouse lacks (refunds, targets, costs other than supplies, order times, net profit): the agent
+  has to find that out itself, as in 3d. So q19 (net profit) is not expected to move; it stays the open "missing concept" case.
+- Several entries (new customer, empty orders, relative dates, partial periods) match questions that failed (q03 q04 q15 q16), so a gain on q03 q04 only shows that a given definition fixes a
+  definition error. It does not show the agent finds such gaps itself. The holdout run is the fairer test.
+- Risk of regressions: `empty_orders` is broad (counts, averages and sequence), so it can change questions that count orders or customers (q09 q13 q14);
+  the gold for those includes the $0 orders. `revenue` could push q01 toward the pre-tax subtotal; `revenue_incl_tax` says to use order_total when asked.
+  `revenue` also asks for the definition in every answer, which adds output tokens.
+
+Hypothesis (vs 3d, 15/20 at 1 run, 11.5k tokens/run): **17/20** (q03 and q04 fixed; q19 unchanged). q15 and q16 are expected to improve
+(the glossary tells the agent to ask), so 18-19/20 is possible. Tokens: about +0.4k to +0.8k per question (the full block is ~500 tokens, read on
+most turns of the conversation). Any regression in q01 q09 q13 q14 would be the cost of the wording. Run: `make eval STEP=step-04-glossary-all`
+(1 run, not optimal), then `make eval-holdout STEP=step-04-glossary-all` and the same holdout run for 3d as its baseline.
+
+Next (step 4b): choose the entries per question with embeddings (OpenRouter embeddings work with the OpenAI SDK; spike done with
+`openai/text-embedding-3-small`: 1536 dims, about $1e-7 per call), always-on `reference` entries, top-k above a threshold, vectors cached on disk.
+Expected: the same score with fewer tokens. With 12 entries the gain is tokens, not score.

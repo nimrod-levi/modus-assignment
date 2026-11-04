@@ -17,7 +17,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from agent import db, semantic
+from agent import db, glossary, semantic
 
 SYSTEM_PROMPT = """You are a data analyst. You answer business questions about the company's data \
 by querying its DuckDB warehouse with the run_sql tool.
@@ -109,6 +109,7 @@ class AgentConfig:
     max_tokens: int = 4096
     temperature: float = 0.0
     max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
+    glossary: str = field(default_factory=lambda: os.environ.get("GLOSSARY", "all"))  # off | all
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
@@ -221,15 +222,18 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
     con = con or db.connect()
 
     system = build_system_prompt(con)
+    entries = glossary.load() if config.glossary == "all" else []
+    block = glossary.render(entries)
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": system},
-        {"role": "user", "content": question},
+        {"role": "user", "content": f"{question}\n\n{block}" if block else question},
     ]
     trace: dict[str, Any] = {
         "question": question,
         "model": config.model,
         "temperature": config.temperature,
         "started_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "glossary_ids": [e["id"] for e in entries],
         "system_prompt_sha": hashlib.sha256(system.encode()).hexdigest()[:12],
         "steps": [],
         "usage": {"input_tokens": 0, "output_tokens": 0},

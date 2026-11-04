@@ -3,7 +3,7 @@
 Source: `eval/results/step-04a2-glossary-concepts_questions_20261104-101246.json`. Model `openai/gpt-oss-120b` via OpenRouter/Cerebras, effort medium,
 commit `ce6f329`, system prompt sha `ce5d3d1e7bb6` (same as 3d and 4a). Per-question table: [`failure_map.csv`](failure_map.csv).
 
-**Score: 18/20 = 90.0% (4a: 16/20, 3d: 15/20). 0 errors, 0 rejected calls. 10,822 tokens/run (4a: 10,191; 3d: 11,506), 1.4 SQL calls/run.**
+**Score: 18/20 = 90.0% under the 0.1% tolerance; 17/20 = 85.0% once q04 is graded at zero tolerance (see "Update" at the end). (4a: 16/20, 3d: 15/20). 0 errors, 0 rejected calls. 10,822 tokens/run (4a: 10,191; 3d: 11,506), 1.4 SQL calls/run.**
 
 > **1 run per question, which is not optimal.** Single questions flipped between runs in earlier steps, so read this as +/- 1-2 questions.
 > **The 4a to 4a' comparison is not clean: q04's wording changed in between** (eval fix `610ecb8`, the question now says "exactly"). On the 19 other
@@ -19,7 +19,7 @@ clarification when the concept is in the glossary and the facts are in the gener
 
 | Question | 4a | 4a' | What happened |
 |---|---|---|---|
-| q04 days to 2nd order | F | **P** | Passes with the new wording. The rule is applied, the answer is **3.59 (rounded to 2 decimals)**. It passes because 3.59 is 0.057% from 3.592034, inside the 0.1% tolerance. The agent did not return the exact value, so this does not show it understood "exactly". |
+| q04 days to 2nd order | F | **P** (0.1% tol.) / **F** (zero tol.) | The rule is applied, the answer is **3.59 (rounded to 2 decimals)**. It passed only because 3.59 is 0.057% from 3.592034, inside the 0.1% tolerance. The agent did not return the exact value. See "Update": at zero tolerance it fails. |
 | q15 revenue last month | F | **P** | `needs_clarification`: asks which month, and states that the last date in the data is 2025-08-31. 0 SQL calls, no figure given. The date came from the generated ranges, not from the glossary, which no longer contains it. |
 | q16 Q3 vs Q2 | F | F | Says Q3 has only July and August, answers anyway, **0 SQL calls, invented numbers** (Q2 $1,234,567, Q3 $890,123, -27.9%). In 4a other figures were invented. The same failure in 2 of 2 glossary runs. |
 | q19 net profit margin | F | F | Now queries (4 calls) but subtracts the supply cost **and `tax_paid`** and calls it net profit: 73.99%. Costs that are not in the data are not listed anywhere, by design. |
@@ -60,3 +60,17 @@ and not in the glossary text. The glossary block is the same size or smaller tha
 1. Decide what to do with q16 (and q19): check with `RUNS=3` on `ONLY=q16,q19` that they are stable, then a separate step for "figures must come from a query".
 2. Step 4b: embedding retrieval of glossary entries.
 3. Holdout runs for 3d and 4a'.
+
+## Update: q04 re-graded at zero tolerance (run `step-04a3-q04-exact_questions_20261104-164447`, commit `2a487ad`)
+
+The 4a' pass on q04 was the tolerance absorbing a rounded answer, so the author set q04's grader to `rel_tol: 0, abs_tol: 0` (eval fix `2a487ad`, logged in STEPS.md) and the whole eval was run again.
+
+- **Score: 17/20 = 85.0%.** Same agent, glossary and system prompt as this run; q04 is the only difference. 10,822 tokens/run, 1.4 SQL calls/run.
+- **q04 fails.** The query returned 3.592034445640474 and the agent submitted `numeric_value` 3.59. "Exactly" in the question does not make the model keep the digits.
+  A generic fix (say in the answer schema that `numeric_value` is the unrounded query result) is the next candidate and would be its own step.
+- **The other 19 questions are identical to this run: same answers and the same token counts, question by question.** At temperature 0 the same request gave the same
+  reply every time, so either the provider is deterministic here or the reply is cached; the run cannot tell which. A re-run of an unchanged agent adds no information.
+  This also means the "+/- 1-2 questions of noise" caveat on this page describes differences between *different* prompts or contexts more than random variation of one fixed one.
+- **So the honest score of this step is 17/20.** Against 4a (16/20, graded at 0.1% where q04 failed on rounding) the step is +1 on the comparable 19 questions (q15), as stated above;
+  the q04 pass in this page's table is withdrawn.
+- Open after this update: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).

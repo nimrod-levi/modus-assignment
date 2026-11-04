@@ -73,3 +73,5 @@ tokens/run) because the revenue entry asks for the definition to be stated. Do n
 - The glossary entries are the author's assumptions, not customer answers. Several (new customer, empty orders, relative dates, partial periods) match questions
   that failed, so q03 is not evidence the agent finds such gaps itself. The holdout run is the fair test and has not been run for 3d or 4a.
 - All entries are `assumed`. A confirmed entry may say something else (for example a real "today"), which would change the right answer to q15.
+
+> Later update: q04 was reworded (eval fix `610ecb8`) and then graded at zero tolerance (eval fix `2a487ad`). See `../step-04a2-glossary-concepts_20261104-101246/README.md`, section "Update".

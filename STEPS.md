@@ -190,3 +190,19 @@ failures (q15-q20), so it targets them by design; the holdout set (`make eval-ho
 - Fixed vs the first step-3 run: q18 (refund rate) now declines. q20 declines too, q06 and q08 pass again (those two flipped back: noise, not the rule).
 - Still failing: q03 (`customer_type = 'new'` filter), q04 (glossary), q15 and q16 (answered instead of asking: the rule is not enough for relative dates and partial quarters), q17 (hour 0 from midnight-only timestamps), q19 (net profit from supply costs only).
 - Tokens fell by a third with the same context: the model needs fewer exploratory queries when it declines early. Read it with 1 run per question in mind.
+
+### Step 3c · Table notes layer (generated warnings per table)
+
+Root cause targeted: q15 q16 q17 (and q06 earlier) fail on facts about the data that the model can compute but does not think to check: the data
+ends 2025-08-31 with no "today", Q3 2025 holds only July-August, timestamps are all midnight, two tables joined through the same key repeat rows.
+Change (`agent/semantic.py`, `table_notes`, `sibling_warnings`; all read from the warehouse, nothing typed by hand): each table gets `NOTE:` lines:
+- date columns: range, number of months, calendar quarters that are incomplete, "date only: every value is midnight", "no 'today' is stored";
+- columns that are null for the same rows (grouped), money/count columns equal to 0 in up to 5% of rows (grouped);
+- parents with no children ("4 of 6 rows have no orders rows");
+- a many-to-many warning for tables that reference the same parent key (order_items and supplies via products).
+The column-level date ranges moved into the notes, and the per-join "N of M have no children" sentence moved into the parent's notes.
+Prompt grows from about 1.5k to about 1.75k tokens.
+
+Hypothesis (vs the step-3b run, 14/20): +2 to +3 questions. Likely: q17 (midnight note), q16 (incomplete Q3 note), q06 stays fixed (sibling warning).
+Possible: q15 (the "no today" note). Not expected: q03, q04 (definitions, glossary), q19 (no generated fact says costs other than supplies are absent).
+Risk: more prompt tokens per request; notes the model reads as instructions instead of facts. Run with `RUNS=3` and compare with 3b at `RUNS=3`.

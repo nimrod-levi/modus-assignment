@@ -33,9 +33,24 @@ def test_grain_comes_from_unique_tests(text):
 
 
 def test_data_facts_are_read_from_the_warehouse(text):
-    assert "range 2024-09-01 to 2025-08-31" in text
-    assert "4 of 6 locations rows have no orders rows" in text  # only 2 stores have orders
-    assert "483 of 61948 orders rows have no order_items rows" in text
+    assert "ordered_at covers 2024-09-01 to 2025-08-31; 12 months" in text
+    assert "4 of 6 rows have no orders rows" in text  # only 2 stores have orders
+    assert "483 of 61948 rows have no order_items rows" in text
+
+
+def test_notes_flag_partial_quarters_and_midnight_timestamps(text):
+    assert "2025-Q3 has only Jul, Aug" in text
+    assert "every value is midnight" in text
+    assert "relative dates" in text
+
+
+def test_notes_group_nulls_and_zeros(text):
+    assert "order_total = 0 in 483 of 61948 rows" in text
+    assert "null in 483 of 61948 rows" in text
+
+
+def test_sibling_tables_are_flagged(text):
+    assert "order_items and supplies both reference products.product_id" in text
 
 
 def test_fanout_warning_and_descriptions(text):

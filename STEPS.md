@@ -134,3 +134,148 @@ Score: **13/19 = 68.4%** (unchanged) · 0 errors · **7,043 tokens/Q (was 19,090
 - Hypothesis held: tokens fell into the predicted 6-9k band and calls fell below 3; score did not regress. q07 and q13 still pass.
 - Same questions fail as in step 1 (q15-q19 need context, steps 3+); q20 now passes and one other question flipped. With 1 run/question that is variance, not a gain: read the score as "no regression".
 - Not measured here: how often the truncation assumption was added (no eval question needs a list). Still open: the extra no-tool turn before the final answer, reasoning effort, prompt caching.
+
+### Eval fix · q04 re-enabled (made before step 3)
+
+Reason (author's call): q04 was disabled after step 1 because explaining its assumptions cost too many tokens. It is back so the eval
+has 20 questions again. Question text, gold SQL and tolerance are unchanged from the disabled version. Consequence: steps 1 and 2
+(19 questions) are not strictly comparable to anything from step 3 on. Re-run step 2 on the 20 questions to get the baseline for step 3.
+The $0-order assumption is still not in the prompt (it is a customer answer, so it belongs in the glossary step); q04 is expected to fail until then.
+
+### Decision · Cube (`cube_dbt`) considered as the semantic layer, not used
+
+`cube_dbt` (PyPI) only turns `manifest.json` into Cube YAML with dimensions (name, type, description, `meta`, primary-key tag). It
+generates no measures and no joins, and it needs a running Cube server for the agent to query through. Measures and joins would be written
+by hand, which breaks "context must be generated", and a second modeling language plus a server is more than a 25-minute review can cover.
+The repo already has the semantic layer in dbt (`semantic_models` and `metrics` in the mart YAML, compiled to
+`target/semantic_manifest.json`), so we generate from dbt directly. Revisit only as a spike if the generated context stalls.
+
+### Step 3 · Generated structural context (grain, keys, joins, data facts)
+
+Root cause targeted: the agent only sees column names and types, so it cannot know the grain of a table, which joins fan out, the date
+range of the data, or which stores have orders. Everything below is generated from `dbt/target/manifest.json` and the warehouse
+(`agent/semantic.py`); no business rule is typed into the prompt.
+
+Changes (same model, provider, tools; only the schema block of the system prompt changes):
+- Per mart table: row count, grain ("one row per X", from `unique` tests; marts inherit the tests of their `stg_` model), dbt table and column descriptions.
+- Join paths: declared (dbt `relationships` tests) plus inferred (a column named like another table's key, labelled "(inferred)").
+- Join cardinality lines with a fan-out warning, and the parents with no children (e.g. "4 of 6 locations rows have no orders rows").
+- Data facts read from the warehouse: min/max of every date column, values of text columns with at most 6 distinct values.
+- Staging and raw tables stay as the compact one-line listing. Not changed: tools, model, provider, reasoning effort, row cap.
+
+Hypothesis: prompt grows from about 1k to about 1.4k tokens, so tokens/Q rises by roughly 1-2k (more than the 3 requests x 0.4k, because the
+model may also run fewer exploratory queries). Score on the 20 questions rises by 1-3 over the step-2 re-run:
+- likely fixed: q11 q12 (stores without orders, now stated), q15 (the data ends 2025-08-31, now stated), q01/q02 (the tax is in `order_total`'s description);
+- grain questions (q06 q07 q09) should hold or become more stable (fan-out warning);
+- not expected to move: q04 (customer assumption), q17-q20 (unanswerable: the context says what exists, but nothing tells the model to refuse), q03 (definition of "new").
+If the score does not move, read the traces before concluding: the missing piece may be the metric definitions (step 4, MetricFlow), not structure.
+
+**Result** (run `step-03-structural-context_questions_20261104-080457`, commit `a7ddb3e`, analysis in `eval/analysis/step-03-structural-context_20261104-080457/`):
+
+Score: **10/20 = 50.0%** (10/19 on the questions shared with step 2, down from 13/19) · 0 errors · **10,191 tokens/Q (was 7,043, +45%)** · 2.45 SQL calls/Q.
+
+- **Hypothesis rejected.** Predicted +1 to +3 and +1-2k tokens; got -3 and +3.1k. Only q06 (a gap in the generated fan-out warning: it covers parent columns, not two tables sharing a key) and probably q03 (the dbt description of `customer_type` was applied literally) can be blamed on the context.
+- q08 failed only because the grader rejected the unit "drink items" (value correct); q02 (P,F,P) and q20 (F,P,F) flipped across steps 1-3, so they are noise.
+- q15-q20 did not move: the context says what exists, but nothing says to decline when a concept has no data. q15 now cites the data range to justify a guess.
+- Conclusion: not a verdict on step 3 yet. With 1 run per question the comparison is inside the noise. Next: re-run step 2 on 20 questions and step 3 with `RUNS=3`, fix the generator gaps, then add the refusal rule as its own step.
+
+### Step 3b · Refusal rule in the system prompt (added by the author after the step-3 analysis)
+
+Change: one generic sentence added to `SYSTEM_PROMPT`: if no table or column holds the concept asked for, answer `cannot_answer`, no
+proxy; if the question is ambiguous, ask. Not tied to any eval question. Note for honesty: it was written after reading the step-3
+failures (q15-q20), so it targets them by design; the holdout set (`make eval-holdout`) is the check that it does not just fit the eval.
+
+**Result** (run `step-03-structural-context_questions_20261104-081304`, prompt sha `f305e7d7e1fb`): **14/20 = 70.0%** · 0 errors ·
+**7,478 tokens/Q (was 10,191)** · 1.5 SQL calls/Q.
+- Fixed vs the first step-3 run: q18 (refund rate) now declines. q20 declines too, q06 and q08 pass again (those two flipped back: noise, not the rule).
+- Still failing: q03 (`customer_type = 'new'` filter), q04 (glossary), q15 and q16 (answered instead of asking: the rule is not enough for relative dates and partial quarters), q17 (hour 0 from midnight-only timestamps), q19 (net profit from supply costs only).
+- Tokens fell by a third with the same context: the model needs fewer exploratory queries when it declines early. Read it with 1 run per question in mind.
+
+### Step 3c · Table notes layer (generated warnings per table)
+
+Root cause targeted: q15 q16 q17 (and q06 earlier) fail on facts about the data that the model can compute but does not think to check: the data
+ends 2025-08-31 with no "today", Q3 2025 holds only July-August, timestamps are all midnight, two tables joined through the same key repeat rows.
+Change (`agent/semantic.py`, `table_notes`, `sibling_warnings`; all read from the warehouse, nothing typed by hand): each table gets `NOTE:` lines:
+- date columns: range, number of months, calendar quarters that are incomplete, "date only: every value is midnight", "no 'today' is stored";
+- columns that are null for the same rows (grouped), money/count columns equal to 0 in up to 5% of rows (grouped);
+- parents with no children ("4 of 6 rows have no orders rows");
+- a many-to-many warning for tables that reference the same parent key (order_items and supplies via products).
+The column-level date ranges moved into the notes, and the per-join "N of M have no children" sentence moved into the parent's notes.
+Prompt grows from about 1.5k to about 1.75k tokens.
+
+Hypothesis (vs the step-3b run, 14/20): +2 to +3 questions. Likely: q17 (midnight note), q16 (incomplete Q3 note), q06 stays fixed (sibling warning).
+Possible: q15 (the "no today" note). Not expected: q03, q04 (definitions, glossary), q19 (no generated fact says costs other than supplies are absent).
+Risk: more prompt tokens per request; notes the model reads as instructions instead of facts. Run with `RUNS=3` and compare with 3b at `RUNS=3`.
+
+**Result** (run `step-03c-table-notes_questions_20261104-082123`, commit `02db363`, 3 runs per question): **66.7% mean score (13.3/20)** ·
+pass^3 = 65.0% (13 questions pass all 3 runs) · 0 errors · **8,670 tokens/run (3b: 7,478)** · 1.4 SQL calls/run.
+- Hypothesis: partly held. **q17 is fixed and stable (3/3)**: the "every value is midnight" note works. q06 stays unstable (PFF).
+  q15 and q16 did not move; q19 did not move, as expected.
+- Not comparable to 3b's 14/20: that was one run, this is the mean of three. The 3b-at-3-runs baseline was not run, so the effect of 3c alone
+  is not measured. To measure it: check out `7b8e886` and run `make eval STEP=step-03b-refusal-rule RUNS=3`.
+- q16: the model now reads the note ("the data only includes July and August for Q3") and writes it into `assumptions`, but still gives the
+  -66,204 figure instead of asking. The facts reached the model; the behaviour did not change. Whether answering with that caveat should count
+  as a fail is a grader question for the author, not something to tune here.
+- q15: it states "most recent full month in the dataset" and answers. Same pattern: the note is used to justify a guess.
+- q06 run 2: after a binder error it deduplicated `(order_item_id, supply_cost)` to avoid the fan-out and got 131,788.38 (equal to
+  `sum(order_cost)`), because the join to `supplies` still filters wrongly. The sibling warning was in the prompt; the model reasoned about it and still chose the wrong fix.
+- q08 fails 3/3 on the unit "drink items" (value correct): the grader unit list, still undecided. q03, q04 need the glossary.
+- Tokens: +1.2k/run vs 3b, in line with the 0.25k larger prompt sent on about 3 requests plus more reading.
+
+### Eval fix · q08 unit list (made after step 3c)
+
+Reason (author's call): q08 failed in every step-3 run only because the answer's unit was "drink items", which the grader did not accept
+although the value (70,819) is correct. `drink items` added to the allowed units (`drinks`, `items`). Question text, gold SQL and number
+tolerance are unchanged. Effect: q08 results from step 3 onward are scored with the new list; earlier result files keep the old verdict
+(re-grade them if a table across steps is needed).
+
+### Author's note · concern about the step 3 approach (written after step 3c)
+
+The author does not like the direction of steps 3b/3c. Each fix (the refusal sentence, the midnight-timestamp note, the partial-quarter note,
+the sibling fan-out warning) was chosen because an eval question failed. They are generated from the data, not typed per question, but
+the *choice of what to look for* still comes from the failures we saw. Gaps the eval does not cover will be missed, and the score
+then overstates how well the agent understands the data. The holdout set (`make eval-holdout`) is only a partial check.
+
+Possible direction for later: start from a systematic definition of data edge cases instead of from failures, e.g. a fixed checklist
+run on every table and column (coverage and gaps in time, granularity of timestamps, nulls, zero/negative values, duplicates, orphan
+keys, many-to-many paths, units and scale, values that look like placeholders, concepts the schema cannot represent), emitted as
+notes. The checklist would be written before looking at any eval result and would be reviewed on its own merit. Not started; decide
+after the holdout run and the 3b-at-3-runs baseline.
+
+### Step 3d · Edge-case checklist replaces the hand-picked notes (answer to the author's note above)
+
+Change: `agent/edge_cases.py` is a fixed checklist of 11 checks, run on every mart table and column (`make checks` prints the result):
+date ranges, time coverage (missing months, partial first/last month, incomplete quarters, no "today"), time of day, nulls, zeros,
+negatives, duplicate keys/rows (or no key declared), orphan and childless keys, constant columns, placeholder values, scaled duplicate
+columns (x_cents vs x). Join-level fan-out and many-to-many risks come from the join graph (`join_risks`). It replaces `table_notes` and
+`sibling_warnings` in `agent/semantic.py`; the column descriptions, grain, joins and the refusal sentence in the system prompt are unchanged.
+- Every table now also gets a line "Checked, nothing found: ...". A check that does not apply (no date column) is not listed. The agent can
+  tell "no negatives" from "nobody looked", which the sentence-per-gap notes could not say.
+- Each check is unit-tested on planted data (`tests/test_edge_cases.py`), not only on the jaffle-shop data, to show it does not depend on this dataset.
+
+Honest limits:
+- The checklist was written after seeing the step-3 failures, so time coverage and time of day are on it partly because we saw them fail.
+  The other nine come from the usual data-quality taxonomy and fire on nothing in the eval; whether they help is untested here.
+- Not covered by design: concepts the schema does not hold (refunds, targets, costs other than supplies), metric meaning, fiscal calendar
+  (glossary). Not covered yet: outliers, near-duplicate text, cross-column consistency. So q19 (net profit) and q15 (what is "today") stay open.
+- New findings that appear (the cents columns, the 483 rows with a 0 total, `count_drink_items = 0`) are facts the model may over-read.
+
+Hypothesis (vs step 3c, 66.7% mean over 3 runs): score within +/-1 question of 3c, because the findings the eval depends on (midnight, partial
+Q3, stores without orders, sibling join) are the same ones as before, now produced by general checks. A clear change would mean the extra
+generic findings help or hurt, which is the thing to look at in the traces. Tokens: about +0.1k to +0.3k per request (the "Checked, nothing found"
+lines and the cents note). Run with `RUNS=3`; compare also with the 3b baseline at `RUNS=3`.
+
+**Result** (run `step-03d-edge-case-checklist_questions_20261104-083512`, commit `deffa23`, analysis in `eval/analysis/step-03d-edge-case-checklist_20261104-083512/`):
+
+Score: **15/20 = 75.0%** · 0 errors · **11,506 tokens/run (3c: 8,670)** · 2.0 SQL calls/run. **1 run per question, chosen to save tokens; this is not optimal**
+(single questions flipped between runs in steps 1-3), so read it as +/- 1-2 questions.
+- Hypothesis (within +/-1 of 3c) held on the questions the checklist can affect: q17 stays fixed, q03 q04 q15 q16 q19 fail as before. The two differences
+  from 3c are not checklist effects: q08 passes because of the unit eval fix (3c would score about 71.7% with it), and q06 is unstable (1 of 3 in 3c).
+- Tokens +33% vs 3c with no measured gain; the "Checked, nothing found" lines are the first candidate to cut.
+- What this shows: the checklist reproduces the 3c finding through general checks with no loss. It does not show the checklist finds anything the eval does not test; run the holdout.
+
+### Step 3 · wrap-up
+
+Step 3 went from "no context" (13/19) to generated structure (10/20), a refusal sentence (14/20), hand-picked notes (66.7% over 3 runs) and the
+edge-case checklist (15/20). The remaining failures are definitions (q03 q04), an undefined "today" and partial periods (q15 q16) and a missing concept
+(q19). None is a structure problem. Next: holdout run, then the glossary step, then the metric tool. Tag `step-03-structural-context` was not placed yet.

@@ -1,0 +1,3104 @@
+{
+  "meta": {
+    "timestamp": "2026-11-04T08:23:29+00:00",
+    "step": "step-03c-table-notes",
+    "suite": "questions",
+    "git_sha": "02db363",
+    "dirty": true,
+    "model": "openai/gpt-oss-120b",
+    "system_prompt_sha": "9969ba978cd8"
+  },
+  "summary": {
+    "questions": 20,
+    "runs": 3,
+    "score": 0.6666666666666667,
+    "raw_score": 0.6666666666666667,
+    "pass_all": 0.65,
+    "rejections": 0,
+    "errors": 0,
+    "tokens_per_run": 8670.333333333334,
+    "sql_calls_per_run": 1.4166666666666667,
+    "per_question": {
+      "q01": 1.0,
+      "q02": 1.0,
+      "q03": 0.0,
+      "q04": 0.0,
+      "q05": 1.0,
+      "q06": 0.3333333333333333,
+      "q07": 1.0,
+      "q08": 0.0,
+      "q09": 1.0,
+      "q10": 1.0,
+      "q11": 1.0,
+      "q12": 1.0,
+      "q13": 1.0,
+      "q14": 1.0,
+      "q15": 0.0,
+      "q16": 0.0,
+      "q17": 1.0,
+      "q18": 1.0,
+      "q19": 0.0,
+      "q20": 1.0
+    },
+    "per_category": {
+      "entity": 1.0,
+      "grain": 0.6666666666666666,
+      "metric-definition": 0.5,
+      "time": 0.3333333333333333,
+      "unanswerable": 0.75,
+      "units": 1.0
+    }
+  },
+  "records": [
+    {
+      "id": "q01",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 671425.37 matches gold 671425.37",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The total revenue including sales tax is $671,425.37.",
+        "numeric_value": 671425.37,
+        "unit": "USD",
+        "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+        "definition_used": "Sum of order_total (order total including tax) across all orders.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6723,
+      "output_tokens": 272,
+      "sql_calls": 1,
+      "latency_ms": 2212,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "total_revenue\n671425.37"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The total revenue (including sales tax) across all orders in the dataset is **$671,425.37**."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 671425.37
+    },
+    {
+      "id": "q01",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 671425.37 matches gold 671425.37",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The total revenue including sales tax is $671,425.37.",
+        "numeric_value": 671425.37,
+        "unit": "USD",
+        "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+        "definition_used": "Sum of order_total (order total including tax) across all orders.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6723,
+      "output_tokens": 272,
+      "sql_calls": 1,
+      "latency_ms": 1484,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "total_revenue\n671425.37"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The total revenue (including sales tax) across all orders in the dataset is **$671,425.37**."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 671425.37
+    },
+    {
+      "id": "q01",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 671425.37 matches gold 671425.37",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The total revenue including sales tax is $671,425.37.",
+        "numeric_value": 671425.37,
+        "unit": "USD",
+        "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+        "definition_used": "Sum of order_total (order total including tax) across all orders.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6723,
+      "output_tokens": 272,
+      "sql_calls": 1,
+      "latency_ms": 2401,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "total_revenue\n671425.37"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The total revenue (including sales tax) across all orders in the dataset is **$671,425.37**."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 671425.37
+    },
+    {
+      "id": "q02",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 505655.62 matches gold 505655.62",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our gross profit on pre\u2011tax sales, after accounting for supply costs as COGS, was $505,655.62.",
+        "numeric_value": 505655.62,
+        "unit": "USD",
+        "sql": "WITH product_supply_cost AS (\n  SELECT product_id, SUM(supply_cost) AS total_supply_cost\n  FROM main.supplies\n  GROUP BY product_id\n)\nSELECT\n  SUM(oi.product_price) AS total_pretax_sales,\n  SUM(psc.total_supply_cost) AS total_cogs,\n  SUM(oi.product_price) - SUM(psc.total_supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN product_supply_cost psc ON oi.product_id = psc.product_id;",
+        "definition_used": "Gross profit = sum of pre\u2011tax product prices (order_items.product_price) minus sum of supply costs (supplies.supply_cost) aggregated per product.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6981,
+      "output_tokens": 1361,
+      "sql_calls": 1,
+      "latency_ms": 2261,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH product_supply_cost AS (\n  SELECT product_id, SUM(supply_cost) AS total_supply_cost\n  FROM main.supplies\n  GROUP BY product_id\n)\nSELECT\n  SUM(oi.product_price) AS total_pretax_sales,\n  SUM(psc.total_supply_cost) AS total_cogs,\n  SUM(oi.product_price) - SUM(psc.total_supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN product_supply_cost psc ON oi.product_id = psc.product_id",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "total_pretax_sales,total_cogs,gross_profit\n637444.00,131788.38,505655.62"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Gross profit (pre\u2011tax sales\u202f\u2013\u202fsupply\u2011cost COGS)**  \n\n| Metric | Amount (USD) |\n|--------|--------------|\n| Total pre\u2011tax sales (product price) | **$637,444.00** |\n| Total supply\u2011cost (ingredients\u202f+\u202fpackaging) | **$131,788.38** |\n| **Gross profit** | **$505,655.62** |\n\nSo, counting the cost of supplies (ingredients and packaging) as cost of goods sold, the gross profit on pre\u2011tax sales is **$505,655.62**."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 505655.62
+    },
+    {
+      "id": "q02",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 505655.62 matches gold 505655.62",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our gross profit on pre\u2011tax sales, after accounting for supply costs as COGS, was $505,655.62.",
+        "numeric_value": 505655.62,
+        "unit": "USD",
+        "sql": "WITH product_supply_cost AS (\n  SELECT product_id, SUM(supply_cost) AS total_supply_cost\n  FROM main.supplies\n  GROUP BY product_id\n)\nSELECT\n  SUM(oi.product_price) AS total_pretax_sales,\n  SUM(psc.total_supply_cost) AS total_cogs,\n  SUM(oi.product_price) - SUM(psc.total_supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN product_supply_cost psc ON oi.product_id = psc.product_id;",
+        "definition_used": "Gross profit = sum of pre\u2011tax product prices (order_items.product_price) minus sum of supply costs (supplies.supply_cost) aggregated per product.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6981,
+      "output_tokens": 1361,
+      "sql_calls": 1,
+      "latency_ms": 2985,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH product_supply_cost AS (\n  SELECT product_id, SUM(supply_cost) AS total_supply_cost\n  FROM main.supplies\n  GROUP BY product_id\n)\nSELECT\n  SUM(oi.product_price) AS total_pretax_sales,\n  SUM(psc.total_supply_cost) AS total_cogs,\n  SUM(oi.product_price) - SUM(psc.total_supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN product_supply_cost psc ON oi.product_id = psc.product_id",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 12,
+          "preview": "total_pretax_sales,total_cogs,gross_profit\n637444.00,131788.38,505655.62"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Gross profit (pre\u2011tax sales\u202f\u2013\u202fsupply\u2011cost COGS)**  \n\n| Metric | Amount (USD) |\n|--------|--------------|\n| Total pre\u2011tax sales (product price) | **$637,444.00** |\n| Total supply\u2011cost (ingredients\u202f+\u202fpackaging) | **$131,788.38** |\n| **Gross profit** | **$505,655.62** |\n\nSo, counting the cost of supplies (ingredients and packaging) as cost of goods sold, the gross profit on pre\u2011tax sales is **$505,655.62**."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 505655.62
+    },
+    {
+      "id": "q02",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 505655.62 matches gold 505655.62",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our gross profit on pre\u2011tax sales, after accounting for supply costs as COGS, was $505,655.62.",
+        "numeric_value": 505655.62,
+        "unit": "USD",
+        "sql": "WITH product_supply_cost AS (\n  SELECT product_id, SUM(supply_cost) AS total_supply_cost\n  FROM main.supplies\n  GROUP BY product_id\n)\nSELECT\n  SUM(oi.product_price) AS total_pretax_sales,\n  SUM(psc.total_supply_cost) AS total_cogs,\n  SUM(oi.product_price) - SUM(psc.total_supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN product_supply_cost psc ON oi.product_id = psc.product_id;",
+        "definition_used": "Gross profit = sum of pre\u2011tax product prices (order_items.product_price) minus sum of supply costs (supplies.supply_cost) aggregated per product.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6981,
+      "output_tokens": 1361,
+      "sql_calls": 1,
+      "latency_ms": 2046,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH product_supply_cost AS (\n  SELECT product_id, SUM(supply_cost) AS total_supply_cost\n  FROM main.supplies\n  GROUP BY product_id\n)\nSELECT\n  SUM(oi.product_price) AS total_pretax_sales,\n  SUM(psc.total_supply_cost) AS total_cogs,\n  SUM(oi.product_price) - SUM(psc.total_supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN product_supply_cost psc ON oi.product_id = psc.product_id",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "total_pretax_sales,total_cogs,gross_profit\n637444.00,131788.38,505655.62"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Gross profit (pre\u2011tax sales\u202f\u2013\u202fsupply\u2011cost COGS)**  \n\n| Metric | Amount (USD) |\n|--------|--------------|\n| Total pre\u2011tax sales (product price) | **$637,444.00** |\n| Total supply\u2011cost (ingredients\u202f+\u202fpackaging) | **$131,788.38** |\n| **Gross profit** | **$505,655.62** |\n\nSo, counting the cost of supplies (ingredients and packaging) as cost of goods sold, the gross profit on pre\u2011tax sales is **$505,655.62**."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 505655.62
+    },
+    {
+      "id": "q03",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 0 != gold 33.0",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We gained 0 new customers in January 2025.",
+        "numeric_value": 0,
+        "unit": "customers",
+        "sql": "SELECT COUNT(*) AS new_customers_jan_2025 FROM main.customers WHERE customer_type = 'new' AND first_ordered_at >= '2025-01-01' AND first_ordered_at < '2025-02-01';",
+        "definition_used": "Count of customers with customer_type='new' whose first_ordered_at falls in January 2025.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6799,
+      "output_tokens": 416,
+      "sql_calls": 1,
+      "latency_ms": 1361,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS new_customers_jan_2025 FROM main.customers WHERE customer_type = 'new' AND first_ordered_at >= '2025-01-01' AND first_ordered_at < '2025-02-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "new_customers_jan_2025\n0"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "We gained **0 new customers** in January\u202f2025."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 33.0
+    },
+    {
+      "id": "q03",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 0 != gold 33.0",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We gained 0 new customers in January 2025.",
+        "numeric_value": 0,
+        "unit": "customers",
+        "sql": "SELECT COUNT(*) AS new_customers_jan_2025 FROM main.customers WHERE customer_type = 'new' AND first_ordered_at >= '2025-01-01' AND first_ordered_at < '2025-02-01';",
+        "definition_used": "Count of customers with customer_type='new' whose first_ordered_at falls in January 2025.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6799,
+      "output_tokens": 416,
+      "sql_calls": 1,
+      "latency_ms": 1380,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS new_customers_jan_2025 FROM main.customers WHERE customer_type = 'new' AND first_ordered_at >= '2025-01-01' AND first_ordered_at < '2025-02-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "new_customers_jan_2025\n0"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "We gained **0 new customers** in January\u202f2025."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 33.0
+    },
+    {
+      "id": "q03",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 0 != gold 33.0",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We gained 0 new customers in January 2025.",
+        "numeric_value": 0,
+        "unit": "customers",
+        "sql": "SELECT COUNT(*) AS new_customers_jan_2025 FROM main.customers WHERE customer_type = 'new' AND first_ordered_at >= '2025-01-01' AND first_ordered_at < '2025-02-01';",
+        "definition_used": "Count of customers with customer_type='new' whose first_ordered_at falls in January 2025.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6799,
+      "output_tokens": 416,
+      "sql_calls": 1,
+      "latency_ms": 1571,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS new_customers_jan_2025 FROM main.customers WHERE customer_type = 'new' AND first_ordered_at >= '2025-01-01' AND first_ordered_at < '2025-02-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "new_customers_jan_2025\n0"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "We gained **0 new customers** in January\u202f2025."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 33.0
+    },
+    {
+      "id": "q04",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 3.52 != gold 3.592034445640474",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "On average, about 3.5 days pass between a customer's first order and their second order.",
+        "numeric_value": 3.52,
+        "unit": "days",
+        "sql": "WITH ranked AS (\n  SELECT\n    customer_id,\n    ordered_at::date as order_date,\n    row_number() OVER (PARTITION BY customer_id ORDER BY ordered_at) as rn\n  FROM main.orders\n  WHERE ordered_at IS NOT NULL\n),\nfirst_second AS (\n  SELECT\n    customer_id,\n    MAX(CASE WHEN rn = 1 THEN order_date END) as first_date,\n    MAX(CASE WHEN rn = 2 THEN order_date END) as second_date,\n    COUNT(*) as cnt\n  FROM ranked\n  GROUP BY customer_id\n  HAVING COUNT(*) >= 2\n)\nSELECT AVG(datediff('day', first_date, second_date)) as avg_days_between_first_and_second\nFROM first_second;",
+        "definition_used": "Average number of days between the first and second order dates for each customer (only customers with at least two orders).",
+        "assumptions": [
+          "Used order dates only (time component ignored)",
+          "Included all customers who have placed at least two orders",
+          "Calculated simple arithmetic mean of day differences"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 7041,
+      "output_tokens": 1000,
+      "sql_calls": 1,
+      "latency_ms": 1953,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH ranked AS (\n  SELECT\n    customer_id,\n    ordered_at::date as order_date,\n    row_number() OVER (PARTITION BY customer_id ORDER BY ordered_at) as rn\n  FROM main.orders\n  WHERE ordered_at IS NOT NULL\n),\nfirst_second AS (\n  SELECT\n    customer_id,\n    MAX(CASE WHEN rn = 1 THEN order_date END) as first_date,\n    MAX(CASE WHEN rn = 2 THEN order_date END) as second_date,\n    COUNT(*) as cnt\n  FROM ranked\n  GROUP BY customer_id\n  HAVING COUNT(*) >= 2\n)\nSELECT AVG(datediff('day', first_date, second_date)) as avg_days_between_first_and_second\nFROM first_second",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 28,
+          "preview": "avg_days_between_first_and_second\n3.519913885898816"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The average interval between a customer\u2019s first order and their second order is **approximately\u202f3.5\u202fdays**. This was calculated by:\n\n1. Ordering each customer\u2019s orders chronologically.\n2. Selecting the dates of the first and second orders for every customer who has placed at least two orders.\n3. Computing the difference in days between those two dates.\n4. Taking the average of those differences across all qualifying customers.\n\nThus, on average, customers place their second order about three and a half days after their first."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 3.592034445640474
+    },
+    {
+      "id": "q04",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 3.52 != gold 3.592034445640474",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "On average, about 3.5 days pass between a customer's first order and their second order.",
+        "numeric_value": 3.52,
+        "unit": "days",
+        "sql": "WITH ranked AS (\n  SELECT\n    customer_id,\n    ordered_at::date as order_date,\n    row_number() OVER (PARTITION BY customer_id ORDER BY ordered_at) as rn\n  FROM main.orders\n  WHERE ordered_at IS NOT NULL\n),\nfirst_second AS (\n  SELECT\n    customer_id,\n    MAX(CASE WHEN rn = 1 THEN order_date END) as first_date,\n    MAX(CASE WHEN rn = 2 THEN order_date END) as second_date,\n    COUNT(*) as cnt\n  FROM ranked\n  GROUP BY customer_id\n  HAVING COUNT(*) >= 2\n)\nSELECT AVG(datediff('day', first_date, second_date)) as avg_days_between_first_and_second\nFROM first_second;",
+        "definition_used": "Average number of days between the first and second order dates for each customer (only customers with at least two orders).",
+        "assumptions": [
+          "Used order dates only (time component ignored)",
+          "Included all customers who have placed at least two orders",
+          "Calculated simple arithmetic mean of day differences"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 7041,
+      "output_tokens": 1000,
+      "sql_calls": 1,
+      "latency_ms": 1968,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH ranked AS (\n  SELECT\n    customer_id,\n    ordered_at::date as order_date,\n    row_number() OVER (PARTITION BY customer_id ORDER BY ordered_at) as rn\n  FROM main.orders\n  WHERE ordered_at IS NOT NULL\n),\nfirst_second AS (\n  SELECT\n    customer_id,\n    MAX(CASE WHEN rn = 1 THEN order_date END) as first_date,\n    MAX(CASE WHEN rn = 2 THEN order_date END) as second_date,\n    COUNT(*) as cnt\n  FROM ranked\n  GROUP BY customer_id\n  HAVING COUNT(*) >= 2\n)\nSELECT AVG(datediff('day', first_date, second_date)) as avg_days_between_first_and_second\nFROM first_second",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 21,
+          "preview": "avg_days_between_first_and_second\n3.519913885898816"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The average interval between a customer\u2019s first order and their second order is **approximately\u202f3.5\u202fdays**. This was calculated by:\n\n1. Ordering each customer\u2019s orders chronologically.\n2. Selecting the dates of the first and second orders for every customer who has placed at least two orders.\n3. Computing the difference in days between those two dates.\n4. Taking the average of those differences across all qualifying customers.\n\nThus, on average, customers place their second order about three and a half days after their first."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 3.592034445640474
+    },
+    {
+      "id": "q04",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 3.52 != gold 3.592034445640474",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "On average, about 3.5 days pass between a customer's first order and their second order.",
+        "numeric_value": 3.52,
+        "unit": "days",
+        "sql": "WITH ranked AS (\n  SELECT\n    customer_id,\n    ordered_at::date as order_date,\n    row_number() OVER (PARTITION BY customer_id ORDER BY ordered_at) as rn\n  FROM main.orders\n  WHERE ordered_at IS NOT NULL\n),\nfirst_second AS (\n  SELECT\n    customer_id,\n    MAX(CASE WHEN rn = 1 THEN order_date END) as first_date,\n    MAX(CASE WHEN rn = 2 THEN order_date END) as second_date,\n    COUNT(*) as cnt\n  FROM ranked\n  GROUP BY customer_id\n  HAVING COUNT(*) >= 2\n)\nSELECT AVG(datediff('day', first_date, second_date)) as avg_days_between_first_and_second\nFROM first_second;",
+        "definition_used": "Average number of days between the first and second order dates for each customer (only customers with at least two orders).",
+        "assumptions": [
+          "Used order dates only (time component ignored)",
+          "Included all customers who have placed at least two orders",
+          "Calculated simple arithmetic mean of day differences"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 7041,
+      "output_tokens": 1000,
+      "sql_calls": 1,
+      "latency_ms": 1595,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH ranked AS (\n  SELECT\n    customer_id,\n    ordered_at::date as order_date,\n    row_number() OVER (PARTITION BY customer_id ORDER BY ordered_at) as rn\n  FROM main.orders\n  WHERE ordered_at IS NOT NULL\n),\nfirst_second AS (\n  SELECT\n    customer_id,\n    MAX(CASE WHEN rn = 1 THEN order_date END) as first_date,\n    MAX(CASE WHEN rn = 2 THEN order_date END) as second_date,\n    COUNT(*) as cnt\n  FROM ranked\n  GROUP BY customer_id\n  HAVING COUNT(*) >= 2\n)\nSELECT AVG(datediff('day', first_date, second_date)) as avg_days_between_first_and_second\nFROM first_second",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 18,
+          "preview": "avg_days_between_first_and_second\n3.519913885898816"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The average interval between a customer\u2019s first order and their second order is **approximately\u202f3.5\u202fdays**. This was calculated by:\n\n1. Ordering each customer\u2019s orders chronologically.\n2. Selecting the dates of the first and second orders for every customer who has placed at least two orders.\n3. Computing the difference in days between those two dates.\n4. Taking the average of those differences across all qualifying customers.\n\nThus, on average, customers place their second order about three and a half days after their first."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 3.592034445640474
+    },
+    {
+      "id": "q05",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 14 matches gold 14.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The most expensive menu item costs $14.00.",
+        "numeric_value": 14,
+        "unit": "USD",
+        "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+        "definition_used": "Maximum product_price from the products table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 240,
+      "sql_calls": 1,
+      "latency_ms": 1400,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "max_price\n14.00"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The most expensive menu item is priced at **$14.00**."
+        }
+      ],
+      "category": "units",
+      "gold": 14.0
+    },
+    {
+      "id": "q05",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 14 matches gold 14.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The most expensive menu item costs $14.00.",
+        "numeric_value": 14,
+        "unit": "USD",
+        "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+        "definition_used": "Maximum product_price from the products table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 240,
+      "sql_calls": 1,
+      "latency_ms": 1512,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "max_price\n14.00"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The most expensive menu item is priced at **$14.00**."
+        }
+      ],
+      "category": "units",
+      "gold": 14.0
+    },
+    {
+      "id": "q05",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 14 matches gold 14.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The most expensive menu item costs $14.00.",
+        "numeric_value": 14,
+        "unit": "USD",
+        "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+        "definition_used": "Maximum product_price from the products table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 240,
+      "sql_calls": 1,
+      "latency_ms": 1665,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT MAX(product_price) AS max_price FROM main.products",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "max_price\n14.00"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The most expensive menu item is priced at **$14.00**."
+        }
+      ],
+      "category": "units",
+      "gold": 14.0
+    },
+    {
+      "id": "q06",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 104719.19 matches gold 104719.19",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We spent $104,719.19 on perishable supplies across all sales.",
+        "numeric_value": 104719.19,
+        "unit": "USD",
+        "sql": "WITH per_product AS (\n    SELECT product_id, SUM(supply_cost) AS per_product_cost\n    FROM main.supplies\n    WHERE is_perishable_supply = true\n    GROUP BY product_id\n), sold_counts AS (\n    SELECT product_id, COUNT(*) AS cnt\n    FROM main.order_items\n    GROUP BY product_id\n)\nSELECT SUM(p.per_product_cost * sc.cnt) AS total_perishable_supply_spend\nFROM per_product p\nJOIN sold_counts sc ON p.product_id = sc.product_id",
+        "definition_used": "Sum of perishable supply cost per product multiplied by the number of times each perishable product was sold (order_items count).",
+        "assumptions": [
+          "Each order_item represents one unit of the product sold; supply_cost in the supplies table is the cost per unit of the product.",
+          "All perishable supplies are identified by is_perishable_supply = true in the supplies table.",
+          "Only the first 5 rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 14599,
+      "output_tokens": 1783,
+      "sql_calls": 4,
+      "latency_ms": 3290,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true",
+          "row_count": 0,
+          "truncated": false,
+          "error": "Binder Error: Ambiguous reference to column name \"supply_cost\" (use: 'oi.supply_cost' or 's.supply_cost')\n\nLINE 1: SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN...\n                   ^^^^^^^^^^^",
+          "elapsed_ms": 9,
+          "preview": "ERROR: Binder Error: Ambiguous reference to column name \"supply_cost\" (use: 'oi.supply_cost' or 's.supply_cost')\n\nLINE 1: SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN...\n                   ^^^^^^^^^^^"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT product_id, COUNT(*) AS cnt FROM main.supplies GROUP BY product_id",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "product_id,cnt\nBEV-001,5\nJAF-003,9\nJAF-005,8\nBEV-004,4\nJAF-004,9\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT SUM(s.supply_cost) AS total_spend FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 9,
+          "preview": "total_spend\n104719.19"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "WITH per_product AS (\n    SELECT product_id, SUM(supply_cost) AS per_product_cost\n    FROM main.supplies\n    WHERE is_perishable_supply = true\n    GROUP BY product_id\n), sold_counts AS (\n    SELECT product_id, COUNT(*) AS cnt\n    FROM main.order_items\n    GROUP BY product_id\n)\nSELECT SUM(p.per_product_cost * sc.cnt) AS total_perishable_supply_spend\nFROM per_product p\nJOIN sold_counts sc ON p.product_id = sc.product_id",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "total_perishable_supply_spend\n104719.19"
+        },
+        {
+          "turn": 4,
+          "type": "text",
+          "text": "The total spend on perishable (spoilable) supplies across all sales is **$104,719.19**."
+        }
+      ],
+      "category": "grain",
+      "gold": 104719.19
+    },
+    {
+      "id": "q06",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 131788.38 != gold 104719.19",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We spent $131,788.38 on perishable supplies across all sales.",
+        "numeric_value": 131788.38,
+        "unit": "USD",
+        "sql": "SELECT SUM(supply_cost) AS total_spend FROM (SELECT DISTINCT oi.order_item_id, oi.supply_cost FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true) sub",
+        "definition_used": "Sum of supply_cost for perishable supplies (is_perishable_supply = true) linked to each order item, deduplicated per order_item to avoid double\u2011counting.",
+        "assumptions": [
+          "Perishable supplies are identified by the is_perishable_supply flag in the supplies table.",
+          "Each order_item uses one supply cost value; we summed distinct order_item rows to avoid inflating totals due to the many\u2011to\u2011many relationship between order_items and supplies.",
+          "Only the first 5 rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 11885,
+      "output_tokens": 1609,
+      "sql_calls": 3,
+      "latency_ms": 2683,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true",
+          "row_count": 0,
+          "truncated": false,
+          "error": "Binder Error: Ambiguous reference to column name \"supply_cost\" (use: 'oi.supply_cost' or 's.supply_cost')\n\nLINE 1: SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN...\n                   ^^^^^^^^^^^",
+          "elapsed_ms": 1,
+          "preview": "ERROR: Binder Error: Ambiguous reference to column name \"supply_cost\" (use: 'oi.supply_cost' or 's.supply_cost')\n\nLINE 1: SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN...\n                   ^^^^^^^^^^^"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT product_id, COUNT(*) AS cnt FROM main.supplies GROUP BY product_id",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "product_id,cnt\nJAF-003,9\nBEV-001,5\nJAF-005,8\nBEV-004,4\nJAF-004,9\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT SUM(supply_cost) AS total_spend FROM (SELECT DISTINCT oi.order_item_id, oi.supply_cost FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true) sub",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 43,
+          "preview": "total_spend\n131788.38"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "The total amount spent on perishable (spoilable) supplies across all sales is **$131,788.38**."
+        }
+      ],
+      "category": "grain",
+      "gold": 104719.19
+    },
+    {
+      "id": "q06",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "numeric_value 131788.38 != gold 104719.19",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We spent $131,788.38 on perishable supplies.",
+        "numeric_value": 131788.38,
+        "unit": "USD",
+        "sql": "SELECT SUM(oi.supply_cost) AS total_perishable_spend FROM main.order_items oi WHERE oi.product_id IN (SELECT product_id FROM main.supplies WHERE is_perishable_supply = true)",
+        "definition_used": "Sum of supply_cost for order items whose product is marked as a perishable supply.",
+        "assumptions": [
+          "supply_cost in order_items represents the cost of the supply used for that item",
+          "perishable supplies are identified by is_perishable_supply = true in the supplies table",
+          "all order_items represent items sold, so aggregating across them captures total spend",
+          "Only the first 5 rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 11867,
+      "output_tokens": 1495,
+      "sql_calls": 3,
+      "latency_ms": 3047,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN main.supplies s ON oi.product_id = s.product_id WHERE s.is_perishable_supply = true",
+          "row_count": 0,
+          "truncated": false,
+          "error": "Binder Error: Ambiguous reference to column name \"supply_cost\" (use: 'oi.supply_cost' or 's.supply_cost')\n\nLINE 1: SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN...\n                   ^^^^^^^^^^^",
+          "elapsed_ms": 3,
+          "preview": "ERROR: Binder Error: Ambiguous reference to column name \"supply_cost\" (use: 'oi.supply_cost' or 's.supply_cost')\n\nLINE 1: SELECT SUM(supply_cost) AS total_spend FROM main.order_items oi JOIN...\n                   ^^^^^^^^^^^"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT product_id, COUNT(*) AS cnt FROM main.supplies GROUP BY product_id",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "product_id,cnt\nJAF-005,8\nBEV-004,4\nJAF-003,9\nBEV-001,5\nJAF-004,9\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT SUM(oi.supply_cost) AS total_perishable_spend FROM main.order_items oi WHERE oi.product_id IN (SELECT product_id FROM main.supplies WHERE is_perishable_supply = true)",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "total_perishable_spend\n131788.38"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "The total amount spent on perishable supplies (i.e., supplies marked as\u202f`is_perishable_supply = true`) across all orders is **$131,788.38**."
+        }
+      ],
+      "category": "grain",
+      "gold": 104719.19
+    },
+    {
+      "id": "q07",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The menu item with the lowest gross margin percentage is \u201cchai and mighty\u201d (product ID BEV-002). Its price is $5.00 and total supply cost is $1.75, giving a gross margin of 65\u202f%.",
+        "numeric_value": 0.65,
+        "unit": "percent",
+        "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost, (p.product_price - SUM(s.supply_cost)) / p.product_price AS margin_pct FROM main.products p LEFT JOIN main.supplies s ON p.product_id = s.product_id GROUP BY p.product_id, p.product_name, p.product_price ORDER BY margin_pct ASC LIMIT 1",
+        "definition_used": "gross margin percentage = (product_price - total_supply_cost) / product_price",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 7118,
+      "output_tokens": 907,
+      "sql_calls": 1,
+      "latency_ms": 1924,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost, (p.product_price - SUM(s.supply_cost)) / p.product_price AS margin_pct FROM main.products p LEFT JOIN main.supplies s ON p.product_id = s.product_id GROUP BY p.product_id, p.product_name, p.product_price ORDER BY margin_pct ASC LIMIT 5",
+          "row_count": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "product_id,product_name,product_price,total_supply_cost,margin_pct\nBEV-002,chai and mighty,5.00,1.75,0.65\nJAF-003,the krautback,12.00,3.66,0.695\nBEV-003,vanilla ice,6.00,1.54,0.7433333333333333\nJAF-004,flame impala,14.00,3.43,0.755\nJAF-002,doctor stew,11.00,2.51,0.7718181818181818"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The menu item with the lowest gross\u2011margin percentage (price\u202f\u2013\u202fsupply\u2011cost\u202f\u00f7\u202fprice) is:\n\n| product_id | product_name      | price | total supply cost | gross\u2011margin % |\n|------------|-------------------|-------|-------------------|----------------|\n| **BEV-002**| chai and mighty   | $5.00 | $1.75             | **65\u202f%** |\n\nSo **\u201cchai and mighty\u201d (product\u202fBEV\u2011002)** has the lowest gross\u2011margin percentage, at about **65\u202f%**."
+        }
+      ],
+      "category": "grain",
+      "gold": {
+        "items": [
+          "chai and mighty"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q07",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The menu item with the lowest gross margin percentage is \u201cchai and mighty\u201d (product ID BEV-002). Its price is $5.00 and total supply cost is $1.75, giving a gross margin of 65\u202f%.",
+        "numeric_value": 0.65,
+        "unit": "percent",
+        "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost, (p.product_price - SUM(s.supply_cost)) / p.product_price AS margin_pct FROM main.products p LEFT JOIN main.supplies s ON p.product_id = s.product_id GROUP BY p.product_id, p.product_name, p.product_price ORDER BY margin_pct ASC LIMIT 1",
+        "definition_used": "gross margin percentage = (product_price - total_supply_cost) / product_price",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 7118,
+      "output_tokens": 907,
+      "sql_calls": 1,
+      "latency_ms": 1675,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost, (p.product_price - SUM(s.supply_cost)) / p.product_price AS margin_pct FROM main.products p LEFT JOIN main.supplies s ON p.product_id = s.product_id GROUP BY p.product_id, p.product_name, p.product_price ORDER BY margin_pct ASC LIMIT 5",
+          "row_count": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "product_id,product_name,product_price,total_supply_cost,margin_pct\nBEV-002,chai and mighty,5.00,1.75,0.65\nJAF-003,the krautback,12.00,3.66,0.695\nBEV-003,vanilla ice,6.00,1.54,0.7433333333333333\nJAF-004,flame impala,14.00,3.43,0.755\nJAF-002,doctor stew,11.00,2.51,0.7718181818181818"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The menu item with the lowest gross\u2011margin percentage (price\u202f\u2013\u202fsupply\u2011cost\u202f\u00f7\u202fprice) is:\n\n| product_id | product_name      | price | total supply cost | gross\u2011margin % |\n|------------|-------------------|-------|-------------------|----------------|\n| **BEV-002**| chai and mighty   | $5.00 | $1.75             | **65\u202f%** |\n\nSo **\u201cchai and mighty\u201d (product\u202fBEV\u2011002)** has the lowest gross\u2011margin percentage, at about **65\u202f%**."
+        }
+      ],
+      "category": "grain",
+      "gold": {
+        "items": [
+          "chai and mighty"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q07",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The menu item with the lowest gross margin percentage is \u201cchai and mighty\u201d (product ID BEV-002). Its price is $5.00 and total supply cost is $1.75, giving a gross margin of 65\u202f%.",
+        "numeric_value": 0.65,
+        "unit": "percent",
+        "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost, (p.product_price - SUM(s.supply_cost)) / p.product_price AS margin_pct FROM main.products p LEFT JOIN main.supplies s ON p.product_id = s.product_id GROUP BY p.product_id, p.product_name, p.product_price ORDER BY margin_pct ASC LIMIT 1",
+        "definition_used": "gross margin percentage = (product_price - total_supply_cost) / product_price",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 7118,
+      "output_tokens": 907,
+      "sql_calls": 1,
+      "latency_ms": 1748,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT p.product_id, p.product_name, p.product_price, SUM(s.supply_cost) AS total_supply_cost, (p.product_price - SUM(s.supply_cost)) / p.product_price AS margin_pct FROM main.products p LEFT JOIN main.supplies s ON p.product_id = s.product_id GROUP BY p.product_id, p.product_name, p.product_price ORDER BY margin_pct ASC LIMIT 5",
+          "row_count": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "product_id,product_name,product_price,total_supply_cost,margin_pct\nBEV-002,chai and mighty,5.00,1.75,0.65\nJAF-003,the krautback,12.00,3.66,0.695\nBEV-003,vanilla ice,6.00,1.54,0.7433333333333333\nJAF-004,flame impala,14.00,3.43,0.755\nJAF-002,doctor stew,11.00,2.51,0.7718181818181818"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The menu item with the lowest gross\u2011margin percentage (price\u202f\u2013\u202fsupply\u2011cost\u202f\u00f7\u202fprice) is:\n\n| product_id | product_name      | price | total supply cost | gross\u2011margin % |\n|------------|-------------------|-------|-------------------|----------------|\n| **BEV-002**| chai and mighty   | $5.00 | $1.75             | **65\u202f%** |\n\nSo **\u201cchai and mighty\u201d (product\u202fBEV\u2011002)** has the lowest gross\u2011margin percentage, at about **65\u202f%**."
+        }
+      ],
+      "category": "grain",
+      "gold": {
+        "items": [
+          "chai and mighty"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q08",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "unit 'drink items' not in ['drinks', 'items']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We sold 70,819 drink items.",
+        "numeric_value": 70819,
+        "unit": "drink items",
+        "sql": "SELECT COUNT(*) AS drink_count FROM main.order_items WHERE is_drink_item = true",
+        "definition_used": "Count of order_items where is_drink_item = true (each row represents a sold drink item).",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6703,
+      "output_tokens": 427,
+      "sql_calls": 1,
+      "latency_ms": 1528,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS drink_count FROM main.order_items WHERE is_drink_item = true",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "drink_count\n70819"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "We sold **70,819 drinks**."
+        }
+      ],
+      "category": "grain",
+      "gold": 70819.0
+    },
+    {
+      "id": "q08",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "unit 'drink items' not in ['drinks', 'items']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We sold 70,819 drink items.",
+        "numeric_value": 70819,
+        "unit": "drink items",
+        "sql": "SELECT COUNT(*) AS drink_count FROM main.order_items WHERE is_drink_item = true",
+        "definition_used": "Count of order_items where is_drink_item = true (each row represents a sold drink item).",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6703,
+      "output_tokens": 427,
+      "sql_calls": 1,
+      "latency_ms": 1483,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS drink_count FROM main.order_items WHERE is_drink_item = true",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "drink_count\n70819"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "We sold **70,819 drinks**."
+        }
+      ],
+      "category": "grain",
+      "gold": 70819.0
+    },
+    {
+      "id": "q08",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "unit 'drink items' not in ['drinks', 'items']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We sold 70,819 drink items.",
+        "numeric_value": 70819,
+        "unit": "drink items",
+        "sql": "SELECT COUNT(*) AS drink_count FROM main.order_items WHERE is_drink_item = true",
+        "definition_used": "Count of order_items where is_drink_item = true (each row represents a sold drink item).",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6703,
+      "output_tokens": 427,
+      "sql_calls": 1,
+      "latency_ms": 1423,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS drink_count FROM main.order_items WHERE is_drink_item = true",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "drink_count\n70819"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "We sold **70,819 drinks**."
+        }
+      ],
+      "category": "grain",
+      "gold": 70819.0
+    },
+    {
+      "id": "q09",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 935 matches gold 935.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "There are 935 distinct customers who have placed an order.",
+        "numeric_value": 935,
+        "unit": "customers",
+        "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+        "definition_used": "Count of distinct customer_id values in the orders table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 246,
+      "sql_calls": 1,
+      "latency_ms": 1357,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "distinct_customers\n935"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **935** distinct customers who have placed an order."
+        }
+      ],
+      "category": "grain",
+      "gold": 935.0
+    },
+    {
+      "id": "q09",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 935 matches gold 935.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "There are 935 distinct customers who have placed an order.",
+        "numeric_value": 935,
+        "unit": "customers",
+        "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+        "definition_used": "Count of distinct customer_id values in the orders table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 246,
+      "sql_calls": 1,
+      "latency_ms": 1341,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "distinct_customers\n935"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **935** distinct customers who have placed an order."
+        }
+      ],
+      "category": "grain",
+      "gold": 935.0
+    },
+    {
+      "id": "q09",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 935 matches gold 935.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "There are 935 distinct customers who have placed an order.",
+        "numeric_value": 935,
+        "unit": "customers",
+        "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+        "definition_used": "Count of distinct customer_id values in the orders table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 246,
+      "sql_calls": 1,
+      "latency_ms": 1396,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT customer_id) AS distinct_customers FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "distinct_customers\n935"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **935** distinct customers who have placed an order."
+        }
+      ],
+      "category": "grain",
+      "gold": 935.0
+    },
+    {
+      "id": "q10",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 0 matches gold 0.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "0 customers have ordered from more than one store.",
+        "numeric_value": 0,
+        "unit": "customers",
+        "sql": "SELECT COUNT(*) AS customer_count FROM (SELECT customer_id FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) t;",
+        "definition_used": "Count of distinct customers with orders at more than one location_id",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6751,
+      "output_tokens": 375,
+      "sql_calls": 1,
+      "latency_ms": 2155,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS customer_count FROM (SELECT customer_id FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) t",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 870,
+          "preview": "customer_count\n0"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **0 customers** who have placed orders at more than one store."
+        }
+      ],
+      "category": "grain",
+      "gold": 0.0
+    },
+    {
+      "id": "q10",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 0 matches gold 0.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "0 customers have ordered from more than one store.",
+        "numeric_value": 0,
+        "unit": "customers",
+        "sql": "SELECT COUNT(*) AS customer_count FROM (SELECT customer_id FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) t;",
+        "definition_used": "Count of distinct customers with orders at more than one location_id",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6751,
+      "output_tokens": 375,
+      "sql_calls": 1,
+      "latency_ms": 1557,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS customer_count FROM (SELECT customer_id FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) t",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 9,
+          "preview": "customer_count\n0"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **0 customers** who have placed orders at more than one store."
+        }
+      ],
+      "category": "grain",
+      "gold": 0.0
+    },
+    {
+      "id": "q10",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 0 matches gold 0.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "0 customers have ordered from more than one store.",
+        "numeric_value": 0,
+        "unit": "customers",
+        "sql": "SELECT COUNT(*) AS customer_count FROM (SELECT customer_id FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) t;",
+        "definition_used": "Count of distinct customers with orders at more than one location_id",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6751,
+      "output_tokens": 375,
+      "sql_calls": 1,
+      "latency_ms": 1377,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS customer_count FROM (SELECT customer_id FROM main.orders GROUP BY customer_id HAVING COUNT(DISTINCT location_id) > 1) t",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "customer_count\n0"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **0 customers** who have placed orders at more than one store."
+        }
+      ],
+      "category": "grain",
+      "gold": 0.0
+    },
+    {
+      "id": "q11",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 2 matches gold 2.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "2 stores have recorded sales.",
+        "numeric_value": 2,
+        "unit": "stores",
+        "sql": "SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders",
+        "definition_used": "Count of distinct location_id values present in the orders table, representing stores that have at least one order recorded.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 452,
+      "sql_calls": 1,
+      "latency_ms": 1583,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "stores_with_sales\n2"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **2 stores** (locations) that have recorded sales in the orders data."
+        }
+      ],
+      "category": "entity",
+      "gold": 2.0
+    },
+    {
+      "id": "q11",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 2 matches gold 2.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "2 stores have recorded sales.",
+        "numeric_value": 2,
+        "unit": "stores",
+        "sql": "SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders",
+        "definition_used": "Count of distinct location_id values present in the orders table, representing stores that have at least one order recorded.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 452,
+      "sql_calls": 1,
+      "latency_ms": 2510,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "stores_with_sales\n2"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **2 stores** (locations) that have recorded sales in the orders data."
+        }
+      ],
+      "category": "entity",
+      "gold": 2.0
+    },
+    {
+      "id": "q11",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 2 matches gold 2.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "2 stores have recorded sales.",
+        "numeric_value": 2,
+        "unit": "stores",
+        "sql": "SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders",
+        "definition_used": "Count of distinct location_id values present in the orders table, representing stores that have at least one order recorded.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6705,
+      "output_tokens": 452,
+      "sql_calls": 1,
+      "latency_ms": 1539,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT location_id) AS stores_with_sales FROM main.orders",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "stores_with_sales\n2"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "There are **2 stores** (locations) that have recorded sales in the orders data."
+        }
+      ],
+      "category": "entity",
+      "gold": 2.0
+    },
+    {
+      "id": "q12",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 0 matches gold 0.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Chicago store generated $0 pre\u2011tax revenue.",
+        "numeric_value": 0,
+        "unit": "USD",
+        "sql": "SELECT SUM(o.subtotal) AS pre_tax_revenue FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+        "definition_used": "Sum of the order subtotal (pre\u2011tax) for orders at the Chicago location.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9064,
+      "output_tokens": 591,
+      "sql_calls": 2,
+      "latency_ms": 1920,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(o.subtotal) AS pre_tax_revenue FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "pre_tax_revenue\n"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS order_count FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "order_count\n0"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "The Chicago store has no orders in the data, so its pre\u2011tax revenue is **$0**."
+        }
+      ],
+      "category": "entity",
+      "gold": 0.0
+    },
+    {
+      "id": "q12",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 0 matches gold 0.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Chicago store generated $0 pre\u2011tax revenue.",
+        "numeric_value": 0,
+        "unit": "USD",
+        "sql": "SELECT SUM(o.subtotal) AS pre_tax_revenue FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+        "definition_used": "Sum of the order subtotal (pre\u2011tax) for orders at the Chicago location.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9064,
+      "output_tokens": 591,
+      "sql_calls": 2,
+      "latency_ms": 1969,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(o.subtotal) AS pre_tax_revenue FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "pre_tax_revenue\n"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS order_count FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "order_count\n0"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "The Chicago store has no orders in the data, so its pre\u2011tax revenue is **$0**."
+        }
+      ],
+      "category": "entity",
+      "gold": 0.0
+    },
+    {
+      "id": "q12",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 0 matches gold 0.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Chicago store generated $0 pre\u2011tax revenue.",
+        "numeric_value": 0,
+        "unit": "USD",
+        "sql": "SELECT SUM(o.subtotal) AS pre_tax_revenue FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+        "definition_used": "Sum of the order subtotal (pre\u2011tax) for orders at the Chicago location.",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9064,
+      "output_tokens": 591,
+      "sql_calls": 2,
+      "latency_ms": 1926,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(o.subtotal) AS pre_tax_revenue FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "pre_tax_revenue\n"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS order_count FROM main.orders o JOIN main.locations l ON o.location_id = l.location_id WHERE l.location_name = 'Chicago'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "order_count\n0"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "The Chicago store has no orders in the data, so its pre\u2011tax revenue is **$0**."
+        }
+      ],
+      "category": "entity",
+      "gold": 0.0
+    },
+    {
+      "id": "q13",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Brooklyn store drove the surge, adding 2,017 orders in March 2025 (it had none in February).",
+        "numeric_value": 2017,
+        "unit": "orders",
+        "sql": "SELECT l.location_name, stats.feb_cnt, stats.mar_cnt, stats.diff FROM (WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id) AS stats JOIN main.locations l ON stats.location_id = l.location_id ORDER BY diff DESC;",
+        "definition_used": "Difference in order count between March 2025 and February 2025 per store (location).",
+        "assumptions": [
+          "Used the month ranges 2025-02-01 to 2025-03-01 for February and 2025-03-01 to 2025-04-01 for March.",
+          "Counted orders by order_id in the main.orders table.",
+          "Assumed that a larger increase in order count indicates the store explaining the overall jump."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 19303,
+      "output_tokens": 1750,
+      "sql_calls": 5,
+      "latency_ms": 3560,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, location_id, COUNT(*) AS order_count FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY month, location_id ORDER BY month, order_count DESC",
+          "row_count": 3,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 9,
+          "preview": "month,location_id,order_count\n2025-02-01 00:00:00,4b6c2304-2b9e-41e4-942a-cf11a1819378,3446\n2025-03-01 00:00:00,4b6c2304-2b9e-41e4-942a-cf11a1819378,4164\n2025-03-01 00:00:00,40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,2017"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, COUNT(*) AS order_count FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY month ORDER BY month",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "month,order_count\n2025-02-01 00:00:00,3446\n2025-03-01 00:00:00,6181"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT f.location_id, f.cnt AS feb_cnt, m.cnt AS mar_cnt, (m.cnt - f.cnt) AS diff FROM feb f JOIN mar m ON f.location_id = m.location_id ORDER BY diff DESC",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "location_id,feb_cnt,mar_cnt,diff\n4b6c2304-2b9e-41e4-942a-cf11a1819378,3446,4164,718"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id ORDER BY diff DESC",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "location_id,feb_cnt,mar_cnt,diff\n40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,0,2017,2017\n4b6c2304-2b9e-41e4-942a-cf11a1819378,3446,4164,718"
+        },
+        {
+          "turn": 4,
+          "type": "sql",
+          "sql": "SELECT l.location_name, stats.feb_cnt, stats.mar_cnt, stats.diff FROM (WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id) AS stats JOIN main.locations l ON stats.location_id = l.location_id ORDER BY diff DESC",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "location_name,feb_cnt,mar_cnt,diff\nBrooklyn,0,2017,2017\nPhiladelphia,3446,4164,718"
+        },
+        {
+          "turn": 5,
+          "type": "text",
+          "text": "In February\u202f2025 the company recorded **3,446 orders**. In March\u202f2025 the total rose to **6,181 orders** \u2013 an increase of **2,735 orders** (\u2248\u202f79\u202f% growth, i.e., \u201calmost doubled\u201d).\n\nLooking at the orders by store:\n\n| Store (location_name) | Orders\u202fFeb\u202f2025 | Orders\u202fMar\u202f2025 | \u0394 (Mar\u202f\u2013\u202fFeb) |\n|-----------------------|----------------|----------------|--------------|\n| **Brooklyn**          | 0\u202forders | 2,017\u202forders | **+2,017** |\n| Philadelphia          | 3,446\u202forders | 4,164\u202forders | +718 |\n| (other stores)        | \u2013 | \u2013 | \u2013 |\n\nBrooklyn had **no orders in February** but **2,017 orders in March**, accounting for the bulk of the overall increase (about\u202f74\u202f% of the total rise). Therefore, **the Brooklyn store explains the jump in orders from February to March\u202f2025**."
+        }
+      ],
+      "category": "entity",
+      "gold": {
+        "items": [
+          "Brooklyn"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q13",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Brooklyn store drove the surge, adding 2,017 orders in March 2025 (it had none in February).",
+        "numeric_value": 2017,
+        "unit": "orders",
+        "sql": "SELECT l.location_name, stats.feb_cnt, stats.mar_cnt, stats.diff FROM (WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id) AS stats JOIN main.locations l ON stats.location_id = l.location_id ORDER BY diff DESC;",
+        "definition_used": "Difference in order count between March 2025 and February 2025 per store (location).",
+        "assumptions": [
+          "Used the month ranges 2025-02-01 to 2025-03-01 for February and 2025-03-01 to 2025-04-01 for March.",
+          "Counted orders by order_id in the main.orders table.",
+          "Assumed that a larger increase in order count indicates the store explaining the overall jump."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 19303,
+      "output_tokens": 1750,
+      "sql_calls": 5,
+      "latency_ms": 3693,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, location_id, COUNT(*) AS order_count FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY month, location_id ORDER BY month, order_count DESC",
+          "row_count": 3,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "month,location_id,order_count\n2025-02-01 00:00:00,4b6c2304-2b9e-41e4-942a-cf11a1819378,3446\n2025-03-01 00:00:00,4b6c2304-2b9e-41e4-942a-cf11a1819378,4164\n2025-03-01 00:00:00,40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,2017"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, COUNT(*) AS order_count FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY month ORDER BY month",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "month,order_count\n2025-02-01 00:00:00,3446\n2025-03-01 00:00:00,6181"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT f.location_id, f.cnt AS feb_cnt, m.cnt AS mar_cnt, (m.cnt - f.cnt) AS diff FROM feb f JOIN mar m ON f.location_id = m.location_id ORDER BY diff DESC",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "location_id,feb_cnt,mar_cnt,diff\n4b6c2304-2b9e-41e4-942a-cf11a1819378,3446,4164,718"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id ORDER BY diff DESC",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "location_id,feb_cnt,mar_cnt,diff\n40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,0,2017,2017\n4b6c2304-2b9e-41e4-942a-cf11a1819378,3446,4164,718"
+        },
+        {
+          "turn": 4,
+          "type": "sql",
+          "sql": "SELECT l.location_name, stats.feb_cnt, stats.mar_cnt, stats.diff FROM (WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id) AS stats JOIN main.locations l ON stats.location_id = l.location_id ORDER BY diff DESC",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "location_name,feb_cnt,mar_cnt,diff\nBrooklyn,0,2017,2017\nPhiladelphia,3446,4164,718"
+        },
+        {
+          "turn": 5,
+          "type": "text",
+          "text": "In February\u202f2025 the company recorded **3,446 orders**. In March\u202f2025 the total rose to **6,181 orders** \u2013 an increase of **2,735 orders** (\u2248\u202f79\u202f% growth, i.e., \u201calmost doubled\u201d).\n\nLooking at the orders by store:\n\n| Store (location_name) | Orders\u202fFeb\u202f2025 | Orders\u202fMar\u202f2025 | \u0394 (Mar\u202f\u2013\u202fFeb) |\n|-----------------------|----------------|----------------|--------------|\n| **Brooklyn**          | 0\u202forders | 2,017\u202forders | **+2,017** |\n| Philadelphia          | 3,446\u202forders | 4,164\u202forders | +718 |\n| (other stores)        | \u2013 | \u2013 | \u2013 |\n\nBrooklyn had **no orders in February** but **2,017 orders in March**, accounting for the bulk of the overall increase (about\u202f74\u202f% of the total rise). Therefore, **the Brooklyn store explains the jump in orders from February to March\u202f2025**."
+        }
+      ],
+      "category": "entity",
+      "gold": {
+        "items": [
+          "Brooklyn"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q13",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The Brooklyn store drove the surge, adding 2,017 orders in March 2025 (it had none in February).",
+        "numeric_value": 2017,
+        "unit": "orders",
+        "sql": "SELECT l.location_name, stats.feb_cnt, stats.mar_cnt, stats.diff FROM (WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id) AS stats JOIN main.locations l ON stats.location_id = l.location_id ORDER BY diff DESC;",
+        "definition_used": "Difference in order count between March 2025 and February 2025 per store (location).",
+        "assumptions": [
+          "Used the month ranges 2025-02-01 to 2025-03-01 for February and 2025-03-01 to 2025-04-01 for March.",
+          "Counted orders by order_id in the main.orders table.",
+          "Assumed that a larger increase in order count indicates the store explaining the overall jump."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 19303,
+      "output_tokens": 1750,
+      "sql_calls": 5,
+      "latency_ms": 3679,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, location_id, COUNT(*) AS order_count FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY month, location_id ORDER BY month, order_count DESC",
+          "row_count": 3,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "month,location_id,order_count\n2025-02-01 00:00:00,4b6c2304-2b9e-41e4-942a-cf11a1819378,3446\n2025-03-01 00:00:00,4b6c2304-2b9e-41e4-942a-cf11a1819378,4164\n2025-03-01 00:00:00,40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,2017"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT DATE_TRUNC('month', ordered_at) AS month, COUNT(*) AS order_count FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-04-01' GROUP BY month ORDER BY month",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "month,order_count\n2025-02-01 00:00:00,3446\n2025-03-01 00:00:00,6181"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT f.location_id, f.cnt AS feb_cnt, m.cnt AS mar_cnt, (m.cnt - f.cnt) AS diff FROM feb f JOIN mar m ON f.location_id = m.location_id ORDER BY diff DESC",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 9,
+          "preview": "location_id,feb_cnt,mar_cnt,diff\n4b6c2304-2b9e-41e4-942a-cf11a1819378,3446,4164,718"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id ORDER BY diff DESC",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "location_id,feb_cnt,mar_cnt,diff\n40e6ddd6-b8f6-4e17-8bd6-5e53966809d2,0,2017,2017\n4b6c2304-2b9e-41e4-942a-cf11a1819378,3446,4164,718"
+        },
+        {
+          "turn": 4,
+          "type": "sql",
+          "sql": "SELECT l.location_name, stats.feb_cnt, stats.mar_cnt, stats.diff FROM (WITH feb AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-02-01' AND ordered_at < '2025-03-01' GROUP BY location_id), mar AS (SELECT location_id, COUNT(*) AS cnt FROM main.orders WHERE ordered_at >= '2025-03-01' AND ordered_at < '2025-04-01' GROUP BY location_id) SELECT COALESCE(f.location_id, m.location_id) AS location_id, COALESCE(f.cnt,0) AS feb_cnt, COALESCE(m.cnt,0) AS mar_cnt, (COALESCE(m.cnt,0)-COALESCE(f.cnt,0)) AS diff FROM feb f FULL OUTER JOIN mar m ON f.location_id = m.location_id) AS stats JOIN main.locations l ON stats.location_id = l.location_id ORDER BY diff DESC",
+          "row_count": 2,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 12,
+          "preview": "location_name,feb_cnt,mar_cnt,diff\nBrooklyn,0,2017,2017\nPhiladelphia,3446,4164,718"
+        },
+        {
+          "turn": 5,
+          "type": "text",
+          "text": "In February\u202f2025 the company recorded **3,446 orders**. In March\u202f2025 the total rose to **6,181 orders** \u2013 an increase of **2,735 orders** (\u2248\u202f79\u202f% growth, i.e., \u201calmost doubled\u201d).\n\nLooking at the orders by store:\n\n| Store (location_name) | Orders\u202fFeb\u202f2025 | Orders\u202fMar\u202f2025 | \u0394 (Mar\u202f\u2013\u202fFeb) |\n|-----------------------|----------------|----------------|--------------|\n| **Brooklyn**          | 0\u202forders | 2,017\u202forders | **+2,017** |\n| Philadelphia          | 3,446\u202forders | 4,164\u202forders | +718 |\n| (other stores)        | \u2013 | \u2013 | \u2013 |\n\nBrooklyn had **no orders in February** but **2,017 orders in March**, accounting for the bulk of the overall increase (about\u202f74\u202f% of the total rise). Therefore, **the Brooklyn store explains the jump in orders from February to March\u202f2025**."
+        }
+      ],
+      "category": "entity",
+      "gold": {
+        "items": [
+          "Brooklyn"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "q14",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 68312.875 matches gold 68312.875",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The average monthly pre\u2011tax revenue in 2025 was approximately $68,313.",
+        "numeric_value": 68312.875,
+        "unit": "USD",
+        "sql": "SELECT AVG(monthly_subtotal) AS avg_monthly_pretax_revenue FROM (\n  SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS monthly_subtotal\n  FROM main.orders\n  WHERE EXTRACT(year FROM ordered_at) = 2025\n  GROUP BY 1\n)",
+        "definition_used": "Average of the sum of order subtotal (pre\u2011tax) per month for all months in 2025 that have orders.",
+        "assumptions": [
+          "Only orders with a non\u2011null subtotal are included; months with no orders are excluded from the average.",
+          "The data only extends through August\u202f31\u202f2025, so the average is calculated over the months present in the dataset."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6839,
+      "output_tokens": 945,
+      "sql_calls": 1,
+      "latency_ms": 1458,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT AVG(monthly_subtotal) AS avg_monthly_pretax_revenue FROM (\n  SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS monthly_subtotal\n  FROM main.orders\n  WHERE EXTRACT(year FROM ordered_at) = 2025\n  GROUP BY 1\n)",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 15,
+          "preview": "avg_monthly_pretax_revenue\n68312.875"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Average monthly pre\u2011tax revenue in\u202f2025:** **\u2248\u202f$68,313**\n\n*How this was calculated*\n\n1. **Filtered** the `main.orders` table to the year\u202f2025 (`WHERE EXTRACT(year FROM ordered_at) = 2025`).  \n2. **Grouped** the orders by month (`DATE_TRUNC('month', ordered_at)`).  \n3. **Summed** the `subtotal` (pre\u2011tax amount) for each month.  \n4. **Averaged** those monthly totals across all months that had orders.\n\nThe resulting average of the monthly pre\u2011tax subtotals is **$68,312.875**, which rounds to **$68,313**."
+        }
+      ],
+      "category": "time",
+      "gold": 68312.875
+    },
+    {
+      "id": "q14",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 68312.875 matches gold 68312.875",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The average monthly pre\u2011tax revenue in 2025 was approximately $68,313.",
+        "numeric_value": 68312.875,
+        "unit": "USD",
+        "sql": "SELECT AVG(monthly_subtotal) AS avg_monthly_pretax_revenue FROM (\n  SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS monthly_subtotal\n  FROM main.orders\n  WHERE EXTRACT(year FROM ordered_at) = 2025\n  GROUP BY 1\n)",
+        "definition_used": "Average of the sum of order subtotal (pre\u2011tax) per month for all months in 2025 that have orders.",
+        "assumptions": [
+          "Only orders with a non\u2011null subtotal are included; months with no orders are excluded from the average.",
+          "The data only extends through August\u202f31\u202f2025, so the average is calculated over the months present in the dataset."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6839,
+      "output_tokens": 945,
+      "sql_calls": 1,
+      "latency_ms": 1619,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT AVG(monthly_subtotal) AS avg_monthly_pretax_revenue FROM (\n  SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS monthly_subtotal\n  FROM main.orders\n  WHERE EXTRACT(year FROM ordered_at) = 2025\n  GROUP BY 1\n)",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 9,
+          "preview": "avg_monthly_pretax_revenue\n68312.875"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Average monthly pre\u2011tax revenue in\u202f2025:** **\u2248\u202f$68,313**\n\n*How this was calculated*\n\n1. **Filtered** the `main.orders` table to the year\u202f2025 (`WHERE EXTRACT(year FROM ordered_at) = 2025`).  \n2. **Grouped** the orders by month (`DATE_TRUNC('month', ordered_at)`).  \n3. **Summed** the `subtotal` (pre\u2011tax amount) for each month.  \n4. **Averaged** those monthly totals across all months that had orders.\n\nThe resulting average of the monthly pre\u2011tax subtotals is **$68,312.875**, which rounds to **$68,313**."
+        }
+      ],
+      "category": "time",
+      "gold": 68312.875
+    },
+    {
+      "id": "q14",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 68312.875 matches gold 68312.875",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The average monthly pre\u2011tax revenue in 2025 was approximately $68,313.",
+        "numeric_value": 68312.875,
+        "unit": "USD",
+        "sql": "SELECT AVG(monthly_subtotal) AS avg_monthly_pretax_revenue FROM (\n  SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS monthly_subtotal\n  FROM main.orders\n  WHERE EXTRACT(year FROM ordered_at) = 2025\n  GROUP BY 1\n)",
+        "definition_used": "Average of the sum of order subtotal (pre\u2011tax) per month for all months in 2025 that have orders.",
+        "assumptions": [
+          "Only orders with a non\u2011null subtotal are included; months with no orders are excluded from the average.",
+          "The data only extends through August\u202f31\u202f2025, so the average is calculated over the months present in the dataset."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 6839,
+      "output_tokens": 945,
+      "sql_calls": 1,
+      "latency_ms": 2651,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT AVG(monthly_subtotal) AS avg_monthly_pretax_revenue FROM (\n  SELECT DATE_TRUNC('month', ordered_at) AS month, SUM(subtotal) AS monthly_subtotal\n  FROM main.orders\n  WHERE EXTRACT(year FROM ordered_at) = 2025\n  GROUP BY 1\n)",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 15,
+          "preview": "avg_monthly_pretax_revenue\n68312.875"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Average monthly pre\u2011tax revenue in\u202f2025:** **\u2248\u202f$68,313**\n\n*How this was calculated*\n\n1. **Filtered** the `main.orders` table to the year\u202f2025 (`WHERE EXTRACT(year FROM ordered_at) = 2025`).  \n2. **Grouped** the orders by month (`DATE_TRUNC('month', ordered_at)`).  \n3. **Summed** the `subtotal` (pre\u2011tax amount) for each month.  \n4. **Averaged** those monthly totals across all months that had orders.\n\nThe resulting average of the monthly pre\u2011tax subtotals is **$68,312.875**, which rounds to **$68,313**."
+        }
+      ],
+      "category": "time",
+      "gold": 68312.875
+    },
+    {
+      "id": "q15",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our revenue for the most recent month in the data (August\u202f2025) was $94,152.63.",
+        "numeric_value": 94152.63,
+        "unit": "USD",
+        "sql": "SELECT SUM(order_total) AS revenue_aug_2025 FROM main.orders WHERE ordered_at >= '2025-08-01' AND ordered_at < '2025-09-01'",
+        "definition_used": "Sum of the order_total column (order revenue including tax) for all orders placed in August\u202f2025.",
+        "assumptions": [
+          "\"Last month\" is interpreted as the most recent full month present in the dataset, which is August\u202f2025"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9115,
+      "output_tokens": 934,
+      "sql_calls": 2,
+      "latency_ms": 2006,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS revenue_july_2025 FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-08-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "revenue_july_2025\n85052.07"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS revenue_aug_2025 FROM main.orders WHERE ordered_at >= '2025-08-01' AND ordered_at < '2025-09-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "revenue_aug_2025\n94152.63"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "Our most recent full month of data is August\u202f2025. The total revenue (order_total) for that month was **$94,152.63**."
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q15",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our revenue for the most recent month in the data (August\u202f2025) was $94,152.63.",
+        "numeric_value": 94152.63,
+        "unit": "USD",
+        "sql": "SELECT SUM(order_total) AS revenue_aug_2025 FROM main.orders WHERE ordered_at >= '2025-08-01' AND ordered_at < '2025-09-01'",
+        "definition_used": "Sum of the order_total column (order revenue including tax) for all orders placed in August\u202f2025.",
+        "assumptions": [
+          "\"Last month\" is interpreted as the most recent full month present in the dataset, which is August\u202f2025"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9115,
+      "output_tokens": 934,
+      "sql_calls": 2,
+      "latency_ms": 2609,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS revenue_july_2025 FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-08-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "revenue_july_2025\n85052.07"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS revenue_aug_2025 FROM main.orders WHERE ordered_at >= '2025-08-01' AND ordered_at < '2025-09-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "revenue_aug_2025\n94152.63"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "Our most recent full month of data is August\u202f2025. The total revenue (order_total) for that month was **$94,152.63**."
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q15",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our revenue for the most recent month in the data (August\u202f2025) was $94,152.63.",
+        "numeric_value": 94152.63,
+        "unit": "USD",
+        "sql": "SELECT SUM(order_total) AS revenue_aug_2025 FROM main.orders WHERE ordered_at >= '2025-08-01' AND ordered_at < '2025-09-01'",
+        "definition_used": "Sum of the order_total column (order revenue including tax) for all orders placed in August\u202f2025.",
+        "assumptions": [
+          "\"Last month\" is interpreted as the most recent full month present in the dataset, which is August\u202f2025"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9115,
+      "output_tokens": 934,
+      "sql_calls": 2,
+      "latency_ms": 3755,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS revenue_july_2025 FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-08-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "revenue_july_2025\n85052.07"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS revenue_aug_2025 FROM main.orders WHERE ordered_at >= '2025-08-01' AND ordered_at < '2025-09-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "revenue_aug_2025\n94152.63"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "Our most recent full month of data is August\u202f2025. The total revenue (order_total) for that month was **$94,152.63**."
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q16",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue fell by $66,204 in Q3\u202f2025 compared with Q2\u202f2025.",
+        "numeric_value": -66204,
+        "unit": "USD",
+        "sql": "SELECT (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01') - (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01') AS diff;",
+        "definition_used": "Sum of the order subtotal (pre\u2011tax revenue) for all orders in each quarter.",
+        "assumptions": [
+          "Quarter boundaries are defined as Apr\u202f1\u2013Jun\u202f30 for Q2 and Jul\u202f1\u2013Sep\u202f1 (exclusive) for Q3 2025.",
+          "The data only includes July and August for Q3\u202f2025, so the figure reflects those two months."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 11643,
+      "output_tokens": 1073,
+      "sql_calls": 3,
+      "latency_ms": 2496,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q2_total FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "q2_total\n236927.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q3_total FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "q3_total\n170723.00"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01') - (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01') AS diff",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "diff\n-66204.00"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "The pre\u2011tax revenue (order subtotal) fell by **$66,204** in Q3\u202f2025 compared with Q2\u202f2025."
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q16",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue fell by $66,204 in Q3\u202f2025 compared with Q2\u202f2025.",
+        "numeric_value": -66204,
+        "unit": "USD",
+        "sql": "SELECT (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01') - (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01') AS diff;",
+        "definition_used": "Sum of the order subtotal (pre\u2011tax revenue) for all orders in each quarter.",
+        "assumptions": [
+          "Quarter boundaries are defined as Apr\u202f1\u2013Jun\u202f30 for Q2 and Jul\u202f1\u2013Sep\u202f1 (exclusive) for Q3 2025.",
+          "The data only includes July and August for Q3\u202f2025, so the figure reflects those two months."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 11643,
+      "output_tokens": 1073,
+      "sql_calls": 3,
+      "latency_ms": 3087,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q2_total FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "q2_total\n236927.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q3_total FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "q3_total\n170723.00"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01') - (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01') AS diff",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "diff\n-66204.00"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "The pre\u2011tax revenue (order subtotal) fell by **$66,204** in Q3\u202f2025 compared with Q2\u202f2025."
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q16",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected ['needs_clarification', 'cannot_answer']",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue fell by $66,204 in Q3\u202f2025 compared with Q2\u202f2025.",
+        "numeric_value": -66204,
+        "unit": "USD",
+        "sql": "SELECT (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01') - (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01') AS diff;",
+        "definition_used": "Sum of the order subtotal (pre\u2011tax revenue) for all orders in each quarter.",
+        "assumptions": [
+          "Quarter boundaries are defined as Apr\u202f1\u2013Jun\u202f30 for Q2 and Jul\u202f1\u2013Sep\u202f1 (exclusive) for Q3 2025.",
+          "The data only includes July and August for Q3\u202f2025, so the figure reflects those two months."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 11643,
+      "output_tokens": 1073,
+      "sql_calls": 3,
+      "latency_ms": 2647,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q2_total FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "q2_total\n236927.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q3_total FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "q3_total\n170723.00"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-07-01' AND ordered_at < '2025-09-01') - (SELECT SUM(subtotal) FROM main.orders WHERE ordered_at >= '2025-04-01' AND ordered_at < '2025-07-01') AS diff",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "diff\n-66204.00"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "The pre\u2011tax revenue (order subtotal) fell by **$66,204** in Q3\u202f2025 compared with Q2\u202f2025."
+        }
+      ],
+      "category": "time",
+      "gold": null
+    },
+    {
+      "id": "q17",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot determine busiest hour because timestamps only contain dates with no hour information.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4495,
+      "output_tokens": 241,
+      "sql_calls": 0,
+      "latency_ms": 944,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "cannot_answer"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q17",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot determine busiest hour because timestamps only contain dates with no hour information.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4495,
+      "output_tokens": 241,
+      "sql_calls": 0,
+      "latency_ms": 902,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "cannot_answer"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q17",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot determine busiest hour because timestamps only contain dates with no hour information.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4495,
+      "output_tokens": 241,
+      "sql_calls": 0,
+      "latency_ms": 891,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "cannot_answer"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q18",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot compute refund rate as there is no data on refunds in the warehouse.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4489,
+      "output_tokens": 162,
+      "sql_calls": 0,
+      "latency_ms": 887,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "cannot_answer"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q18",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot compute refund rate as there is no data on refunds in the warehouse.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4489,
+      "output_tokens": 162,
+      "sql_calls": 0,
+      "latency_ms": 1184,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "cannot_answer"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q18",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot compute refund rate as there is no data on refunds in the warehouse.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4489,
+      "output_tokens": 162,
+      "sql_calls": 0,
+      "latency_ms": 1093,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "cannot_answer"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q19",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our net profit margin was about 80.4%.",
+        "numeric_value": 0.8037,
+        "unit": "percent",
+        "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL;",
+        "definition_used": "(total revenue from order_total minus total cost from order_cost) divided by total revenue",
+        "assumptions": [
+          "Only orders with non\u2011null order_total and order_cost are included",
+          "order_total is treated as revenue and order_cost as cost"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9099,
+      "output_tokens": 558,
+      "sql_calls": 2,
+      "latency_ms": 2075,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue, SUM(order_cost) AS total_cost FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "total_revenue,total_cost\n671425.37,131788.38"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "net_profit_margin\n0.8037184981556476"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "The net profit margin is **approximately\u202f80.37\u202f%**."
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q19",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our net profit margin was about 80.4%.",
+        "numeric_value": 0.8037,
+        "unit": "percent",
+        "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL;",
+        "definition_used": "(total revenue from order_total minus total cost from order_cost) divided by total revenue",
+        "assumptions": [
+          "Only orders with non\u2011null order_total and order_cost are included",
+          "order_total is treated as revenue and order_cost as cost"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9099,
+      "output_tokens": 558,
+      "sql_calls": 2,
+      "latency_ms": 2316,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue, SUM(order_cost) AS total_cost FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "total_revenue,total_cost\n671425.37,131788.38"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 4,
+          "preview": "net_profit_margin\n0.8037184981556476"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "The net profit margin is **approximately\u202f80.37\u202f%**."
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q19",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Our net profit margin was about 80.4%.",
+        "numeric_value": 0.8037,
+        "unit": "percent",
+        "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL;",
+        "definition_used": "(total revenue from order_total minus total cost from order_cost) divided by total revenue",
+        "assumptions": [
+          "Only orders with non\u2011null order_total and order_cost are included",
+          "order_total is treated as revenue and order_cost as cost"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 9099,
+      "output_tokens": 558,
+      "sql_calls": 2,
+      "latency_ms": 2504,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(order_total) AS total_revenue, SUM(order_cost) AS total_cost FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 8,
+          "preview": "total_revenue,total_cost\n671425.37,131788.38"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT (SUM(order_total) - SUM(order_cost)) / SUM(order_total) AS net_profit_margin FROM main.orders WHERE order_total IS NOT NULL AND order_cost IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "net_profit_margin\n0.8037184981556476"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "The net profit margin is **approximately\u202f80.37\u202f%**."
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q20",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot determine whether the sales target was met because the sales target value is not available in the data.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4501,
+      "output_tokens": 265,
+      "sql_calls": 0,
+      "latency_ms": 867,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "I don\u2019t have the sales\u2011target figure for August\u202f2025 in the data you provided. Could you let me know what the target amount was (e.g., total revenue, order total, etc.) so I can compare it to the actual sales for that month?"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q20",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot determine whether the sales target was met because the sales target value is not available in the data.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4501,
+      "output_tokens": 265,
+      "sql_calls": 0,
+      "latency_ms": 1225,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "I don\u2019t have the sales\u2011target figure for August\u202f2025 in the data you provided. Could you let me know what the target amount was (e.g., total revenue, order total, etc.) so I can compare it to the actual sales for that month?"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "q20",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot determine whether the sales target was met because the sales target value is not available in the data.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": null,
+        "assumptions": [],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "9969ba978cd8",
+      "input_tokens": 4501,
+      "output_tokens": 265,
+      "sql_calls": 0,
+      "latency_ms": 1014,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "I don\u2019t have the sales\u2011target figure for August\u202f2025 in the data you provided. Could you let me know what the target amount was (e.g., total revenue, order total, etc.) so I can compare it to the actual sales for that month?"
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    }
+  ]
+}

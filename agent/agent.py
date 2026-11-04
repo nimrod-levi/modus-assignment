@@ -17,12 +17,13 @@ from typing import Any
 
 from openai import OpenAI
 
-from agent import db
+from agent import db, semantic
 
 SYSTEM_PROMPT = """You are a data analyst. You answer business questions about the company's data \
 by querying its DuckDB warehouse with the run_sql tool.
+If no table or column holds the concept asked for, answer cannot_answer. Do not use a proxy; if you cannot answer, say so. If the question is ambiguous, ask for clarification.
 
-Warehouse tables and views (schema.name (kind): columns):
+Warehouse (tables, columns, keys and joins, generated from the dbt project and the data):
 {schema}
 
 Each query shows at most {max_rows} rows, and every result is re-read on each later turn, so aggregate in SQL
@@ -131,7 +132,7 @@ def make_client() -> OpenAI:
 
 
 def build_system_prompt(con) -> str:
-    return SYSTEM_PROMPT.format(schema=db.describe_schema(con), max_rows=db.MAX_ROWS)
+    return SYSTEM_PROMPT.format(schema=semantic.describe(con), max_rows=db.MAX_ROWS)
 
 
 def _tool_message(call, text: str, *, is_error: bool = False) -> dict[str, Any]:

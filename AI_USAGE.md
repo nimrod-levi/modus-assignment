@@ -70,3 +70,16 @@ _(add moments as they happen: what it produced, how you caught it, what you chan
 Claude Code diagnosed the token cost from step 1's result file (mean skewed by one 202k-token question), implemented the 5-row cap,
 the harness-added truncation assumption, the repeated-SQL reply and the compact schema, and wrote the tests. Note: it first created the
 worktree from a stale branch (`baseline-gemini`) and had to reset it onto `main`. The author chose the step number and asked to drop "Done." from the prompt.
+
+## Step 3 · generated structural context
+Claude first proposed Cube (`cube_dbt`) after reading its docs. The author asked for another way with auto-generation. Claude then found that the repo
+already has `semantic_models`/`metrics` in the dbt YAML, and proposed generating context from the manifest and the warehouse. Claude wrote `agent/semantic.py`
+and its tests. Claude's first version missed the inferred joins for `products`, `locations` and `supplies` (their `unique` tests live on the `stg_`
+models, not the marts); found by printing the output and reading it, then fixed. A `sed -i` form that fails on macOS silently skipped the
+`&&` chain that created the test file; caught because the test run showed failures. Eval for step 3 not yet run.
+- Step 3b/3c: Claude's first analysis table of step flips read the wrong results file (`glob` order is not sorted), so several "flips" were
+  wrong; found by listing the files by name and recomputing. The first notes layer printed 7 identical "null in 483 rows" lines and
+  repeated midnight notes; found by reading the generated prompt and fixed by grouping. The 3c result is a 3-run mean compared with a
+  1-run 3b figure, so the effect of the notes alone is not measured.
+- Step 3d: Claude wrote the checklist after seeing the failures and said so in STEPS.md. In the wrap-up it compared 3d with 3c per question
+  and found the only differences were a grader fix (q08) and an unstable question (q06), so the 75% is not evidence that the checklist helps.

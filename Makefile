@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV   := .venv
 BIN    := $(VENV)/bin
 
-.PHONY: glossary-check checks setup check-python venv db test profile schema ask eval eval-holdout eval-test clean
+.PHONY: web glossary-check checks setup check-python venv db test profile schema ask eval eval-holdout eval-test clean
 
 ## setup: create the venv, install deps and build the warehouse (run once)
 setup: venv db
@@ -56,6 +56,10 @@ eval-holdout:
 ## eval-test: grader and runner tests (no API key)
 eval-test:
 	$(BIN)/python -m pytest -q tests/test_eval_grade.py
+
+## web: one-page UI to ask a question and see the SQL steps (http://127.0.0.1:8000)
+web:
+	$(BIN)/python -m agent.web
 
 clean:
 	rm -rf $(VENV) data/jaffle.duckdb data/jaffle.duckdb.wal dbt/target dbt/dbt_packages dbt/logs

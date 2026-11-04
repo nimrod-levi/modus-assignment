@@ -257,3 +257,11 @@ def test_throttled_client_gives_up_on_long_rate_limit_waits():
     with pytest.raises(RuntimeError, match="rate limit"):
         client.create(model="m")
     assert slept == []
+
+
+def test_zero_tolerance_accepts_only_the_exact_value():
+    spec = {"type": "number", "unit": ["days"], "rel_tol": 0, "abs_tol": 0}
+    exact = {"numeric_value": 3.592034445640474, "unit": "days"}
+    assert g._grade_number(spec, 3.592034445640474, exact).passed
+    assert not g._grade_number(spec, 3.592034445640474, {**exact, "numeric_value": 3.59}).passed
+    assert not g._grade_number(spec, 3.592034445640474, {**exact, "numeric_value": 3.6}).passed

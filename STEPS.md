@@ -279,3 +279,122 @@ Score: **15/20 = 75.0%** · 0 errors · **11,506 tokens/run (3c: 8,670)** · 2.0
 Step 3 went from "no context" (13/19) to generated structure (10/20), a refusal sentence (14/20), hand-picked notes (66.7% over 3 runs) and the
 edge-case checklist (15/20). The remaining failures are definitions (q03 q04), an undefined "today" and partial periods (q15 q16) and a missing concept
 (q19). None is a structure problem. Next: holdout run, then the glossary step, then the metric tool. Tag `step-03-structural-context` was not placed yet.
+
+### Step 4a · Customer glossary (all entries sent with the question)
+
+Change: `glossary/glossary.yaml` holds 10 customer-provided entries (the author's defaults until the customer, Maya, confirms them) (kinds: definition, rule, reference), kept apart from the
+generated context. `agent/glossary.py` validates the file against the warehouse (`make glossary-check`: required fields, kinds, duplicate ids,
+`applies_to` tables and columns exist, `sql` snippets compile) and renders a labelled block. The block is added to the first user message, after
+the question, not to the system prompt. The trace records `glossary_ids`. Switch: `GLOSSARY=off|all` (default `all`); `off` reproduces 3d.
+- The 10 entries are the author's assumptions: revenue (pre-tax, state the definition in every answer), revenue incl. tax, new customer, fiscal year,
+  empty orders, Brooklyn's open date, customer identity, relative dates, partial periods, gross profit. **Every entry is
+  `assumed`**: the customer has not answered. The block shows `(assumed)` to the agent.
+- q15 and q16 stay as the grader has them: the glossary says the data ends 2025-08-31 and to ask for relative periods, and to ask before comparing an
+  incomplete period. This is a customer rule, not a way to edit the gold. If the customer says "today is 2025-09-01", the right answer for q15 changes
+  and that would be an eval fix with its own commit.
+
+Honest limits:
+- By the author's decision the glossary does NOT list what the warehouse lacks (refunds, targets, costs other than supplies, order times, net profit): the agent
+  has to find that out itself, as in 3d. So q19 (net profit) is not expected to move; it stays the open "missing concept" case.
+- Several entries (new customer, empty orders, relative dates, partial periods) match questions that failed (q03 q04 q15 q16), so a gain on q03 q04 only shows that a given definition fixes a
+  definition error. It does not show the agent finds such gaps itself. The holdout run is the fairer test.
+- Risk of regressions: `empty_orders` is broad (counts, averages and sequence), so it can change questions that count orders or customers (q09 q13 q14);
+  the gold for those includes the $0 orders. `revenue` could push q01 toward the pre-tax subtotal; `revenue_incl_tax` says to use order_total when asked.
+  `revenue` also asks for the definition in every answer, which adds output tokens.
+
+Hypothesis (vs 3d, 15/20 at 1 run, 11.5k tokens/run): **17/20** (q03 and q04 fixed; q19 unchanged). q15 and q16 are expected to improve
+(the glossary tells the agent to ask), so 18-19/20 is possible. Tokens: about +0.4k to +0.8k per question (the full block is ~500 tokens, read on
+most turns of the conversation). Any regression in q01 q09 q13 q14 would be the cost of the wording. Run: `make eval STEP=step-04a-glossary-all`
+(1 run, not optimal), then `make eval-holdout STEP=step-04a-glossary-all` and the same holdout run for 3d as its baseline.
+
+**Result** (run `step-04a-glossary-all_questions_20261104-095159`, commit `a865982`, analysis in `eval/analysis/step-04a-glossary-all_20261104-095159/`):
+
+Score: **16/20 = 80.0%** (3d: 15/20) · 0 errors · **10,191 tokens/run (3d: 11,506)** · 1.1 SQL calls/run. 1 run per question, not optimal.
+- Hypothesis (17/20) not met by one question: q03 fixed; q04 applied the $0-order rule but the agent rounded `numeric_value` to 3.6 (gold 3.592034, tolerance 0.1%).
+  No regression on the 15 questions that passed in 3d (q09 q13 q14 held, so the broad `empty_orders` wording did no harm in this run).
+- **New failure:** q15 q16 q19 make 0 SQL calls and report invented figures (q15 "$1,234,567.89"). In 3d they queried. The glossary entries for q15/q16 say to ask or
+  state a limit; the agent states it and answers anyway, without a query. One run; check with RUNS=3 on those three before reacting.
+- Tokens: median +0.8k per question as predicted; the lower mean comes from q07/q13 using fewer calls and from the three no-query answers. Not a saving.
+- Shows that a customer definition fixes a definition error (q03). Does not show the agent finds such gaps itself; the holdout run has not been done.
+
+Next (step 4b): choose the entries per question with embeddings (OpenRouter embeddings work with the OpenAI SDK; spike done with
+`openai/text-embedding-3-small`: 1536 dims, about $1e-7 per call), always-on `reference` entries, top-k above a threshold, vectors cached on disk.
+Expected: the same score with fewer tokens. With 12 entries the gain is tokens, not score.
+
+### Eval fix · q04 wording asks for the exact value (made after step 4a, author's call)
+
+Reason: in step 4a q04 failed only because the agent rounded. Its query returned 3.592034..., it applied the $0-order rule correctly, and it
+submitted `numeric_value` 3.6, which is 0.25% off against the 0.1% tolerance. The question asked for "on average, how many days" and never said how
+precise. The author changed the wording to "how many days pass **exactly** between ..." to see whether the agent understands that it must not round
+when an exact figure is asked for.
+- Changed: the question text only. Gold SQL, the $0-order assumption and the grader (unit `days`, default tolerance) are unchanged. No slack was added.
+- It is a hint. The new word makes the question easier than the old one, so a q04 pass from now on is not comparable to the q04 fails in steps 3c, 3d and 4a.
+  Those result files keep the old wording and the old verdict; the 4a score stays 16/20.
+- It is a change made after seeing a failure, which is what the rules discourage. It is logged here, in its own commit, and it is not used to claim a gain:
+  when q04 passes, the gain belongs to the wording, not to the glossary.
+- What to look for in the next run: that `numeric_value` is 3.592034... and not 3.6. If it is still rounded, the question wording is not the lever, and the
+  answer-schema description ("unrounded") is the next candidate.
+
+### Author's note · edge cases and ranges must become dynamic (written after step 4a)
+
+The edge-case checklist (`agent/edge_cases.py`) and the data facts in `agent/semantic.py` (date ranges, partial periods, row counts, values) are computed
+when the prompt is built, so they follow the data as long as the data does not change between runs. The author notes that the real warehouse will not
+be static: the ranges will move, new months will arrive, new stores will start selling, and a context built once (or cached) goes stale. Edge cases,
+ranges and the rest of the generated context will have to be recomputed as the data changes (for example on every new load, or with a freshness
+check on the cached context). **Left for later; not started and not part of step 4.**
+
+### Step 4a' · The glossary holds concepts only (author's decision, after the 4a score)
+
+The author removed every specific date, name and example from `glossary/glossary.yaml`: the glossary says what a word means, not what the data
+contains. Facts about the data (the last date, which quarter is incomplete, which store opened late, that names repeat) belong to the generated context,
+which can follow the data (see the note above). Changes:
+- `relative_dates`: no longer says the data ends on a given date; it says the last date in the data is not today, so ask and state that date.
+- `partial_periods`: no longer names Q3 2025; it says that if the data covers only part of a period, say so and ask before comparing.
+- `brooklyn_open_date` is now `store_start_date`, without the store name or date: trust the store's first order over `locations.opened_date`, flag a gap.
+- `customer_identity`: "(names repeat)" removed.
+
+What this tests: whether the agent can combine a concept ("a partial period needs a question") with the facts in the generated context (which period is
+partial), instead of reading both from one sentence. The 4a score came partly from entries that carried the answer's data; this removes it.
+Expectation: q03 and the 15 stable questions hold. q15 and q16 may get worse or better: the model must now find the last date by itself (a query), which could
+also reduce the no-query answers seen in 4a. This is a new run, so a new score: `make eval STEP=step-04a2-glossary-concepts`; the 4a result stays as measured.
+
+**Result** (run `step-04a2-glossary-concepts_questions_20261104-101246`, commit `ce6f329`, analysis in `eval/analysis/step-04a2-glossary-concepts_20261104-101246/`):
+
+Score: **18/20 = 90.0%** (4a: 16/20, 3d: 15/20) · 0 errors · **10,822 tokens/run** (4a: 10,191) · 1.4 SQL calls/run. 1 run per question, not optimal.
+- q04 passes with the new "exactly" wording, but the answer is still rounded (3.59 vs 3.592034); the 0.1% tolerance absorbed it. The 4a to 4a' step is not clean for that reason:
+  without q04 it is 17/19 vs 16/19, +1 (q15).
+- q15 passes: the agent asks which month is meant and states the last date in the data, taken from the generated ranges. The split concept (glossary) and fact (generated) works.
+- q16 fails again with 0 SQL calls and invented figures (second glossary run in a row). q19 now queries but treats `tax_paid` as a cost (73.99%).
+- Removing the dates from the glossary lost nothing in this run.
+
+### Author's note · the glossary does not scale and holds assumptions (written after step 4a')
+
+1. **Proof of concept only.** The glossary is injected whole into every question. With 10 entries that costs a few hundred tokens; with hundreds of entries it would not
+   fit or would drown the question. At scale it has to be a retrieval step over vector embeddings (select the entries closest to the question, always keep the few that
+   are global). That is step 4b; the spike with OpenRouter embeddings works. The `terms` field in the YAML is a stopgap for the same job.
+2. **Every entry is an assumption.** The 10 entries are the author's defaults (`status: assumed`, owner "Maya (defaults until confirmed)"), not company answers. A real
+   deployment has to let the company decide its own truths: what revenue means, what a new customer is, whether $0 orders count, what the fiscal calendar is. Those answers
+   can differ from ours and would change the correct answer to the eval questions. The eval only measures that the pipeline uses a definition when one is given.
+   The process around the file (who confirms, how a change is reviewed, how `assumed` becomes `confirmed`) is not built.
+
+### Eval fix · q04 graded with zero tolerance (made after step 4a', author's call)
+
+Reason: in 4a' q04 passed with 3.59, a rounded answer that happened to fall inside the 0.1% tolerance, so the pass did not show that the agent returns an exact
+value when "exactly" is asked. The grader for q04 is now `rel_tol: 0, abs_tol: 0`: `numeric_value` must equal the gold, 3.592034445640474, and 3.59 or 3.6 fails.
+- Changed: the grader tolerance of q04 only (and its comment). The question text, gold SQL, the $0-order assumption and the unit are unchanged. A unit test
+  (`test_zero_tolerance_accepts_only_the_exact_value`) shows the exact value passes and 3.59 / 3.6 do not.
+- This makes q04 stricter, not easier. Earlier results keep their verdicts (4a' passed q04 under the 0.1% tolerance; under this one it would have failed with 3.59).
+  So 4a' is not comparable to the next run on q04: re-run the whole eval to compare (`step-04a3-q04-exact`, same agent and glossary as 4a').
+- Expectation: the model rounds its answers by habit, so q04 probably fails again (17/20). If it passes, the wording "exactly" is enough. If it still fails, the lever is
+  the answer-schema description for `numeric_value` ("unrounded, as returned by the query"), a generic change and its own step.
+
+**Result** (run `step-04a3-q04-exact_questions_20261104-164447`, commit `2a487ad`; same agent, glossary and system prompt as 4a'):
+
+Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQL calls/run. 1 run per question, not optimal.
+- The only difference from 4a' is q04, as expected: the query returned 3.592034445640474 and the agent submitted `numeric_value` 3.59, which fails zero tolerance. "Exactly"
+  in the question is not enough; the model rounds when it fills the answer field. Next candidate: say in the answer schema that `numeric_value` is the unrounded query result.
+  That is a generic change (no question-specific rule) and would be its own step.
+- **All 20 answers and all 20 token counts are identical to 4a'** (same inputs, temperature 0). Either the provider is deterministic for an identical request or the reply is cached;
+  this run cannot tell which. Consequence: a re-run of an unchanged agent adds no information here, and the variance seen in earlier steps (q02, q06, q20 flipping) came from
+  runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
+- Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).

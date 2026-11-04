@@ -1,0 +1,21 @@
+id,category,3d_1run,4a_1run,tokens_3d,tokens_4a,sql_3d,sql_4a,failure_layer,root_cause,fix_that_targets_it
+q01,metric-definition,PASS,PASS,7760,9179,1,1,,,
+q02,metric-definition,PASS,PASS,13641,9881,3,1,,,
+q03,metric-definition,FAIL,PASS,7853,9513,1,1,fixed,glossary new_customer: first-ever order in the period (answer 33 = gold),-
+q04,metric-definition,FAIL,FAIL,11959,10246,2,1,rounding,"Applied the $0-order rule (empty_orders); SQL returned 3.592034, the answer was rounded to 3.6 (0.25% off, tolerance 0.1%)",numeric_value must not be rounded; see the q04 eval fix commit
+q05,units,PASS,PASS,7683,8945,1,1,,,
+q06,grain,PASS,PASS,15145,13879,3,2,,,
+q07,grain,PASS,PASS,26317,13854,5,2,,,
+q08,grain,PASS,PASS,7858,12611,1,2,,,
+q09,grain,PASS,PASS,7674,9249,1,1,,,
+q10,grain,PASS,PASS,7783,12563,1,2,,,
+q11,entity,PASS,PASS,10368,9163,2,1,,,
+q12,entity,PASS,PASS,13682,19218,3,4,,,
+q13,entity,PASS,PASS,38865,14350,10,2,,,
+q14,time,PASS,PASS,8123,9924,1,1,,,
+q15,time,FAIL,FAIL,8158,6695,1,0,"no query, invented number","Reads relative_dates, picks July 2025 from the data end date, makes 0 SQL calls and reports $1,234,567.89","a rule that figures must come from a query; behaviour, not definition"
+q16,time,FAIL,FAIL,11132,6793,2,0,"no query, invented number","Says Q3 is incomplete, does not ask, makes 0 SQL calls and reports invented Q2/Q3 sums (-$623k; 3d queried and got -$66k)",same as q15
+q17,unanswerable,PASS,PASS,5215,6061,0,0,,,
+q18,unanswerable,PASS,PASS,5168,8965,0,1,,,
+q19,unanswerable,FAIL,FAIL,10467,6708,2,0,"no query, invented cost","Not in the glossary by design; 0 SQL calls, invents a 'tax paid' cost, answers 13.2%",agent must find missing concepts itself; same no-query rule
+q20,unanswerable,PASS,PASS,5263,6014,0,0,,,

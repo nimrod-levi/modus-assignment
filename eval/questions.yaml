@@ -57,8 +57,9 @@ questions:
     category: metric-definition
     # ASSUMPTION (customer): $0 orders (483, no items) are not real orders and are ignored, so
     # first/second order are ranked among orders with order_total > 0. Re-ranked here because
-    # customer_order_number counts the $0 orders. Exact match (default tolerance), no slack.
-    question: "On average, how many days pass between a customer's first order and their second order?"
+    # customer_order_number counts the $0 orders. Exact match: rel_tol 0 and abs_tol 0, so the agent must return
+    # the unrounded value (3.592034445640474); a rounded 3.59 fails.
+    question: "On average, how many days pass exactly between a customer's first order and their second order?"
     gold_sql: |
       with o as (
         select customer_id, ordered_at,
@@ -66,7 +67,7 @@ questions:
         from main.orders where order_total > 0)
       select avg(date_diff('day', a.ordered_at, b.ordered_at))
       from o a join o b on a.customer_id = b.customer_id and a.rn = 1 and b.rn = 2
-    grader: {type: number, unit: [days]}
+    grader: {type: number, unit: [days], rel_tol: 0, abs_tol: 0}
 
   # ---- units ---------------------------------------------------------------------------
   - id: q05

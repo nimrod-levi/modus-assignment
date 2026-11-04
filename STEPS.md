@@ -141,3 +141,31 @@ Reason (author's call): q04 was disabled after step 1 because explaining its ass
 has 20 questions again. Question text, gold SQL and tolerance are unchanged from the disabled version. Consequence: steps 1 and 2
 (19 questions) are not strictly comparable to anything from step 3 on. Re-run step 2 on the 20 questions to get the baseline for step 3.
 The $0-order assumption is still not in the prompt (it is a customer answer, so it belongs in the glossary step); q04 is expected to fail until then.
+
+### Decision · Cube (`cube_dbt`) considered as the semantic layer, not used
+
+`cube_dbt` (PyPI) only turns `manifest.json` into Cube YAML with dimensions (name, type, description, `meta`, primary-key tag). It
+generates no measures and no joins, and it needs a running Cube server for the agent to query through. Measures and joins would be written
+by hand, which breaks "context must be generated", and a second modeling language plus a server is more than a 25-minute review can cover.
+The repo already has the semantic layer in dbt (`semantic_models` and `metrics` in the mart YAML, compiled to
+`target/semantic_manifest.json`), so we generate from dbt directly. Revisit only as a spike if the generated context stalls.
+
+### Step 3 · Generated structural context (grain, keys, joins, data facts)
+
+Root cause targeted: the agent only sees column names and types, so it cannot know the grain of a table, which joins fan out, the date
+range of the data, or which stores have orders. Everything below is generated from `dbt/target/manifest.json` and the warehouse
+(`agent/semantic.py`); no business rule is typed into the prompt.
+
+Changes (same model, provider, tools; only the schema block of the system prompt changes):
+- Per mart table: row count, grain ("one row per X", from `unique` tests; marts inherit the tests of their `stg_` model), dbt table and column descriptions.
+- Join paths: declared (dbt `relationships` tests) plus inferred (a column named like another table's key, labelled "(inferred)").
+- Join cardinality lines with a fan-out warning, and the parents with no children (e.g. "4 of 6 locations rows have no orders rows").
+- Data facts read from the warehouse: min/max of every date column, values of text columns with at most 6 distinct values.
+- Staging and raw tables stay as the compact one-line listing. Not changed: tools, model, provider, reasoning effort, row cap.
+
+Hypothesis: prompt grows from about 1k to about 1.4k tokens, so tokens/Q rises by roughly 1-2k (more than the 3 requests x 0.4k, because the
+model may also run fewer exploratory queries). Score on the 20 questions rises by 1-3 over the step-2 re-run:
+- likely fixed: q11 q12 (stores without orders, now stated), q15 (the data ends 2025-08-31, now stated), q01/q02 (the tax is in `order_total`'s description);
+- grain questions (q06 q07 q09) should hold or become more stable (fan-out warning);
+- not expected to move: q04 (customer assumption), q17-q20 (unanswerable: the context says what exists, but nothing tells the model to refuse), q03 (definition of "new").
+If the score does not move, read the traces before concluding: the missing piece may be the metric definitions (step 4, MetricFlow), not structure.

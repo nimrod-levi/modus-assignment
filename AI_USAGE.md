@@ -70,3 +70,10 @@ _(add moments as they happen: what it produced, how you caught it, what you chan
 Claude Code diagnosed the token cost from step 1's result file (mean skewed by one 202k-token question), implemented the 5-row cap,
 the harness-added truncation assumption, the repeated-SQL reply and the compact schema, and wrote the tests. Note: it first created the
 worktree from a stale branch (`baseline-gemini`) and had to reset it onto `main`. The author chose the step number and asked to drop "Done." from the prompt.
+
+## Step 3 · generated structural context
+Claude first proposed Cube (`cube_dbt`) after reading its docs. The author asked for another way with auto-generation. Claude then found that the repo
+already has `semantic_models`/`metrics` in the dbt YAML, and proposed generating context from the manifest and the warehouse. Claude wrote `agent/semantic.py`
+and its tests. Claude's first version missed the inferred joins for `products`, `locations` and `supplies` (their `unique` tests live on the `stg_`
+models, not the marts); found by printing the output and reading it, then fixed. A `sed -i` form that fails on macOS silently skipped the
+`&&` chain that created the test file; caught because the test run showed failures. Eval for step 3 not yet run.

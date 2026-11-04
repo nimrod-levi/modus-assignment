@@ -6,7 +6,7 @@ import json
 from types import SimpleNamespace as NS
 
 from agent import agent as agent_mod
-from agent import db
+from agent import db, semantic
 
 
 def _call(name, id_="c", **args):
@@ -39,6 +39,7 @@ class FakeCon:
 
 def _patch_db(monkeypatch, calls, error=None):
     monkeypatch.setattr(db, "describe_schema", lambda con: "main.orders (table): order_total DECIMAL")
+    monkeypatch.setattr(semantic, "describe", lambda con: "main.orders (table): order_total DECIMAL")
 
     def fake_run_sql(con, sql, **kw):
         calls.append(sql)
@@ -192,6 +193,7 @@ def test_provider_is_pinned_without_fallbacks(monkeypatch):
 
 def test_truncated_result_adds_assumption(monkeypatch):
     monkeypatch.setattr(db, "describe_schema", lambda con: "t")
+    monkeypatch.setattr(semantic, "describe", lambda con: "t")
     monkeypatch.setattr(
         db, "run_sql",
         lambda con, sql, **kw: db.QueryResult(sql=sql, columns=["n"], rows=[(1,)] * db.MAX_ROWS, truncated=True))
@@ -223,5 +225,6 @@ def test_repeated_sql_is_not_run_or_resent(monkeypatch):
 
 def test_prompt_states_row_cap_and_no_done(monkeypatch):
     monkeypatch.setattr(db, "describe_schema", lambda con: "t")
+    monkeypatch.setattr(semantic, "describe", lambda con: "t")
     prompt = agent_mod.build_system_prompt(FakeCon())
     assert f"at most {db.MAX_ROWS} rows" in prompt and "Done" not in prompt

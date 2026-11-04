@@ -134,3 +134,10 @@ Score: **13/19 = 68.4%** (unchanged) · 0 errors · **7,043 tokens/Q (was 19,090
 - Hypothesis held: tokens fell into the predicted 6-9k band and calls fell below 3; score did not regress. q07 and q13 still pass.
 - Same questions fail as in step 1 (q15-q19 need context, steps 3+); q20 now passes and one other question flipped. With 1 run/question that is variance, not a gain: read the score as "no regression".
 - Not measured here: how often the truncation assumption was added (no eval question needs a list). Still open: the extra no-tool turn before the final answer, reasoning effort, prompt caching.
+
+### Eval fix · q04 re-enabled (made before step 3)
+
+Reason (author's call): q04 was disabled after step 1 because explaining its assumptions cost too many tokens. It is back so the eval
+has 20 questions again. Question text, gold SQL and tolerance are unchanged from the disabled version. Consequence: steps 1 and 2
+(19 questions) are not strictly comparable to anything from step 3 on. Re-run step 2 on the 20 questions to get the baseline for step 3.
+The $0-order assumption is still not in the prompt (it is a customer answer, so it belongs in the glossary step); q04 is expected to fail until then.

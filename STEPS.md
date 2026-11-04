@@ -206,3 +206,18 @@ Prompt grows from about 1.5k to about 1.75k tokens.
 Hypothesis (vs the step-3b run, 14/20): +2 to +3 questions. Likely: q17 (midnight note), q16 (incomplete Q3 note), q06 stays fixed (sibling warning).
 Possible: q15 (the "no today" note). Not expected: q03, q04 (definitions, glossary), q19 (no generated fact says costs other than supplies are absent).
 Risk: more prompt tokens per request; notes the model reads as instructions instead of facts. Run with `RUNS=3` and compare with 3b at `RUNS=3`.
+
+**Result** (run `step-03c-table-notes_questions_20261104-082123`, commit `02db363`, 3 runs per question): **66.7% mean score (13.3/20)** ·
+pass^3 = 65.0% (13 questions pass all 3 runs) · 0 errors · **8,670 tokens/run (3b: 7,478)** · 1.4 SQL calls/run.
+- Hypothesis: partly held. **q17 is fixed and stable (3/3)**: the "every value is midnight" note works. q06 stays unstable (PFF).
+  q15 and q16 did not move; q19 did not move, as expected.
+- Not comparable to 3b's 14/20: that was one run, this is the mean of three. The 3b-at-3-runs baseline was not run, so the effect of 3c alone
+  is not measured. To measure it: check out `7b8e886` and run `make eval STEP=step-03b-refusal-rule RUNS=3`.
+- q16: the model now reads the note ("the data only includes July and August for Q3") and writes it into `assumptions`, but still gives the
+  -66,204 figure instead of asking. The facts reached the model; the behaviour did not change. Whether answering with that caveat should count
+  as a fail is a grader question for the author, not something to tune here.
+- q15: it states "most recent full month in the dataset" and answers. Same pattern: the note is used to justify a guess.
+- q06 run 2: after a binder error it deduplicated `(order_item_id, supply_cost)` to avoid the fan-out and got 131,788.38 (equal to
+  `sum(order_cost)`), because the join to `supplies` still filters wrongly. The sibling warning was in the prompt; the model reasoned about it and still chose the wrong fix.
+- q08 fails 3/3 on the unit "drink items" (value correct): the grader unit list, still undecided. q03, q04 need the glossary.
+- Tokens: +1.2k/run vs 3b, in line with the 0.25k larger prompt sent on about 3 requests plus more reading.

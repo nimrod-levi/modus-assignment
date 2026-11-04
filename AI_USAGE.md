@@ -77,3 +77,7 @@ already has `semantic_models`/`metrics` in the dbt YAML, and proposed generating
 and its tests. Claude's first version missed the inferred joins for `products`, `locations` and `supplies` (their `unique` tests live on the `stg_`
 models, not the marts); found by printing the output and reading it, then fixed. A `sed -i` form that fails on macOS silently skipped the
 `&&` chain that created the test file; caught because the test run showed failures. Eval for step 3 not yet run.
+- Step 3b/3c: Claude's first analysis table of step flips read the wrong results file (`glob` order is not sorted), so several "flips" were
+  wrong; found by listing the files by name and recomputing. The first notes layer printed 7 identical "null in 483 rows" lines and
+  repeated midnight notes; found by reading the generated prompt and fixed by grouping. The 3c result is a 3-run mean compared with a
+  1-run 3b figure, so the effect of the notes alone is not measured.

@@ -8,6 +8,8 @@
 #
 # Concepts only: no dates, no figures, no examples taken from the data. Facts about the data come from the generated context.
 # What the warehouse does not have (refunds, targets, costs, order times) is NOT listed here: the agent must find that out itself.
+# PROOF OF CONCEPT: the whole file is sent with every question, which does not scale (it needs embedding retrieval). The entries are assumptions;
+# a company must decide its own truths before the answers can be trusted.
 # EVERY ENTRY BELOW IS ASSUMED: these are the defaults supplied by the author until Maya (the customer) confirms them.
 entries:
   - id: revenue

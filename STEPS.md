@@ -357,3 +357,22 @@ What this tests: whether the agent can combine a concept ("a partial period need
 partial), instead of reading both from one sentence. The 4a score came partly from entries that carried the answer's data; this removes it.
 Expectation: q03 and the 15 stable questions hold. q15 and q16 may get worse or better: the model must now find the last date by itself (a query), which could
 also reduce the no-query answers seen in 4a. This is a new run, so a new score: `make eval STEP=step-04a2-glossary-concepts`; the 4a result stays as measured.
+
+**Result** (run `step-04a2-glossary-concepts_questions_20261104-101246`, commit `ce6f329`, analysis in `eval/analysis/step-04a2-glossary-concepts_20261104-101246/`):
+
+Score: **18/20 = 90.0%** (4a: 16/20, 3d: 15/20) · 0 errors · **10,822 tokens/run** (4a: 10,191) · 1.4 SQL calls/run. 1 run per question, not optimal.
+- q04 passes with the new "exactly" wording, but the answer is still rounded (3.59 vs 3.592034); the 0.1% tolerance absorbed it. The 4a to 4a' step is not clean for that reason:
+  without q04 it is 17/19 vs 16/19, +1 (q15).
+- q15 passes: the agent asks which month is meant and states the last date in the data, taken from the generated ranges. The split concept (glossary) and fact (generated) works.
+- q16 fails again with 0 SQL calls and invented figures (second glossary run in a row). q19 now queries but treats `tax_paid` as a cost (73.99%).
+- Removing the dates from the glossary lost nothing in this run.
+
+### Author's note · the glossary does not scale and holds assumptions (written after step 4a')
+
+1. **Proof of concept only.** The glossary is injected whole into every question. With 10 entries that costs a few hundred tokens; with hundreds of entries it would not
+   fit or would drown the question. At scale it has to be a retrieval step over vector embeddings (select the entries closest to the question, always keep the few that
+   are global). That is step 4b; the spike with OpenRouter embeddings works. The `terms` field in the YAML is a stopgap for the same job.
+2. **Every entry is an assumption.** The 10 entries are the author's defaults (`status: assumed`, owner "Maya (defaults until confirmed)"), not company answers. A real
+   deployment has to let the company decide its own truths: what revenue means, what a new customer is, whether $0 orders count, what the fiscal calendar is. Those answers
+   can differ from ours and would change the correct answer to the eval questions. The eval only measures that the pipeline uses a definition when one is given.
+   The process around the file (who confirms, how a change is reviewed, how `assumed` becomes `confirmed`) is not built.

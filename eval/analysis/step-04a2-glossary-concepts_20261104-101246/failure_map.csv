@@ -1,0 +1,21 @@
+id,category,3d_1run,4a_1run,4a2_1run,tokens_4a,tokens_4a2,sql_4a,sql_4a2,failure_layer,root_cause,fix_that_targets_it
+q01,metric-definition,PASS,PASS,PASS,9179,9131,1,1,,,
+q02,metric-definition,PASS,PASS,PASS,9881,9774,1,1,,,
+q03,metric-definition,FAIL,PASS,PASS,9513,12765,1,2,"fixed in 4a, holds","33, equal to gold; 2 SQL calls this time",-
+q04,metric-definition,FAIL,FAIL,PASS,10246,10237,1,1,eval fix + format,"Wording now says 'exactly' (eval fix 610ecb8). Agent applied the $0-order rule and answered 3.59, still rounded (to 2 dp); it passes only because 3.59 is within 0.1% of 3.592034","none needed for the score; the rounding is not solved, the tolerance absorbed it"
+q05,units,PASS,PASS,PASS,8945,8880,1,1,,,
+q06,grain,PASS,PASS,PASS,13879,10469,2,1,,,
+q07,grain,PASS,PASS,PASS,13854,17534,2,3,,,
+q08,grain,PASS,PASS,PASS,12611,9373,2,1,,,
+q09,grain,PASS,PASS,PASS,9249,9128,1,1,,,
+q10,grain,PASS,PASS,PASS,12563,15570,2,3,,,
+q11,entity,PASS,PASS,PASS,9163,9066,1,1,,,
+q12,entity,PASS,PASS,PASS,19218,12217,4,2,,,
+q13,entity,PASS,PASS,PASS,14350,18677,2,3,,,
+q14,time,PASS,PASS,PASS,9924,12827,1,2,,,
+q15,time,FAIL,FAIL,PASS,6695,6316,0,0,fixed (concept + generated fact),"Asks which month is meant and states the last date in the data (from the generated date range, 0 SQL calls, no figure given)",-
+q16,time,FAIL,FAIL,FAIL,6793,7090,0,0,"no query, invented number","Says Q3 has only July and August and still answers; 0 SQL calls; Q2 $1,234,567 and Q3 $890,123 are invented (4a invented other figures)","generic rule: a figure must come from a query; behaviour, not definition"
+q17,unanswerable,PASS,PASS,PASS,6061,5989,0,0,,,
+q18,unanswerable,PASS,PASS,PASS,8965,5917,1,0,,,
+q19,unanswerable,FAIL,FAIL,FAIL,6708,19428,0,4,wrong definition of cost,"Now queries (4 calls) but subtracts supply cost AND tax_paid and calls it net profit: 73.99%. Other costs are not in the data and the glossary does not say so, by design",agent must notice missing concepts itself; open
+q20,unanswerable,PASS,PASS,PASS,6014,6059,0,0,,,

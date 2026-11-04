@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV   := .venv
 BIN    := $(VENV)/bin
 
-.PHONY: setup check-python venv db test profile schema ask eval eval-holdout eval-test clean
+.PHONY: checks setup check-python venv db test profile schema ask eval eval-holdout eval-test clean
 
 ## setup: create the venv, install deps and build the warehouse (run once)
 setup: venv db
@@ -26,6 +26,10 @@ test:
 ## profile: row counts, date range, revenue both ways
 profile:
 	$(BIN)/python scripts/profile_data.py
+
+## checks: run the edge-case checklist on every table and print the generated context
+checks:
+	$(BIN)/python -m agent.edge_cases
 
 ## schema: print the baseline system prompt
 schema:

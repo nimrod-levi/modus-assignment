@@ -241,3 +241,26 @@ run on every table and column (coverage and gaps in time, granularity of timesta
 keys, many-to-many paths, units and scale, values that look like placeholders, concepts the schema cannot represent), emitted as
 notes. The checklist would be written before looking at any eval result and would be reviewed on its own merit. Not started; decide
 after the holdout run and the 3b-at-3-runs baseline.
+
+### Step 3d · Edge-case checklist replaces the hand-picked notes (answer to the author's note above)
+
+Change: `agent/edge_cases.py` is a fixed checklist of 11 checks, run on every mart table and column (`make checks` prints the result):
+date ranges, time coverage (missing months, partial first/last month, incomplete quarters, no "today"), time of day, nulls, zeros,
+negatives, duplicate keys/rows (or no key declared), orphan and childless keys, constant columns, placeholder values, scaled duplicate
+columns (x_cents vs x). Join-level fan-out and many-to-many risks come from the join graph (`join_risks`). It replaces `table_notes` and
+`sibling_warnings` in `agent/semantic.py`; the column descriptions, grain, joins and the refusal sentence in the system prompt are unchanged.
+- Every table now also gets a line "Checked, nothing found: ...". A check that does not apply (no date column) is not listed. The agent can
+  tell "no negatives" from "nobody looked", which the sentence-per-gap notes could not say.
+- Each check is unit-tested on planted data (`tests/test_edge_cases.py`), not only on the jaffle-shop data, to show it does not depend on this dataset.
+
+Honest limits:
+- The checklist was written after seeing the step-3 failures, so time coverage and time of day are on it partly because we saw them fail.
+  The other nine come from the usual data-quality taxonomy and fire on nothing in the eval; whether they help is untested here.
+- Not covered by design: concepts the schema does not hold (refunds, targets, costs other than supplies), metric meaning, fiscal calendar
+  (glossary). Not covered yet: outliers, near-duplicate text, cross-column consistency. So q19 (net profit) and q15 (what is "today") stay open.
+- New findings that appear (the cents columns, the 483 rows with a 0 total, `count_drink_items = 0`) are facts the model may over-read.
+
+Hypothesis (vs step 3c, 66.7% mean over 3 runs): score within +/-1 question of 3c, because the findings the eval depends on (midnight, partial
+Q3, stores without orders, sibling join) are the same ones as before, now produced by general checks. A clear change would mean the extra
+generic findings help or hurt, which is the thing to look at in the traces. Tokens: about +0.1k to +0.3k per request (the "Checked, nothing found"
+lines and the cents note). Run with `RUNS=3`; compare also with the 3b baseline at `RUNS=3`.

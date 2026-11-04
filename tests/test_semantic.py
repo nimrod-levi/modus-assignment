@@ -33,7 +33,7 @@ def test_grain_comes_from_unique_tests(text):
 
 
 def test_data_facts_are_read_from_the_warehouse(text):
-    assert "ordered_at covers 2024-09-01 to 2025-08-31; 12 months" in text
+    assert "ordered_at covers 2024-09-01 to 2025-08-31" in text and "ordered_at: 12 months" in text
     assert "4 of 6 rows have no orders rows" in text  # only 2 stores have orders
     assert "483 of 61948 rows have no order_items rows" in text
 

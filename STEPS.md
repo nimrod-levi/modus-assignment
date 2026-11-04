@@ -320,3 +320,17 @@ Score: **16/20 = 80.0%** (3d: 15/20) · 0 errors · **10,191 tokens/run (3d: 11,
 Next (step 4b): choose the entries per question with embeddings (OpenRouter embeddings work with the OpenAI SDK; spike done with
 `openai/text-embedding-3-small`: 1536 dims, about $1e-7 per call), always-on `reference` entries, top-k above a threshold, vectors cached on disk.
 Expected: the same score with fewer tokens. With 12 entries the gain is tokens, not score.
+
+### Eval fix · q04 wording asks for the exact value (made after step 4a, author's call)
+
+Reason: in step 4a q04 failed only because the agent rounded. Its query returned 3.592034..., it applied the $0-order rule correctly, and it
+submitted `numeric_value` 3.6, which is 0.25% off against the 0.1% tolerance. The question asked for "on average, how many days" and never said how
+precise. The author changed the wording to "how many days pass **exactly** between ..." to see whether the agent understands that it must not round
+when an exact figure is asked for.
+- Changed: the question text only. Gold SQL, the $0-order assumption and the grader (unit `days`, default tolerance) are unchanged. No slack was added.
+- It is a hint. The new word makes the question easier than the old one, so a q04 pass from now on is not comparable to the q04 fails in steps 3c, 3d and 4a.
+  Those result files keep the old wording and the old verdict; the 4a score stays 16/20.
+- It is a change made after seeing a failure, which is what the rules discourage. It is logged here, in its own commit, and it is not used to claim a gain:
+  when q04 passes, the gain belongs to the wording, not to the glossary.
+- What to look for in the next run: that `numeric_value` is 3.592034... and not 3.6. If it is still rounded, the question wording is not the lever, and the
+  answer-schema description ("unrounded") is the next candidate.

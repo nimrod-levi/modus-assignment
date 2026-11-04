@@ -280,7 +280,7 @@ Step 3 went from "no context" (13/19) to generated structure (10/20), a refusal 
 edge-case checklist (15/20). The remaining failures are definitions (q03 q04), an undefined "today" and partial periods (q15 q16) and a missing concept
 (q19). None is a structure problem. Next: holdout run, then the glossary step, then the metric tool. Tag `step-03-structural-context` was not placed yet.
 
-### Step 4 · Customer glossary (all entries sent with the question)
+### Step 4a · Customer glossary (all entries sent with the question)
 
 Change: `glossary/glossary.yaml` holds 10 customer-provided entries (the author's defaults until the customer, Maya, confirms them) (kinds: definition, rule, reference), kept apart from the
 generated context. `agent/glossary.py` validates the file against the warehouse (`make glossary-check`: required fields, kinds, duplicate ids,
@@ -304,8 +304,18 @@ Honest limits:
 
 Hypothesis (vs 3d, 15/20 at 1 run, 11.5k tokens/run): **17/20** (q03 and q04 fixed; q19 unchanged). q15 and q16 are expected to improve
 (the glossary tells the agent to ask), so 18-19/20 is possible. Tokens: about +0.4k to +0.8k per question (the full block is ~500 tokens, read on
-most turns of the conversation). Any regression in q01 q09 q13 q14 would be the cost of the wording. Run: `make eval STEP=step-04-glossary-all`
-(1 run, not optimal), then `make eval-holdout STEP=step-04-glossary-all` and the same holdout run for 3d as its baseline.
+most turns of the conversation). Any regression in q01 q09 q13 q14 would be the cost of the wording. Run: `make eval STEP=step-04a-glossary-all`
+(1 run, not optimal), then `make eval-holdout STEP=step-04a-glossary-all` and the same holdout run for 3d as its baseline.
+
+**Result** (run `step-04a-glossary-all_questions_20261104-095159`, commit `a865982`, analysis in `eval/analysis/step-04a-glossary-all_20261104-095159/`):
+
+Score: **16/20 = 80.0%** (3d: 15/20) · 0 errors · **10,191 tokens/run (3d: 11,506)** · 1.1 SQL calls/run. 1 run per question, not optimal.
+- Hypothesis (17/20) not met by one question: q03 fixed; q04 applied the $0-order rule but the agent rounded `numeric_value` to 3.6 (gold 3.592034, tolerance 0.1%).
+  No regression on the 15 questions that passed in 3d (q09 q13 q14 held, so the broad `empty_orders` wording did no harm in this run).
+- **New failure:** q15 q16 q19 make 0 SQL calls and report invented figures (q15 "$1,234,567.89"). In 3d they queried. The glossary entries for q15/q16 say to ask or
+  state a limit; the agent states it and answers anyway, without a query. One run; check with RUNS=3 on those three before reacting.
+- Tokens: median +0.8k per question as predicted; the lower mean comes from q07/q13 using fewer calls and from the three no-query answers. Not a saving.
+- Shows that a customer definition fixes a definition error (q03). Does not show the agent finds such gaps itself; the holdout run has not been done.
 
 Next (step 4b): choose the entries per question with embeddings (OpenRouter embeddings work with the OpenAI SDK; spike done with
 `openai/text-embedding-3-small`: 1536 dims, about $1e-7 per call), always-on `reference` entries, top-k above a threshold, vectors cached on disk.

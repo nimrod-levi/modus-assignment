@@ -6,3 +6,4 @@ timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,
 2026-11-04T08:13:46+00:00,step-03-structural-context,questions,a7ddb3e,True,openai/gpt-oss-120b,f305e7d7e1fb,20,1,0.700,0.700,0.700,0,0,7478,1.5
 2026-11-04T08:23:29+00:00,step-03c-table-notes,questions,02db363,True,openai/gpt-oss-120b,9969ba978cd8,20,3,0.667,0.667,0.650,0,0,8670,1.4
 2026-11-04T08:36:06+00:00,step-03d-edge-case-checklist,questions,deffa23,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,1,0.750,0.750,0.750,0,0,11506,2.0
+2026-11-04T09:52:46+00:00,step-04a-glossary-all,questions,a865982,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,1,0.800,0.800,0.800,0,0,10191,1.1

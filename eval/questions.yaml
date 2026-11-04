@@ -103,7 +103,7 @@ questions:
     # Drinks sold (items, 70,819) is not orders that include a drink (60,334).
     question: "How many drinks did we sell?"
     gold_sql: "select count(*) from main.order_items where is_drink_item"
-    grader: {type: number, unit: [drinks, items]}
+    grader: {type: number, unit: [drinks, items, drink items]}
 
   - id: q09
     category: grain

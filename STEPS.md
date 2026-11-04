@@ -221,3 +221,23 @@ pass^3 = 65.0% (13 questions pass all 3 runs) · 0 errors · **8,670 tokens/run 
   `sum(order_cost)`), because the join to `supplies` still filters wrongly. The sibling warning was in the prompt; the model reasoned about it and still chose the wrong fix.
 - q08 fails 3/3 on the unit "drink items" (value correct): the grader unit list, still undecided. q03, q04 need the glossary.
 - Tokens: +1.2k/run vs 3b, in line with the 0.25k larger prompt sent on about 3 requests plus more reading.
+
+### Eval fix · q08 unit list (made after step 3c)
+
+Reason (author's call): q08 failed in every step-3 run only because the answer's unit was "drink items", which the grader did not accept
+although the value (70,819) is correct. `drink items` added to the allowed units (`drinks`, `items`). Question text, gold SQL and number
+tolerance are unchanged. Effect: q08 results from step 3 onward are scored with the new list; earlier result files keep the old verdict
+(re-grade them if a table across steps is needed).
+
+### Author's note · concern about the step 3 approach (written after step 3c)
+
+The author does not like the direction of steps 3b/3c. Each fix (the refusal sentence, the midnight-timestamp note, the partial-quarter note,
+the sibling fan-out warning) was chosen because an eval question failed. They are generated from the data, not typed per question, but
+the *choice of what to look for* still comes from the failures we saw. Gaps the eval does not cover will be missed, and the score
+then overstates how well the agent understands the data. The holdout set (`make eval-holdout`) is only a partial check.
+
+Possible direction for later: start from a systematic definition of data edge cases instead of from failures, e.g. a fixed checklist
+run on every table and column (coverage and gaps in time, granularity of timestamps, nulls, zero/negative values, duplicates, orphan
+keys, many-to-many paths, units and scale, values that look like placeholders, concepts the schema cannot represent), emitted as
+notes. The checklist would be written before looking at any eval result and would be reviewed on its own merit. Not started; decide
+after the holdout run and the 3b-at-3-runs baseline.

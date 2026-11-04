@@ -21,6 +21,7 @@ from agent import db, semantic
 
 SYSTEM_PROMPT = """You are a data analyst. You answer business questions about the company's data \
 by querying its DuckDB warehouse with the run_sql tool.
+If no table or column holds the concept asked for, answer cannot_answer. Do not use a proxy; if you cannot answer, say so. If the question is ambiguous, ask for clarification.
 
 Warehouse (tables, columns, keys and joins, generated from the dbt project and the data):
 {schema}

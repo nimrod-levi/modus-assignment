@@ -169,3 +169,24 @@ model may also run fewer exploratory queries). Score on the 20 questions rises b
 - grain questions (q06 q07 q09) should hold or become more stable (fan-out warning);
 - not expected to move: q04 (customer assumption), q17-q20 (unanswerable: the context says what exists, but nothing tells the model to refuse), q03 (definition of "new").
 If the score does not move, read the traces before concluding: the missing piece may be the metric definitions (step 4, MetricFlow), not structure.
+
+**Result** (run `step-03-structural-context_questions_20261104-080457`, commit `a7ddb3e`, analysis in `eval/analysis/step-03-structural-context_20261104-080457/`):
+
+Score: **10/20 = 50.0%** (10/19 on the questions shared with step 2, down from 13/19) · 0 errors · **10,191 tokens/Q (was 7,043, +45%)** · 2.45 SQL calls/Q.
+
+- **Hypothesis rejected.** Predicted +1 to +3 and +1-2k tokens; got -3 and +3.1k. Only q06 (a gap in the generated fan-out warning: it covers parent columns, not two tables sharing a key) and probably q03 (the dbt description of `customer_type` was applied literally) can be blamed on the context.
+- q08 failed only because the grader rejected the unit "drink items" (value correct); q02 (P,F,P) and q20 (F,P,F) flipped across steps 1-3, so they are noise.
+- q15-q20 did not move: the context says what exists, but nothing says to decline when a concept has no data. q15 now cites the data range to justify a guess.
+- Conclusion: not a verdict on step 3 yet. With 1 run per question the comparison is inside the noise. Next: re-run step 2 on 20 questions and step 3 with `RUNS=3`, fix the generator gaps, then add the refusal rule as its own step.
+
+### Step 3b · Refusal rule in the system prompt (added by the author after the step-3 analysis)
+
+Change: one generic sentence added to `SYSTEM_PROMPT`: if no table or column holds the concept asked for, answer `cannot_answer`, no
+proxy; if the question is ambiguous, ask. Not tied to any eval question. Note for honesty: it was written after reading the step-3
+failures (q15-q20), so it targets them by design; the holdout set (`make eval-holdout`) is the check that it does not just fit the eval.
+
+**Result** (run `step-03-structural-context_questions_20261104-081304`, prompt sha `f305e7d7e1fb`): **14/20 = 70.0%** · 0 errors ·
+**7,478 tokens/Q (was 10,191)** · 1.5 SQL calls/Q.
+- Fixed vs the first step-3 run: q18 (refund rate) now declines. q20 declines too, q06 and q08 pass again (those two flipped back: noise, not the rule).
+- Still failing: q03 (`customer_type = 'new'` filter), q04 (glossary), q15 and q16 (answered instead of asking: the rule is not enough for relative dates and partial quarters), q17 (hour 0 from midnight-only timestamps), q19 (net profit from supply costs only).
+- Tokens fell by a third with the same context: the model needs fewer exploratory queries when it declines early. Read it with 1 run per question in mind.

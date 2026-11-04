@@ -1,0 +1,12 @@
+id,category,step1,step2,step3,failure_layer,root_cause,evidence,fix_that_targets_it
+q02,metric-definition,P,F,PASS,-,-,-,- (unstable: do not count as a step-3 gain)
+q03,metric-definition,P,P,FAIL,context (induced),Filtered customer_type='new' (the dbt description says it means ordered once) and answered 0 although its own second query returned 33,numeric 0 vs gold 33,Glossary / metric definition of "new customer"; check whether the description caused it
+q04,metric-definition,-,-,FAIL,context,Did not ignore the 483 $0 orders (customer assumption),3.52 vs 3.592,glossary (customer answer)
+q06,grain,P,P,FAIL,context (generator gap),Joined order_items to supplies on product_id and summed order_items.supply_cost: each item repeated once per supply row,396061.34 vs 104719.19,generated warning for tables that share a key (sibling fan-out) and a note that order_items.supply_cost is already the per-item total
+q08,grain,P,P,FAIL,grader,Value 70819 is correct; unit 'drink items' not in the allowed list [drinks; items],unit mismatch only,eval fix to the unit list (author's call; not a context issue)
+q15,time,F,F,FAIL,context,Now justifies August 2025 from the data range and answers instead of asking,94152.63 + assumption naming the range,rule: ask which date is "today"; data range alone made the guess more confident
+q16,time,F,F,FAIL,context,Treats Q3 as complete although only July-August exist,-66204,generated facts: months present per quarter
+q17,unanswerable,F,F,FAIL,context,Found by itself that all timestamps are midnight (5 queries) and still answered hour 0,hour 0 busiest,generated fact: "time of day is always 00:00" + decline rule
+q18,unanswerable,F,F,FAIL,context,Invented refunds = orders with order_total 0,0.78%,decline rule: do not use a proxy when no column holds the concept
+q19,unanswerable,F,F,FAIL,context,Net profit = revenue minus supply cost; no other costs exist,80.37%,decline rule + generated list of cost columns that exist
+q20,unanswerable,F,P,FAIL,context,Assumed a $100000 target that is nowhere in the data,"No, 5847 short",decline rule

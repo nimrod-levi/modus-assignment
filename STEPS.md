@@ -399,6 +399,9 @@ Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQ
   runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
 - Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).
 
+> **Steps 5 to 6a' below are explored directions that did not lead to an implementation. They live on branch `worktree-step-05-relationship-map`, which is documentation only and is not
+> to be merged into the agent.** Summary and evidence: `eval/analysis/explored-not-implemented_20261105/README.md`.
+
 ### Step 5 · A generated relationship map (hypothesis, written before the run)
 
 Root cause targeted: the join graph is spread over the prompt (a `joins:` line in each table, a fan-out list at the end). The agent has to assemble it, and the

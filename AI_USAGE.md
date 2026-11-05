@@ -90,3 +90,6 @@ models, not the marts); found by printing the output and reading it, then fixed.
   agent) was a guess from one log. Its 5b hypothesis was also wrong in effect: the 1-run +q06 -q16 result looked like a partial win until Claude ran a control (a header rename with no
   content change moved the score 18 -> 16, and 5b with the rename 18 -> 14). Claude then measured with sampled repeats (temperature 0.5, 3 runs): 83.3% vs 81.7%, no effect. Claude's
   statement earlier in step 4 that "the provider is deterministic, a re-run adds no information" was true only for identical prompts and was corrected in the analysis page.
+- Step 6a (metric catalog from the dbt semantic layer): Claude wrote `agent/metrics.py` and its tests, and chose to split "show the definitions" (6a) from "run MetricFlow as a tool" (6b) so each has one root cause.
+  It wrote the decision rule (5 points, no loss on q01-q04) before the run. Result: 75.0% / 76.7% / 78.3% for off / on / closed, below the rule, so the direction was stopped, not tuned until it passed.
+  Its prediction that the catalog would help the unanswerable questions was half right (q18, q20 rose in 6a, then fell back in 6a'); its prediction of +0.7k tokens was 0.3k for 6a and 1.8k for 6a'.

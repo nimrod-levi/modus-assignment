@@ -22,7 +22,7 @@ from pathlib import Path
 
 import duckdb
 
-from agent import db, edge_cases
+from agent import db, edge_cases, metrics
 
 MANIFEST_PATH = db.REPO_ROOT / "dbt" / "target" / "manifest.json"
 MAX_DISTINCT = 6  # list the values of a text column only if it has at most this many distinct values
@@ -159,6 +159,12 @@ def describe(con: duckdb.DuckDBPyConnection, manifest: dict | None = None) -> st
         lines.append("\nJoin risks (from the keys above):")
         lines.extend("- " + risk for risk in edge_cases.join_risks(
             joins, measure_fanout(con, joins) if os.environ.get("JOIN_FANOUT", "on") != "off" else None))
+
+    mode = os.environ.get("METRICS", "on")  # step 6a: off | on | closed (6a': also says the list is complete)
+    if mode != "off":
+        catalog = metrics.describe_metrics(manifest, closed=mode == "closed")
+        if catalog:
+            lines.append("\n" + catalog)
 
     other = [line for line in db.describe_schema(con).splitlines()
              if not any(line.startswith(f"main.{t} ") for t in tables)]

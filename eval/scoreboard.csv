@@ -16,3 +16,6 @@ timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,
 2026-11-05T14:49:51+00:00,step-05c-5b-with-header-rename,questions,9d7151f,True,openai/gpt-oss-120b,cd10d903ab4d,20,1,0.700,0.700,0.700,0,0,11013,1.4
 2026-11-05T14:53:47+00:00,step-05c-T0.5-fanout-on,questions,9d7151f,True,openai/gpt-oss-120b,7b4a51ada9bb,20,3,0.817,0.817,0.750,0,0,11390,1.4
 2026-11-05T14:53:57+00:00,step-05c-T0.5-baseline-off,questions,9d7151f,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,3,0.833,0.833,0.750,0,0,11921,1.6
+2026-11-05T15:13:29+00:00,step-06a-T0.5-metrics-on,questions,c228809,True,openai/gpt-oss-120b,ae1eb5e0cb43,20,3,0.767,0.767,0.700,0,0,11900,1.1
+2026-11-05T15:13:30+00:00,step-06a-T0.5-metrics-off,questions,c228809,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,3,0.750,0.750,0.600,0,0,11565,1.5
+2026-11-05T15:17:00+00:00,step-06a2-T0.5-metrics-closed,questions,c228809,True,openai/gpt-oss-120b,f37dd6ae337e,20,3,0.783,0.783,0.700,0,0,13307,1.4

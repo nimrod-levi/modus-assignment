@@ -475,3 +475,54 @@ Since the prompt-level noise is as large as the effects tried, repeats at temper
 - **What actually fails in the 4a' prompt at temperature 0.5 is not about joins:** q19 0/3 (invents a cost model for a question the data cannot answer), q04 0-1/3 (rounds), q16 1/3 (answers instead of stopping on a partial quarter). These are the next targets, and each is behaviour, not relationships.
 - Kept from this step: the measurement switches (`AGENT_TEMPERATURE`, default 0, so nothing changes by default; `JOIN_FANOUT`, default on). The measured fan-out lines stay in the prompt only because they cost about 100 tokens and did no harm in the data; they are not a claimed improvement. Whether to keep them is the author's call (set the default to `off` to restore the exact 4a' prompt).
 - Method lesson for every later step: compare prompts with `AGENT_TEMPERATURE=0.5 RUNS=3` (about 3 minutes, cheap) and judge the mean against the per-run spread; do not judge on one run at temperature 0.
+
+### Step 6a · The company's metric definitions, generated from the dbt semantic layer (hypothesis, written before the run)
+
+Author's decision: use MetricFlow. The dbt project already defines 6 semantic models and 19 metrics (`revenue`, `order_total`, `orders`, `order_gross_profit`, `new_customer_orders`,
+`food_revenue_pct`, ...). Until now the agent never saw them. Two steps, one root cause each: **6a** shows the definitions (context only, no new dependency); **6b** (later) gives the agent
+a `query_metric` tool that runs MetricFlow itself. 6a first, because if the definitions alone do not help, a tool that executes them has less to add.
+
+Change (`agent/metrics.py`, generated from `manifest.json`, nothing typed by hand): one line per metric: name, type, dbt description, and the SQL it implies (aggregation and expression over its
+table, filters rewritten as plain SQL, ratio/derived/cumulative built from other metrics, time column). About 2.7k characters (~700 tokens). Switch: `METRICS=on|off` (default on), same pattern as `GLOSSARY`.
+Not added: a "metrics not on this list are undefined" sentence. That would be a second change; if q19 does not move, it is the next try (6a').
+
+Mapping to the eval (read from the question text, not tuned): metrics exist for q01 (`order_total`), q02 (`order_gross_profit`), q03 (`new_customer_orders`), q12 and q14 (`revenue`), q16 and q15 (`revenue`),
+q13 (`orders`). Most of these pass already, so little headroom: the realistic gain is consistency, and possibly q19/q18/q20 (net profit, refund rate, target are visibly not defined).
+Risk written down in advance: **dbt's `new_customer_orders` counts `customer_order_number = 1` orders and knows nothing about the glossary's rule that $0 orders are empty orders**; the agent has to reconcile a company
+metric with a glossary rule (q03). dbt's `revenue` is `SUM(product_price)` over `order_items`; the glossary's is `SUM(orders.subtotal)`; they should agree on the data but the agent now has two sources.
+
+Expected: mean within +/- 1 question of the baseline; q19 may move; tokens +0.7k. Measure: `METRICS=off` vs `on`, both with `JOIN_FANOUT=off` (so the only difference is the catalog) at `AGENT_TEMPERATURE=0.5`, `RUNS=3`, run at the same time.
+Decision rule (before the run): improvement only if the mean is higher by more than the spread between runs of one arm (about 1 question = 5 points) **and** no definition question (q01-q04) loses; otherwise report "no effect" and try 6a' once, then stop.
+
+**Result 6a** (runs `step-06a-T0.5-metrics-off_questions_20261105-151052` and `step-06a-T0.5-metrics-on_questions_20261105-151052`, temperature 0.5, 3 runs each, same time):
+| | `METRICS=off` (4a' prompt) | `METRICS=on` |
+|---|---|---|
+| mean score | **75.0%** (runs: 14, 15, 16 of 20) | **76.7%** (runs: 14, 17, 15 of 20) |
+| pass on all 3 runs | 60% | 70% |
+| tokens/run | 11,565 | 11,900 (+0.3k) |
+| SQL calls/run | 1.48 | 1.08 |
+| unanswerable (q17-q20) | 50% | 75% |
+| metric-definition (q01-q04) | 91.7% | 83.3% |
+- **By the rule fixed in advance: no effect** (+1.7 points, less than the 5 needed, and q04 lost). Not an improvement.
+- **But the movement is where the idea said it would be:** q18 (refund rate) 1/3 -> 3/3 and q20 (sales target) 2/3 -> 3/3: with the catalog the agent declines more reliably on metrics the company does not define. Six runs against three is small, so this is a lead, not a result.
+- The losses are in noise-prone questions with no link to metrics: q04 (rounding) 2/3 -> 1/3, q06 1/3 -> 0/3 (it fails in both arms in 5 of 6 runs), q13 2/3 -> 2/3 with a different run failing.
+- q19 (net profit) fails 3/3 in both arms: the catalog did not stop it from inventing a cost model.
+- Same-hour baseline: **75.0%** now vs 83.3% for the identical prompt a few hours earlier (5c). Another sign that absolute scores move between hours; only same-time comparisons mean anything.
+- Not yet done: the glossary vs metric conflict check (q03 `new_customer_orders` and the $0-order rule): q03 passes 3/3 in both arms, so the risk did not show up.
+
+### Step 6a' · "These are all the metrics the company defines" (hypothesis, before the run)
+The only signal in 6a is on q18/q20: an absent metric makes the agent decline. The catalog does not say that it is complete, so the agent may read a missing metric as "not listed" instead of "not defined". Change: `METRICS=closed` adds one generic sentence to the catalog header: the list is every metric the company has defined, and a business metric that is on neither this list nor computable from the data columns has no definition. No question-specific text.
+Expected: unanswerable (q17-q20) up again, q19 may move (net profit is not listed and no cost columns exist beyond supplies); metric-definition not worse; tokens +30. Decision rule as in 6a, compared with `off` and `on` from the same hour. If this does not clear 5 points, stop the metric-context direction and ask the author (the tool, 6b, would then be the only MetricFlow step left).
+
+**Result 6a'** (run `step-06a2-T0.5-metrics-closed_questions_20261105-151404`, same hour, 3 runs):
+| | off | on | closed |
+|---|---|---|---|
+| mean score | 75.0% | 76.7% | **78.3%** (runs: 16, 16, 15) |
+| pass on all 3 runs | 60% | 70% | 70% |
+| unanswerable (q17-q20) | 50% | 75% | 67% |
+| tokens/run | 11,565 | 11,900 | 13,307 |
+- **By the rule fixed in advance: no improvement** (+3.3 points over `off`, +1.7 over `on`, both under 5), and the unanswerable gain of 6a did not repeat or grow (q20 now fails once with `needs_clarification`; q19 3/3 fail in all three arms). Tokens +1.4k over `on`.
+- The three arms are 75.0%, 76.7%, 78.3%: ordered in the direction of the idea, each step inside the spread between runs of one arm (14-17 of 20). A real but small effect cannot be ruled out; **it cannot be shown with 3 runs**, and 3 more runs per arm would still be a 5-point question.
+- **Decision: the metric-context direction is stopped** (as written before the run). The catalog (`METRICS=on`) stays in the code and is on by default only because it costs +0.3k tokens and did no harm; it is not a claimed improvement. Set `METRICS=off` to restore the exact 4a' prompt.
+- Unchanged and unsolved in every arm: q19 (invented cost model), q04 (rounding), q16/q15 (partial period, relative date), q06 (flips). None of these is fixed by definitions of metrics the company already has. These need behaviour changes (what the agent does when a concept is missing or incomplete), not more context.
+- 6b (a `query_metric` tool that runs MetricFlow) is not started. With the definitions visible and the agent already passing the metric questions it can see, a tool would mostly guarantee the arithmetic, which is not what fails. Author's call whether it is still worth the dependency (`dbt-metricflow` installs cleanly with dbt-core 1.11 on Python 3.11, checked with a dry run; it was not added to `requirements.txt`).

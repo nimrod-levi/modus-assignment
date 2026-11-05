@@ -241,3 +241,49 @@ def test_glossary_block_goes_with_the_question_not_the_system_prompt(monkeypatch
     assert "Ignore test orders." not in system["content"]
     assert user["content"].startswith("What was revenue?") and "[g1] Ignore test orders. (assumed)" in user["content"]
     assert trace["glossary_ids"] == ["g1"] and trace["question"] == "What was revenue?"
+
+
+# ---- step 5a: ungrounded answers go back to exploration -----------------------------------------------------
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _grounding_off_by_default(monkeypatch):
+    """The older tests submit an answer without a query; the grounding tests below switch it on explicitly."""
+    monkeypatch.setenv("GROUNDING", "off")
+
+
+GROUNDED = agent_mod.AgentConfig(grounding=True, glossary="off")
+
+
+def test_answer_without_a_query_is_sent_back_to_explore(monkeypatch):
+    calls = []
+    _patch_db(monkeypatch, calls)
+    client = FakeClient([
+        _text("done"), _text(ANSWER),  # no query, invented answer -> rejected
+        _response(_call("run_sql", "t1", sql="select sum(order_total) from main.orders")), _text("ok"), _text(ANSWER),
+    ])
+    trace = agent_mod.ask("What was revenue?", client=client, con=FakeCon(), config=GROUNDED)
+    assert trace["end_reason"] == "submitted" and calls == ["select sum(order_total) from main.orders"]
+    assert trace["grounding_rejections"] == 1 and trace["tool_rejections"] == 1
+    feedback = client.requests[2]["messages"][-1]
+    assert feedback["role"] == "user" and "without a successful query" in feedback["content"]
+    assert client.requests[2]["tools"]  # the retry is an exploration turn, with run_sql available
+    assert any(s["type"] == "rejected_call" and "ungrounded" in s["reason"] for s in trace["steps"])
+
+
+def test_ungrounded_answers_are_capped(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_text("done"), _text(ANSWER)] * 6)
+    config = agent_mod.AgentConfig(grounding=True, glossary="off", max_retries=2)
+    trace = agent_mod.ask("q", client=client, con=FakeCon(), config=config)
+    assert trace["end_reason"] == "ungrounded" and trace["answer"] is None
+    assert trace["tool_rejections"] == 3 and trace["grounding_rejections"] == 3
+
+
+def test_grounded_answer_passes_first_time(monkeypatch):
+    _patch_db(monkeypatch, [])
+    client = FakeClient([_response(_call("run_sql", "t1", sql="select 1")), _text("ok"), _text(ANSWER)])
+    trace = agent_mod.ask("What was revenue?", client=client, con=FakeCon(), config=GROUNDED)
+    assert trace["end_reason"] == "submitted" and trace["grounding_rejections"] == 0

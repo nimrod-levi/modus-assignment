@@ -17,7 +17,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from agent import db, glossary, semantic
+from agent import db, glossary, grounding, semantic
 
 SYSTEM_PROMPT = """You are a data analyst. You answer business questions about the company's data \
 by querying its DuckDB warehouse with the run_sql tool.
@@ -96,6 +96,10 @@ FINAL_REQUEST = "Now give your final answer to the question."
 TRUNCATION_ASSUMPTION = (
     f"Only the first {db.MAX_ROWS} rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
 )
+UNGROUNDED = (
+    "Your answer was rejected: {problems}. Run queries that compute the figures (run_sql), or answer "
+    "needs_clarification or cannot_answer if the data cannot support them. Do not state a number no query returned."
+)
 REPEATED_SQL = "Same query as an earlier call in this conversation; its result is above."
 REJECTED = (
     "Your last reply was rejected ({reason}). run_sql is the only tool; call it by that exact name, or reply in plain text."
@@ -110,6 +114,7 @@ class AgentConfig:
     temperature: float = 0.0
     max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
     glossary: str = field(default_factory=lambda: os.environ.get("GLOSSARY", "all"))  # off | all
+    grounding: bool = field(default_factory=lambda: os.environ.get("GROUNDING", "on") == "on")  # on | off
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
@@ -184,13 +189,14 @@ def _create(client, config, messages, trace, turn, **kwargs):
         return response
 
 
-def _final_answer(client, config, messages, trace, turn) -> None:
-    """Ask for the final answer in a request with no tools and a strict JSON schema, then store it in the trace."""
+def _final_answer(client, config, messages, trace, turn, question) -> bool:
+    """Ask for the final answer in a request with no tools and a strict JSON schema, then store it in the trace.
+    Returns True when the answer was rejected as ungrounded (see agent/grounding.py) and the model should query again."""
     messages.append({"role": "user", "content": FINAL_REQUEST})
     for _ in range(config.max_retries + 1):
         response = _create(client, config, messages, trace, turn, response_format=ANSWER_FORMAT)
         if response is None:
-            return
+            return False
         msg = response.choices[0].message if response.choices else None
         try:
             answer = json.loads((msg.content or "") if msg else "")
@@ -204,13 +210,90 @@ def _final_answer(client, config, messages, trace, turn) -> None:
             messages.append({"role": "assistant", "content": msg.content or "" if msg else ""})
             messages.append({"role": "user", "content": REJECTED.format(reason="the final answer must be a JSON object")})
             continue
+        problems = grounding.check(answer, question, trace["steps"]) if config.grounding else []
+        if problems:
+            trace["tool_rejections"] += 1
+            trace["grounding_rejections"] += 1
+            reason = "; ".join(problems)
+            trace["steps"].append({"turn": turn, "type": "rejected_call", "reason": f"ungrounded answer: {reason}"})
+            if trace["tool_rejections"] > config.max_retries:
+                trace["end_reason"] = "ungrounded"
+                return False
+            messages.append({"role": "assistant", "content": msg.content or ""})
+            messages.append({"role": "user", "content": UNGROUNDED.format(problems=reason)})
+            return True
         if any(st.get("truncated") for st in trace["steps"] if st["type"] == "sql"):
             assumptions = answer.get("assumptions")
             answer["assumptions"] = (assumptions if isinstance(assumptions, list) else []) + [TRUNCATION_ASSUMPTION]
         trace["answer"] = answer
         trace["end_reason"] = "submitted"
-        return
+        return False
     trace["end_reason"] = "api_error"
+    return False
+
+
+def _explore(client, config, messages, trace, con, seen_sql) -> bool:
+    """Exploration turns: run_sql is the only tool. A reply with no tool call means "done"; the answer is then
+    requested separately. Uses the turns left in trace["turns"]. Returns False when the run ended (api_error)."""
+    last = config.max_turns - 1  # the last turn is kept for the final answer
+    while trace["turns"] < last:
+        turn = trace["turns"]
+        trace["turns"] += 1
+        response = _create(client, config, messages, trace, turn, tools=TOOLS, tool_choice="auto")
+        if response is None:
+            return False
+        msg = response.choices[0].message if response.choices else None
+        calls = (msg.tool_calls or []) if msg else []
+        if msg and msg.content and msg.content.strip():
+            trace["steps"].append({"turn": turn, "type": "text", "text": msg.content})
+        if not calls:
+            return True
+        messages.append(
+            {
+                "role": "assistant",
+                "content": msg.content or "",
+                "tool_calls": [
+                    {
+                        "id": c.id,
+                        "type": "function",
+                        "function": {"name": c.function.name, "arguments": c.function.arguments},
+                    }
+                    for c in calls
+                ],
+            }
+        )
+        for call in calls:
+            try:
+                args = json.loads(call.function.arguments or "{}")
+            except json.JSONDecodeError as exc:
+                messages.append(_tool_message(call, f"Arguments were not valid JSON: {exc}", is_error=True))
+                continue
+            if call.function.name != "run_sql":
+                messages.append(_tool_message(call, f"Unknown tool {call.function.name}.", is_error=True))
+                continue
+            sql = args.get("sql", "")
+            if sql.strip() in seen_sql:  # the same query again: don't re-send its rows
+                trace["steps"].append({"turn": turn, "type": "repeated_sql", "sql": sql})
+                messages.append(_tool_message(call, REPEATED_SQL))
+                continue
+            seen_sql.add(sql.strip())
+            result = db.run_sql(con, sql)
+            trace["steps"].append(
+                {
+                    "turn": turn,
+                    "type": "sql",
+                    "sql": result.sql,
+                    "row_count": result.row_count,
+                    "truncated": result.truncated,
+                    "error": result.error,
+                    "elapsed_ms": result.elapsed_ms,
+                    "preview": result.to_text(),
+                }
+            )
+            messages.append(_tool_message(call, result.to_text(), is_error=result.error is not None))
+    if not any(s["type"] == "text" and s["text"] == "turn limit reached" for s in trace["steps"]):
+        trace["steps"].append({"turn": last, "type": "text", "text": "turn limit reached"})
+    return True
 
 
 def ask(question: str, *, client=None, con=None, config: AgentConfig | None = None) -> dict[str, Any]:
@@ -240,70 +323,19 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "answer": None,
         "end_reason": None,
         "tool_rejections": 0,
+        "grounding_rejections": 0,
+        "turns": 0,
     }
     seen_sql: set[str] = set()
     started = time.perf_counter()
 
     try:
-        # Exploration turns: run_sql is the only tool. A reply with no tool call means "done"; the answer
-        # is then requested separately. The last turn skips straight to the final answer.
-        for turn in range(config.max_turns - 1):
-            response = _create(client, config, messages, trace, turn, tools=TOOLS, tool_choice="auto")
-            if response is None:
+        # Explore, then request the answer. An ungrounded answer sends the model back to explore with the turns it has left.
+        while True:
+            if not _explore(client, config, messages, trace, con, seen_sql):
                 return trace
-            msg = response.choices[0].message if response.choices else None
-            calls = (msg.tool_calls or []) if msg else []
-            if msg and msg.content and msg.content.strip():
-                trace["steps"].append({"turn": turn, "type": "text", "text": msg.content})
-            if not calls:
-                break
-            messages.append(
-                {
-                    "role": "assistant",
-                    "content": msg.content or "",
-                    "tool_calls": [
-                        {
-                            "id": c.id,
-                            "type": "function",
-                            "function": {"name": c.function.name, "arguments": c.function.arguments},
-                        }
-                        for c in calls
-                    ],
-                }
-            )
-            for call in calls:
-                try:
-                    args = json.loads(call.function.arguments or "{}")
-                except json.JSONDecodeError as exc:
-                    messages.append(_tool_message(call, f"Arguments were not valid JSON: {exc}", is_error=True))
-                    continue
-                if call.function.name != "run_sql":
-                    messages.append(_tool_message(call, f"Unknown tool {call.function.name}.", is_error=True))
-                    continue
-                sql = args.get("sql", "")
-                if sql.strip() in seen_sql:  # the same query again: don't re-send its rows
-                    trace["steps"].append({"turn": turn, "type": "repeated_sql", "sql": sql})
-                    messages.append(_tool_message(call, REPEATED_SQL))
-                    continue
-                seen_sql.add(sql.strip())
-                result = db.run_sql(con, sql)
-                trace["steps"].append(
-                    {
-                        "turn": turn,
-                        "type": "sql",
-                        "sql": result.sql,
-                        "row_count": result.row_count,
-                        "truncated": result.truncated,
-                        "error": result.error,
-                        "elapsed_ms": result.elapsed_ms,
-                        "preview": result.to_text(),
-                    }
-                )
-                messages.append(_tool_message(call, result.to_text(), is_error=result.error is not None))
-        else:
-            trace["steps"].append({"turn": config.max_turns - 1, "type": "text", "text": "turn limit reached"})
-        _final_answer(client, config, messages, trace, config.max_turns - 1)
-        return trace
+            if not _final_answer(client, config, messages, trace, config.max_turns - 1, question):
+                return trace
     finally:
         trace["latency_ms"] = int((time.perf_counter() - started) * 1000)
         trace["sql_calls"] = sum(1 for s in trace["steps"] if s["type"] == "sql")

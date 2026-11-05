@@ -398,3 +398,30 @@ Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQ
   this run cannot tell which. Consequence: a re-run of an unchanged agent adds no information here, and the variance seen in earlier steps (q02, q06, q20 flipping) came from
   runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
 - Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).
+
+## Step 5 · Grounding: do not state numbers no query returned
+
+Problem (from 4a, 4a', 4a3): the agent sometimes answers with figures it never queried. q15 gave "$1,234,567.89" in 4a; q16 answered with invented figures and 0 SQL calls in
+two glossary runs in a row. Prompt wording ("do not use a proxy", the glossary's partial-period entry) did not stop it: the model reads the instruction and answers anyway.
+A second, different failure remains (q19: a real number, `tax_paid`, used as a cost). That one is step 5b; 5a does not claim it.
+
+### Step 5a · Grounding check in the harness (`agent/grounding.py`)
+
+Change: after the final-answer request, a plain function checks an `answered` reply against the results of the `run_sql` calls that succeeded.
+- At least one query must have succeeded. Otherwise the reply is rejected.
+- `numeric_value`, and every figure in `answer` that is not trivially small, must equal a returned number at the precision the answer states, or that number as a percent,
+  or one derivation of two returned numbers (difference, sum, ratio, percent change).
+- Not checked, to avoid false rejections: integers below 100, years, numbers with a scale word ("$1.2M"), numbers that are in the question, and the other fields.
+- **Names and text values are not checked** (a made-up product or store name passes; digits inside ids are checked as numbers). Possible later extension, not part of 5a.
+- A rejected reply goes back to the model with the reason and **returns it to exploration** (it can run queries again, with the turns it has left), then it answers again.
+  It counts as a rejection like the others: cap 3 per question, -10% credit each (`tool_rejections`; also `grounding_rejections` in the trace). Over the cap the run ends
+  with `end_reason: ungrounded` and no answer, which fails the question.
+- Switch: `GROUNDING=off` runs the 4a' agent unchanged (for A/B runs). Same model, same system prompt, same glossary; the only change is the harness check.
+
+Hypothesis (vs 4a3, 17/20, 10.8k tokens/run): **18/20**.
+- q16 is expected to pass: the first reply has no query, is rejected, the model queries, and the generated context (partial Q3) plus the glossary's partial-period entry should
+  then make it ask. If it queries and still compares July-August with a full Q2 and answers, it fails: grounding does not know about partial periods.
+- q15 holds (it already queries). q19 is not expected to move (it queries, and its figure is real). q04 is not expected to move (rounding is not an invented number).
+- The 17 questions that pass must not lose any. The risk is a false rejection of a derived number the check cannot derive (an average of three values, a rounded product).
+  Look at `grounding_rejections` per question: any on a question that passed in 4a3 is a false rejection; the cause is logged, not hidden by loosening the check.
+- Tokens: a rejected reply costs a second round trip, so a small increase on the questions it fires on and nothing elsewhere.

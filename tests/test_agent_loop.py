@@ -241,6 +241,7 @@ def test_glossary_block_goes_with_the_question_not_the_system_prompt(monkeypatch
     assert "Ignore test orders." not in system["content"]
     assert user["content"].startswith("What was revenue?") and "[g1] Ignore test orders. (assumed)" in user["content"]
     assert trace["glossary_ids"] == ["g1"] and trace["question"] == "What was revenue?"
+    assert trace["glossary_sha"] and len(trace["glossary_sha"]) == 12  # the glossary text is not in system_prompt_sha
 
 
 def test_print_trace_handles_every_step_type(capsys):

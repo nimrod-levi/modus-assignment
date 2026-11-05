@@ -260,6 +260,7 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "temperature": config.temperature,
         "started_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "glossary_ids": [e["id"] for e in entries],
+        "glossary_sha": hashlib.sha256(block.encode()).hexdigest()[:12] if block else None,  # not covered by system_prompt_sha
         "system_prompt_sha": hashlib.sha256(system.encode()).hexdigest()[:12],
         "steps": [],
         "usage": {"input_tokens": 0, "output_tokens": 0},

@@ -25,6 +25,7 @@ If `python3 --version` says 3.14 or newer, dbt may not install. Run
 | Command | What it does |
 | --- | --- |
 | `make ask Q="What was our revenue last month?"` | Ask the agent; prints each SQL step and the answer, saves a trace to `runs/` |
+| `make web` | One-page UI at http://127.0.0.1:8000: type a question, see the answer, assumptions and every SQL step (also saves to `runs/`) |
 | `make schema` | Print the exact system prompt the agent sees |
 | `make profile` | Row counts, date range, revenue both ways, orders by store |
 | `make test` | SQL guard, read-only checks, agent loop with a fake LLM |

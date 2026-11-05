@@ -88,3 +88,12 @@ def test_join_risks_flag_many_to_many():
              {"child": "b", "column": "k", "parent": "p", "field": "k", "source": "declared"}]
     risks = edge_cases.join_risks(joins)
     assert any("a and b both reference p.k" in r for r in risks)
+
+
+def test_join_risks_with_measured_fanout():
+    joins = [{"child": "a", "column": "k", "parent": "p", "field": "k", "source": "declared"},
+             {"child": "b", "column": "k", "parent": "p", "field": "k", "source": "declared"}]
+    risks = edge_cases.join_risks(joins, {("a", "k"): 3.0, ("b", "k"): 6.5})
+    assert any("(measured: 6.5 b rows per p row on average)" in r for r in risks)
+    assert any("each a row would repeat about 6.5 times, each b row about 3 times" in r for r in risks)
+    assert edge_cases.join_risks(joins) == edge_cases.join_risks(joins, {})  # no measurement: the old text

@@ -86,3 +86,7 @@ models, not the marts); found by printing the output and reading it, then fixed.
 - Step 5 (relationship map): Claude proposed the idea (one generated section with join edges, multi-hop paths and same-name columns), wrote `join_paths`,
   `shared_columns`, `relationships` and the tests. The generated section was read in full before the tests were written; it is long (10 path lines) and the cost is
   to be measured, not assumed. Claude first created its worktree from the wrong base (a branch without `eval/`) and had to reset it; no result was affected.
+  Claude's step 5 hypothesis (q06 fixed, +0.7k tokens) was wrong on both counts (-2 questions, +1.8k tokens), and its first explanation of the q06 failure (the "same name" line steered the
+  agent) was a guess from one log. Its 5b hypothesis was also wrong in effect: the 1-run +q06 -q16 result looked like a partial win until Claude ran a control (a header rename with no
+  content change moved the score 18 -> 16, and 5b with the rename 18 -> 14). Claude then measured with sampled repeats (temperature 0.5, 3 runs): 83.3% vs 81.7%, no effect. Claude's
+  statement earlier in step 4 that "the provider is deterministic, a re-run adds no information" was true only for identical prompts and was corrected in the analysis page.

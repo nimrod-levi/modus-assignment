@@ -107,7 +107,8 @@ class AgentConfig:
     model: str = field(default_factory=lambda: os.environ.get("AGENT_MODEL", "openai/gpt-oss-120b"))
     max_turns: int = 12
     max_tokens: int = 4096
-    temperature: float = 0.0
+    # 0 by default: identical requests give identical replies, so RUNS=3 repeats one sample. Set AGENT_TEMPERATURE for real repeats.
+    temperature: float = field(default_factory=lambda: float(os.environ.get("AGENT_TEMPERATURE", "0")))
     max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
     glossary: str = field(default_factory=lambda: os.environ.get("GLOSSARY", "all"))  # off | all
 

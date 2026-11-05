@@ -58,37 +58,13 @@ def test_fanout_warning_and_descriptions(text):
     assert "including tax" in text  # order_total description from the dbt yml
 
 
+def test_fanout_is_measured_from_the_data(con, text):
+    joins = semantic.find_joins(semantic.load_manifest(), {t: [c for c, _ in semantic._table_columns(con, t)]
+                                                           for t in ("orders", "order_items", "products", "supplies")})
+    fan = semantic.measure_fanout(con, joins)
+    assert fan[("supplies", "product_id")] == round(65 / 10, 1)  # 65 supply rows over 10 products
+    assert "(measured: 6.5 supplies rows per products row on average)" in text
+
+
 def test_staging_and_raw_stay_compact(text):
     assert "raw.raw_orders (table):" in text and "main.stg_orders (view):" in text
-
-
-# Step 5: relationship map. The pure functions run on tiny hand-made inputs, the section on the real warehouse.
-def test_join_paths_finds_the_chain_between_unconnected_tables():
-    joins = [
-        {"child": "order_items", "column": "order_id", "parent": "orders", "field": "order_id", "source": "declared"},
-        {"child": "order_items", "column": "product_id", "parent": "products", "field": "product_id", "source": "inferred"},
-        {"child": "supplies", "column": "product_id", "parent": "products", "field": "product_id", "source": "inferred"},
-    ]
-    paths = semantic.join_paths(joins, ["order_items", "orders", "products", "supplies"])
-    assert ("orders <-> supplies (no direct join): orders.order_id = order_items.order_id; "
-            "order_items.product_id = products.product_id; products.product_id = supplies.product_id") in paths
-    assert not any(p.startswith("order_items <-> orders") for p in paths)  # direct joins are not repeated
-
-
-def test_join_paths_skips_tables_that_are_not_connected():
-    assert semantic.join_paths([], ["a", "b"]) == []
-
-
-def test_shared_columns_ignore_join_keys():
-    cols = {"a": [("id", "text"), ("cost", "decimal")], "b": [("id", "text"), ("cost", "decimal")]}
-    joins = [{"child": "a", "column": "id", "parent": "b", "field": "id", "source": "declared"}]
-    out = semantic.shared_columns(cols, joins, {"a": {"x"}, "b": {"id"}})
-    assert len(out) == 1 and out[0].startswith("cost exists in a (one row per x) and b (one row per id)")
-
-
-def test_relationship_section_is_in_the_prompt(text):
-    assert text.index("Relationships (the join graph") < text.index("Business tables")
-    assert ("orders.customer_id -> customers.customer_id "
-            "(many-to-one, declared, 0 orders rows with no matching customers row)") in text
-    assert "orders <-> supplies (no direct join)" in text and "products.product_id = supplies.product_id" in text
-    assert "supply_cost exists in order_items" in text and "and supplies" in text

@@ -16,6 +16,7 @@ is added as an *inferred* join, and labelled so.
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -106,66 +107,15 @@ def _facts(con: duckdb.DuckDBPyConnection, table: str, cols: list[tuple[str, str
     return facts
 
 
-def join_paths(joins: list[dict], tables: list[str]) -> list[str]:
-    """For every pair of tables with no direct join, the shortest chain of joins between them (breadth-first search)."""
-    edges: dict[str, list[tuple[str, str]]] = {t: [] for t in tables}
+def measure_fanout(con: duckdb.DuckDBPyConnection, joins: list[dict]) -> dict[tuple[str, str], float]:
+    """(child, column) -> average number of child rows per parent row that has any (read from the data)."""
+    out = {}
     for j in joins:
-        edges[j["child"]].append((j["parent"], f"{j['child']}.{j['column']} = {j['parent']}.{j['field']}"))
-        edges[j["parent"]].append((j["child"], f"{j['parent']}.{j['field']} = {j['child']}.{j['column']}"))
-    out = []
-    for i, a in enumerate(tables):
-        paths, queue = {a: []}, [a]
-        for node in queue:
-            for nxt, step in edges[node]:
-                if nxt not in paths:
-                    paths[nxt] = paths[node] + [step]
-                    queue.append(nxt)
-        direct = {n for n, _ in edges[a]}
-        out += [f"{a} <-> {b} (no direct join): " + "; ".join(paths[b])
-                for b in tables[i + 1:] if b not in direct and b in paths]
+        n = con.execute(
+            f'select count(*) * 1.0 / nullif(count(distinct "{j["column"]}"), 0) from main.{j["child"]}').fetchone()[0]
+        if n:
+            out[(j["child"], j["column"])] = round(n, 1)
     return out
-
-
-def shared_columns(cols: dict[str, list[tuple[str, str]]], joins: list[dict], keys: dict[str, set[str]]) -> list[str]:
-    """Non-key column names that exist in 2+ tables: same name, but each table has its own grain."""
-    join_cols = {j["column"] for j in joins} | {j["field"] for j in joins}
-    where: dict[str, list[str]] = {}
-    for t, tcols in cols.items():
-        for c, _ in tcols:
-            if c not in join_cols:
-                where.setdefault(c, []).append(t)
-    return [
-        f"{c} exists in " + " and ".join(f"{t} (one row per {', '.join(sorted(keys[t])) or '?'})" for t in ts)
-        + ": same name, different grain, check which one you need."
-        for c, ts in sorted(where.items()) if len(ts) > 1
-    ]
-
-
-def _orphans(con: duckdb.DuckDBPyConnection, j: dict) -> int:
-    """Child rows whose key has no parent row."""
-    return con.execute(
-        f'select count(*) from main.{j["child"]} c where c."{j["column"]}" is not null and not exists '
-        f'(select 1 from main.{j["parent"]} p where p."{j["field"]}" = c."{j["column"]}")').fetchone()[0]
-
-
-def relationships(con: duckdb.DuckDBPyConnection, tables: list[str], cols: dict[str, list[tuple[str, str]]],
-                  joins: list[dict], keys: dict[str, set[str]]) -> list[str]:
-    """One section with the whole join graph: edges, multi-hop paths and same-name columns."""
-    lines = ["Relationships (the join graph in one place):"]
-    for j in joins:
-        n = _orphans(con, j)
-        lines.append(
-            f"- {j['child']}.{j['column']} -> {j['parent']}.{j['field']} "
-            f"(many-to-one, {j['source']}, {n} {j['child']} rows with no matching {j['parent']} row)")
-    paths = join_paths(joins, tables)
-    if paths:
-        lines.append("Tables that connect only through other tables:")
-        lines.extend("- " + p for p in paths)
-    shared = shared_columns(cols, joins, keys)
-    if shared:
-        lines.append("Columns with the same name in several tables:")
-        lines.extend("- " + s for s in shared)
-    return lines
 
 
 def describe(con: duckdb.DuckDBPyConnection, manifest: dict | None = None) -> str:
@@ -181,10 +131,7 @@ def describe(con: duckdb.DuckDBPyConnection, manifest: dict | None = None) -> st
         con=con, cols=cols, joins=joins, keys={t: keys.get(t, set()) for t in tables},
         rows={t: con.execute(f"select count(*) from main.{t}").fetchone()[0] for t in tables})
 
-    lines = []
-    if joins:
-        lines += relationships(con, tables, cols, joins, {t: keys.get(t, set()) for t in tables}) + [""]
-    lines.append("Business tables (generated from the dbt project and the data):")
+    lines = ["Business tables (generated from the dbt project and the data):"]
     for t in tables:
         node = models.get(t, {})
         n = con.execute(f"select count(*) from main.{t}").fetchone()[0]
@@ -210,7 +157,8 @@ def describe(con: duckdb.DuckDBPyConnection, manifest: dict | None = None) -> st
 
     if joins:
         lines.append("\nJoin risks (from the keys above):")
-        lines.extend("- " + risk for risk in edge_cases.join_risks(joins))
+        lines.extend("- " + risk for risk in edge_cases.join_risks(
+            joins, measure_fanout(con, joins) if os.environ.get("JOIN_FANOUT", "on") != "off" else None))
 
     other = [line for line in db.describe_schema(con).splitlines()
              if not any(line.startswith(f"main.{t} ") for t in tables)]

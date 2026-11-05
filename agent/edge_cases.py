@@ -254,19 +254,32 @@ def check_table(ctx: Ctx, table: str) -> tuple[list[str], list[str]]:
     return findings, clean
 
 
-def join_risks(joins: list[dict]) -> list[str]:
-    """Fan-out for every join, and a many-to-many warning for tables that reference the same parent key."""
+def join_risks(joins: list[dict], fanout: dict[tuple[str, str], float] | None = None) -> list[str]:
+    """Fan-out for every join, and a many-to-many warning for tables that reference the same parent key.
+
+    `fanout` (optional, measured from the data): (child, column) -> average child rows per parent row. When given, the
+    warnings say how many times rows repeat, not only that they do."""
+    fanout = fanout or {}
+
+    def avg(j: dict) -> str:
+        n = fanout.get((j["child"], j["column"]))
+        return f" (measured: {n:g} {j['child']} rows per {j['parent']} row on average)" if n else ""
+
     out = [
-        f"{j['parent']} 1-N {j['child']} on {j['column']}: after joining, each {j['parent']} row appears once per "
+        f"{j['parent']} 1-N {j['child']} on {j['column']}{avg(j)}: after joining, each {j['parent']} row appears once per "
         f"matching {j['child']} row, so summing or counting {j['parent']} columns over-counts."
         for j in joins
     ]
-    by_parent: dict[tuple[str, str], list[str]] = {}
+    by_parent: dict[tuple[str, str], list[dict]] = {}
     for j in joins:
-        by_parent.setdefault((j["parent"], j["field"]), []).append(j["child"])
+        by_parent.setdefault((j["parent"], j["field"]), []).append(j)
     out += [
-        f"{' and '.join(kids)} both reference {parent}.{field}: joining them to each other directly on that key repeats "
-        f"rows (many-to-many), so sums over either table are inflated. Aggregate each to one row per {field} first."
+        f"{' and '.join(k['child'] for k in kids)} both reference {parent}.{field}: joining them to each other directly on "
+        f"that key repeats rows (many-to-many)"
+        + (f" (each {kids[0]['child']} row would repeat about {fanout[(kids[1]['child'], kids[1]['column'])]:g} times, "
+           f"each {kids[1]['child']} row about {fanout[(kids[0]['child'], kids[0]['column'])]:g} times)"
+           if len(kids) == 2 and all((k["child"], k["column"]) in fanout for k in kids) else "")
+        + f", so sums over either table are inflated. Aggregate each to one row per {field} first."
         for (parent, field), kids in sorted(by_parent.items()) if len(kids) > 1
     ]
     return out

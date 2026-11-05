@@ -48,10 +48,10 @@ eval:
 	@test -n "$(STEP)" || { echo "usage: make eval STEP=step-00-baseline [ONLY=q01,q02]"; exit 1; }
 	$(BIN)/python -m eval.run_eval --step "$(STEP)" $(if $(ONLY),--only $(ONLY)) $(if $(RUNS),--runs $(RUNS))
 
-## eval-holdout: run eval/holdout.yaml (once, at the end of a step)
+## eval-holdout: run eval/holdout.yaml (once, at the end of a step) [ONLY=h01,h02] [RUNS=1]
 eval-holdout:
-	@test -n "$(STEP)" || { echo "usage: make eval-holdout STEP=step-01-dbt-docs"; exit 1; }
-	$(BIN)/python -m eval.run_eval --step "$(STEP)" --file eval/holdout.yaml
+	@test -n "$(STEP)" || { echo "usage: make eval-holdout STEP=holdout-02 [ONLY=h01,h02] [RUNS=1]"; exit 1; }
+	$(BIN)/python -m eval.run_eval --step "$(STEP)" --file eval/holdout.yaml $(if $(ONLY),--only $(ONLY)) $(if $(RUNS),--runs $(RUNS))
 
 ## eval-test: grader and runner tests (no API key)
 eval-test:

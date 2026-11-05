@@ -83,3 +83,6 @@ models, not the marts); found by printing the output and reading it, then fixed.
   1-run 3b figure, so the effect of the notes alone is not measured.
 - Step 3d: Claude wrote the checklist after seeing the failures and said so in STEPS.md. In the wrap-up it compared 3d with 3c per question
   and found the only differences were a grader fix (q08) and an unstable question (q06), so the 75% is not evidence that the checklist helps.
+- Step 5 (relationship map): Claude proposed the idea (one generated section with join edges, multi-hop paths and same-name columns), wrote `join_paths`,
+  `shared_columns`, `relationships` and the tests. The generated section was read in full before the tests were written; it is long (10 path lines) and the cost is
+  to be measured, not assumed. Claude first created its worktree from the wrong base (a branch without `eval/`) and had to reset it; no result was affected.

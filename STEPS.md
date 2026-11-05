@@ -398,3 +398,20 @@ Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQ
   this run cannot tell which. Consequence: a re-run of an unchanged agent adds no information here, and the variance seen in earlier steps (q02, q06, q20 flipping) came from
   runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
 - Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).
+
+### Step 5 · A generated relationship map (hypothesis, written before the run)
+
+Root cause targeted: the join graph is spread over the prompt (a `joins:` line in each table, a fan-out list at the end). The agent has to assemble it, and the
+multi-hop case fails: in the last run q06 (perishable supply spend) summed `supplies.supply_cost` and never walked `supplies -> products -> order_items`. Nothing says
+that supplies and orders connect only through products, or that `supply_cost` exists twice at different grains (`order_items` per item, `supplies` per supply row).
+
+Change (generated from the manifest and the data, `agent/semantic.py`; no question-specific text, no new tools): a "Relationships" section before the table blocks with
+(1) every join with cardinality and the count of child rows with no parent, checked in SQL; (2) the shortest join chain for every pair of tables with no direct join
+(e.g. `orders <-> supplies`); (3) every non-key column name that exists in several tables, with the grain of each. The "Join risks" list is unchanged and already derived
+from the same join list. Cost: about 1.5k characters more in the prompt.
+
+Expected: q06 passes again and the multi-table questions (q10 q12 q13 q14) hold, perhaps with fewer SQL calls. q04, q16, q19 are not targeted. Prompt grows by
+roughly 0.7k tokens/run. A fair result is 18/20 +/- 1; "no score change" is a real outcome and will be reported as that.
+
+How it will be measured: the last runs showed that the same agent gives different replies on different days (q04, q06, q16 flipped with no change on our side). So the
+comparison is **the 4a' agent and step 5 run back to back on the same day**, plus the holdout for both; a number from another day is not a baseline.

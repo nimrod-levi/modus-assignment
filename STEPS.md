@@ -455,3 +455,12 @@ Score: **8/10 = 80%** · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Bet
 - **h09 failed (agent):** `supply_name` read as a supplier, answered `answered` with $2.34 (sum of per-unit supply rows). Predicted.
 - **h06 failed (grader):** answer "Los Angeles" is right but written with U+202F between the words, so the whole-word match fails. Corrected score would be 9/10. Not fixed here: needs its own "eval fix" commit.
 - Single run (the `eval-holdout` target does not forward `RUNS`); treat 8/10 as 7-9.
+
+### Eval fix · set grader ignores Unicode spaces and hyphens (made after holdout 1)
+
+Reason: h06 failed only because the model wrote "Los Angeles" with U+202F (narrow no-break space) between the words, so the whole-word match did not see it.
+The same model also writes U+00A0 and U+2011 ("pre‑tax"). `_contains_word` now compares NFKC-normalised, lowercased text with dash variants mapped to `-` and
+whitespace runs collapsed (`eval/grade.py`, test `test_set_match_ignores_unicode_spaces_and_hyphens`). Questions, gold SQL and number grading are unchanged.
+- Effect checked on every stored result: of the 46 set-item matches in all 15 result files, only h06 in holdout 1 changes verdict. No dev-set score moves.
+- Holdout 1 re-graded without calling the model (`python -m eval.regrade`, new file `eval/results/holdout-01_holdout_20261105-180438_regraded.json`; the original is kept):
+  **9/10 = 90%**. No scoreboard row is added for a re-grade; the scoreboard keeps the 80% as measured.

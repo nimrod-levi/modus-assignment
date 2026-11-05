@@ -1,0 +1,614 @@
+{
+  "meta": {
+    "timestamp": "2026-11-05T18:05:07+00:00",
+    "step": "holdout-01",
+    "suite": "holdout",
+    "git_sha": "25781f3",
+    "dirty": true,
+    "model": "openai/gpt-oss-120b",
+    "system_prompt_sha": "706909e61ef7",
+    "regraded_from": "holdout-01_holdout_20261105-180438.json"
+  },
+  "summary": {
+    "questions": 10,
+    "runs": 1,
+    "score": 0.9,
+    "raw_score": 0.9,
+    "pass_all": 0.9,
+    "rejections": 0,
+    "errors": 0,
+    "tokens_per_run": 14244.7,
+    "sql_calls_per_run": 1.9,
+    "per_question": {
+      "h01": 1.0,
+      "h02": 1.0,
+      "h03": 1.0,
+      "h04": 1.0,
+      "h05": 1.0,
+      "h06": 1.0,
+      "h07": 1.0,
+      "h08": 1.0,
+      "h09": 0.0,
+      "h10": 1.0
+    },
+    "per_category": {
+      "entity": 1.0,
+      "grain": 1.0,
+      "metric-definition": 1.0,
+      "time": 1.0,
+      "unanswerable": 0.5
+    }
+  },
+  "records": [
+    {
+      "id": "h01",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Friday",
+        "numeric_value": 1928.076923076923,
+        "unit": "USD",
+        "sql": "SELECT day_name, AVG(daily_subtotal) AS avg_daily_revenue\nFROM (\n  SELECT ordered_at::date AS order_date,\n         CASE strftime(ordered_at, '%w')\n           WHEN '0' THEN 'Sunday'\n           WHEN '1' THEN 'Monday'\n           WHEN '2' THEN 'Tuesday'\n           WHEN '3' THEN 'Wednesday'\n           WHEN '4' THEN 'Thursday'\n           WHEN '5' THEN 'Friday'\n           WHEN '6' THEN 'Saturday'\n         END AS day_name,\n         SUM(subtotal) AS daily_subtotal\n  FROM main.orders\n  WHERE order_total > 0\n  GROUP BY order_date, day_name\n) sub\nGROUP BY day_name\nORDER BY avg_daily_revenue DESC\nLIMIT 1;",
+        "definition_used": "Revenue is pre-tax sales, the sum of orders.subtotal (average daily pre-tax revenue).",
+        "assumptions": [
+          "Only the first 5 rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 13852,
+      "output_tokens": 1435,
+      "sql_calls": 2,
+      "latency_ms": 3081,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT day_name, AVG(daily_subtotal) AS avg_daily_revenue\nFROM (\n  SELECT ordered_at::date AS order_date,\n         CASE strftime(ordered_at, '%w')\n           WHEN '0' THEN 'Sunday'\n           WHEN '1' THEN 'Monday'\n           WHEN '2' THEN 'Tuesday'\n           WHEN '3' THEN 'Wednesday'\n           WHEN '4' THEN 'Thursday'\n           WHEN '5' THEN 'Friday'\n           WHEN '6' THEN 'Saturday'\n         END AS day_name,\n         SUM(subtotal) AS daily_subtotal\n  FROM main.orders\n  WHERE order_total > 0\n  GROUP BY order_date, day_name\n) sub\nGROUP BY day_name\nORDER BY avg_daily_revenue DESC\nLIMIT 1",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 15,
+          "preview": "day_name,avg_daily_revenue\nFriday,1928.076923076923"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT day_name, AVG(daily_subtotal) AS avg_daily_revenue\nFROM (\n  SELECT ordered_at::date AS order_date,\n         CASE strftime(ordered_at, '%w')\n           WHEN '0' THEN 'Sunday'\n           WHEN '1' THEN 'Monday'\n           WHEN '2' THEN 'Tuesday'\n           WHEN '3' THEN 'Wednesday'\n           WHEN '4' THEN 'Thursday'\n           WHEN '5' THEN 'Friday'\n           WHEN '6' THEN 'Saturday'\n         END AS day_name,\n         SUM(subtotal) AS daily_subtotal\n  FROM main.orders\n  WHERE order_total > 0\n  GROUP BY order_date, day_name\n) sub\nGROUP BY day_name\nORDER BY avg_daily_revenue DESC",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 21,
+          "preview": "day_name,avg_daily_revenue\nFriday,1928.076923076923\nSunday,1914.0943396226414\nThursday,1913.9038461538462\nSaturday,1887.2884615384614\nMonday,1857.4423076923076\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "**Answer**\n\nThe day of the week with the highest average daily **pre\u2011tax revenue** (Revenue = sum of\u202forders.subtotal) is **Friday**.\n\n- **Average daily pre\u2011tax revenue on Fridays:**\u202f$1,928.08  \n\n*Methodology*  \n- Used the **orders** table, which records each order\u2019s `subtotal` (pre\u2011tax amount).  \n- Excluded \u201cempty\u201d orders (those with `order_total = 0`) as required by the **[empty_orders]** definition.  \n- Grouped orders by calendar date, summed the `subtotal` for each day, then averaged those daily totals for each weekday.  \n- The query returned the highest average for Friday (see query result).  \n\nThus, Friday is the day on which our store generates the greatest average pre\u2011tax sales."
+        }
+      ],
+      "category": "time",
+      "gold": {
+        "items": [
+          "Friday"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "h02",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 10.370845196453265 matches gold 10.370845196453265",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The average pre\u2011tax value of an order is $10.370845196453265.",
+        "numeric_value": 10.370845196453265,
+        "unit": "USD",
+        "sql": "SELECT AVG(subtotal) AS avg_pre_tax FROM main.orders WHERE order_total > 0 AND subtotal IS NOT NULL",
+        "definition_used": "average of orders.subtotal (pre\u2011tax revenue) for orders with order_total > 0",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 9669,
+      "output_tokens": 763,
+      "sql_calls": 1,
+      "latency_ms": 1561,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT AVG(subtotal) AS avg_pre_tax FROM main.orders WHERE order_total > 0 AND subtotal IS NOT NULL",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "avg_pre_tax\n10.370845196453265"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Definition used**  \n- *Revenue* (pre\u2011tax sales) is the sum of `orders.subtotal`.  \n- *Empty orders* (orders with a $0 total and no items) are excluded from counts and averages. I therefore filtered to `order_total > 0`, as specified in the \u201cempty_orders\u201d rule.\n\n**Period covered**  \nThe data includes orders placed from **2024\u201109\u201101** through **2025\u201108\u201131**. The average is calculated over all orders in that full 12\u2011month span (excluding the empty orders).\n\n**Result**  \nThe average pre\u2011tax value of an order is **$10.37**.\n\n*SQL that produced the figure*  \n\n```sql\nSELECT AVG(subtotal) AS avg_pre_tax\nFROM main.orders\nWHERE order_total > 0          -- exclude empty orders\n  AND subtotal IS NOT NULL;   -- ignore rows where subtotal is missing\n```\n\nThe query returned an average of **10.370845196453265**, which is rounded to $10.37 for presentation."
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 10.370845196453265
+    },
+    {
+      "id": "h03",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 37.78794686278324 matches gold 37.787946862783244",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The percentage of pre\u2011tax revenue that comes from food (jaffles) is 37.78794686278324\u202f%.",
+        "numeric_value": 37.78794686278324,
+        "unit": "percent",
+        "sql": "WITH valid_orders AS (\n    SELECT order_id\n    FROM main.orders\n    WHERE order_total > 0\n),\nfood_rev AS (\n    SELECT SUM(oi.product_price) AS food_rev\n    FROM main.order_items oi\n    JOIN valid_orders vo ON oi.order_id = vo.order_id\n    WHERE oi.is_food_item = true\n),\ndrink_rev AS (\n    SELECT SUM(oi.product_price) AS drink_rev\n    FROM main.order_items oi\n    JOIN valid_orders vo ON oi.order_id = vo.order_id\n    WHERE oi.is_drink_item = true\n)\nSELECT (food_rev / (food_rev + drink_rev)) * 100 AS food_pct\nFROM food_rev, drink_rev;",
+        "definition_used": "percentage of pre\u2011tax revenue from food = (sum of product_price for food items) / (sum of orders.subtotal) * 100, where pre\u2011tax revenue is defined as the sum of orders.subtotal (per [revenue] definition) and empty orders (order_total = 0) are excluded per [empty_orders] definition.",
+        "assumptions": [
+          "Used order_total > 0 to exclude empty orders as required by the [empty_orders] definition.",
+          "Identified food items via the is_food_item flag on order_items, which corresponds to jaffles.",
+          "All monetary values are in dollars; percentages are expressed as percent."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 16905,
+      "output_tokens": 1932,
+      "sql_calls": 3,
+      "latency_ms": 3346,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH valid_orders AS (\n    SELECT order_id\n    FROM main.orders\n    WHERE order_total > 0\n),\nfood_rev AS (\n    SELECT SUM(oi.product_price) AS food_rev\n    FROM main.order_items oi\n    JOIN valid_orders vo ON oi.order_id = vo.order_id\n    WHERE oi.is_food_item = true\n),\ndrink_rev AS (\n    SELECT SUM(oi.product_price) AS drink_rev\n    FROM main.order_items oi\n    JOIN valid_orders vo ON oi.order_id = vo.order_id\n    WHERE oi.is_drink_item = true\n)\nSELECT food_rev, drink_rev, (food_rev / (food_rev + drink_rev)) * 100 AS food_pct\nFROM food_rev, drink_rev",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 31,
+          "preview": "food_rev,drink_rev,food_pct\n240877.00,396567.00,37.78794686278324"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS total_subtotal FROM main.orders WHERE order_total > 0",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "total_subtotal\n637444.00"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT (240877.0/637444.0)*100 AS food_pct",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "food_pct\n37.78794686278324"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "**Definition used**  \n- *Revenue* (pre\u2011tax) = sum of\u202f`orders.subtotal` (as defined by the customer).  \n- *Food revenue* = sum of the prices of order\u2011item rows flagged `is_food_item = true` for orders with a positive total (`order_total > 0`).  \n- *Drink revenue* = sum of the prices of order\u2011item rows flagged `is_drink_item = true` for the same set of valid orders.  \n\n**Result**  \n- Total pre\u2011tax revenue (orders.subtotal) = **$637,444**.  \n- Food (jaffle) revenue = **$240,877**.  \n- Drink revenue = **$396,567**.  \n\n**Percentage of pre\u2011tax revenue from food (jaffles)**  \n\n\\[\n\\frac{\\text{Food revenue}}{\\text{Total pre\u2011tax revenue}} \\times 100\n= \\frac{240{,}877}{637{,}444} \\times 100\n\\approx \\mathbf{37.79\\%}\n\\]\n\nSo about **38\u202f% of our pre\u2011tax revenue comes from food (jaffles) rather than drinks**."
+        }
+      ],
+      "category": "grain",
+      "gold": 37.787946862783244
+    },
+    {
+      "id": "h04",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The menu item \"for richer or pourover \" (product ID BEV-004) earned the highest total gross profit, which is $88528.50.",
+        "numeric_value": 88528.5,
+        "unit": "USD",
+        "sql": "SELECT oi.product_id, oi.product_name, SUM(oi.product_price) AS total_revenue, SUM(oi.supply_cost) AS total_supply_cost, SUM(oi.product_price) - SUM(oi.supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN main.orders o ON oi.order_id = o.order_id\nWHERE o.order_total > 0\nGROUP BY oi.product_id, oi.product_name\nORDER BY gross_profit DESC\nLIMIT 5",
+        "definition_used": "gross profit = sum of pre\u2011tax revenue (order_items.product_price) minus sum of supply costs (order_items.supply_cost) for each menu item, excluding orders with total $0.",
+        "assumptions": [
+          "Excluded orders with order_total = 0 as per [empty_orders] definition",
+          "Considered the entire data period covered by the tables"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 10079,
+      "output_tokens": 1902,
+      "sql_calls": 1,
+      "latency_ms": 2510,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT oi.product_id, oi.product_name, SUM(oi.product_price) AS total_revenue, SUM(oi.supply_cost) AS total_supply_cost, SUM(oi.product_price) - SUM(oi.supply_cost) AS gross_profit\nFROM main.order_items oi\nJOIN main.orders o ON oi.order_id = o.order_id\nWHERE o.order_total > 0\nGROUP BY oi.product_id, oi.product_name\nORDER BY gross_profit DESC\nLIMIT 5",
+          "row_count": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 33,
+          "preview": "product_id,product_name,total_revenue,total_supply_cost,gross_profit\nBEV-004,for richer or pourover ,100275.00,11746.50,88528.50\nBEV-001,tangaroo,83772.00,11448.84,72323.16\nBEV-003,vanilla ice,84474.00,21681.66,62792.34\nBEV-005,adele-ade,56876.00,8957.97,47918.03\nBEV-002,chai and mighty,71170.00,24909.50,46260.50"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Answer**\n\nThe menu item that generated the highest total gross profit over the entire data period (2024\u201109\u201101\u202fto\u202f2025\u201108\u201131) is:\n\n| product_id | product_name            | total gross profit |\n|------------|------------------------|--------------------|\n| **BEV-004**| for richer or pourover| **$88,528.50**      |\n\n**How the figure was derived**\n\n* **Revenue definition** \u2013 \u201cRevenue\u201d is pre\u2011tax sales, i.e., the sum of `orders.subtotal`.  \n* **Gross\u2011profit definition** \u2013 \u201cGross profit\u201d is pre\u2011tax revenue minus supply costs (as defined by the customer).  \n* **Implementation** \u2013 Because the supply\u2011cost for each item is stored in `order_items.supply_cost`, I calculated gross profit per menu item as:\n\n\\[\n\\text{gross profit} = \\sum(\\text{order_items.product_price}) \\;-\\; \\sum(\\text{order_items.supply_cost})\n\\]\n\n* **Filters applied** \u2013  \n  * Only orders with a positive total were considered (`order_total > 0`), per the **[empty_orders]** rule.  \n  * The full period covered by the data (Sept\u202f2024\u202f\u2013\u202fAug\u202f2025) was used; no further date filtering was needed.\n\n**SQL used**\n\n```sql\nSELECT\n    oi.product_id,\n    oi.product_name,\n    SUM(oi.product_price)          AS total_revenue,\n    SUM(oi.supply_cost)            AS total_supply_cost,\n    SUM(oi.product_price) - SUM(oi.supply_cost) AS gross_profit\nFROM main.order_items AS oi\nJOIN main.orders AS o\n  ON oi.order_id = o.order_id\nWHERE o.order_total > 0                -- exclude empty orders\nGROUP BY oi.product_id, oi.product_name\nORDER BY gross_profit DESC\nLIMIT 5;\n```\n\nThe query returned the top\u2011gross\u2011profit items, with **BEV\u2011004** (\u201cfor richer or pourover\u201d) leading at **$88,528.50**. This is the highest gross profit among all menu items in the dataset."
+        }
+      ],
+      "category": "grain",
+      "gold": {
+        "items": [
+          "for richer or pourover"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "h05",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 14325 matches gold 14325.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We sold 14325 units of \u201cfor richer or pourover\u201d.",
+        "numeric_value": 14325,
+        "unit": "units",
+        "sql": "SELECT COUNT(*) AS count_sold FROM main.order_items WHERE TRIM(product_name) = 'for richer or pourover'",
+        "definition_used": "Count of order_items rows where product_name = 'for richer or pourover' (each row represents one unit sold).",
+        "assumptions": [
+          "Only the first 5 rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 19946,
+      "output_tokens": 1024,
+      "sql_calls": 4,
+      "latency_ms": 3409,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT DISTINCT product_name FROM main.order_items ORDER BY product_name",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 12,
+          "preview": "product_name\nadele-ade\nchai and mighty\ndoctor stew\nflame impala\nfor richer or pourover \n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS count_sold FROM main.order_items WHERE product_name = 'for richer or pourover'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "count_sold\n0"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT product_name, COUNT(*) AS cnt FROM main.order_items GROUP BY product_name ORDER BY cnt DESC LIMIT 10",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 13,
+          "preview": "product_name,cnt\nfor richer or pourover ,14325\nchai and mighty,14234\nadele-ade,14219\nvanilla ice,14079\ntangaroo,13962\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS count_sold FROM main.order_items WHERE TRIM(product_name) = 'for richer or pourover'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "count_sold\n14325"
+        },
+        {
+          "turn": 4,
+          "type": "text",
+          "text": "We sold **14,325** units of the product **\u201cfor richer or pourover.\u201d**  \n\n*This figure comes from counting the rows in **main.order_items** where `product_name = 'for richer or pourover'`, which represents one order\u2011item (i.e., one unit) per row.*"
+        }
+      ],
+      "category": "entity",
+      "gold": 14325.0
+    },
+    {
+      "id": "h06",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 1 gold items present",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Los\u202fAngeles has the highest sales tax rate of 0.08 (8%).",
+        "numeric_value": 0.08,
+        "unit": "tax rate",
+        "sql": "SELECT location_name, tax_rate FROM main.locations ORDER BY tax_rate DESC LIMIT 1",
+        "definition_used": "tax_rate column from the locations table",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 9659,
+      "output_tokens": 345,
+      "sql_calls": 1,
+      "latency_ms": 1485,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT location_name, tax_rate FROM main.locations ORDER BY tax_rate DESC LIMIT 1",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "location_name,tax_rate\nLos Angeles,0.08"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "The store with the highest sales tax rate is **Los\u202fAngeles**, which has a tax rate of **0.08 (8\u202f%)**."
+        }
+      ],
+      "category": "entity",
+      "gold": {
+        "items": [
+          "Los Angeles"
+        ],
+        "excluded": []
+      }
+    },
+    {
+      "id": "h07",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 63130.0 matches gold 63130.0",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue in Q1\u202f2025 exceeded Q4\u202f2024 by $63,130.",
+        "numeric_value": 63130.0,
+        "unit": "USD",
+        "sql": "SELECT SUM(CASE WHEN ordered_at >= '2025-01-01' AND ordered_at <= '2025-03-31' THEN subtotal ELSE 0 END) AS q1_2025_revenue, SUM(CASE WHEN ordered_at >= '2024-10-01' AND ordered_at <= '2024-12-31' THEN subtotal ELSE 0 END) AS q4_2024_revenue FROM main.orders WHERE order_total > 0",
+        "definition_used": "Pre\u2011tax revenue is defined as the sum of orders.subtotal (excluding orders with $0 total).",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 13541,
+      "output_tokens": 1629,
+      "sql_calls": 2,
+      "latency_ms": 3044,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT SUM(subtotal) AS q1_2025_revenue, SUM(CASE WHEN ordered_at >= '2025-01-01' AND ordered_at <= '2025-03-31' THEN subtotal ELSE 0 END) AS q1_2025_revenue, SUM(CASE WHEN ordered_at >= '2024-10-01' AND ordered_at <= '2024-12-31' THEN subtotal ELSE 0 END) AS q4_2024_revenue FROM main.orders WHERE ordered_at >= '2024-10-01' AND ordered_at <= '2025-03-31'",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "q1_2025_revenue,q1_2025_revenue,q4_2024_revenue\n214576.00,138853.00,75723.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT SUM(CASE WHEN ordered_at >= '2025-01-01' AND ordered_at <= '2025-03-31' THEN subtotal ELSE 0 END) AS q1_2025_revenue, SUM(CASE WHEN ordered_at >= '2024-10-01' AND ordered_at <= '2024-12-31' THEN subtotal ELSE 0 END) AS q4_2024_revenue FROM main.orders WHERE order_total > 0",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "q1_2025_revenue,q4_2024_revenue\n138853.00,75723.00"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "**Definition used** \u2013\u202fRevenue (pre\u2011tax) is the sum of\u202f`orders.subtotal`.\u202fOnly orders with a positive total (`order_total > 0`) are counted, per the *empty_orders* rule.\n\n**Period covered**  \n- **Q1\u202f2025**\u202f=\u202fJanuary\u202f1\u202fto\u202fMarch\u202f31\u202f2025 (full quarter, data fully present)  \n- **Q4\u202f2024**\u202f=\u202fOctober\u202f1\u202fto\u202fDecember\u202f31\u202f2024 (full quarter, data fully present)\n\n**Result**  \n\n| Quarter | Pre\u2011tax revenue (USD) |\n|---------|----------------------|\n| Q1\u202f2025 | 138,853.00 |\n| Q4\u202f2024 | 75,723.00 |\n| **Difference (Q1\u202f2025\u202f\u2013\u202fQ4\u202f2024)** | **63,130.00** |\n\n**Answer** \u2013\u202fPre\u2011tax revenue in Q1\u202f2025 exceeded that in Q4\u202f2024 by **$63,130.00**."
+        }
+      ],
+      "category": "time",
+      "gold": 63130.0
+    },
+    {
+      "id": "h08",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "numeric_value 14.989304812834225 matches gold 14.989304812834225",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The average pre\u2011tax amount of a customer\u2019s first order is $14.989304812834225.",
+        "numeric_value": 14.989304812834225,
+        "unit": "USD",
+        "sql": "WITH first_orders AS (\n  SELECT o.customer_id, o.subtotal, o.order_total,\n         ROW_NUMBER() OVER (PARTITION BY o.customer_id ORDER BY o.ordered_at) AS rn\n  FROM main.orders o\n  WHERE o.order_total > 0\n)\nSELECT AVG(subtotal) AS avg_first_order_subtotal\nFROM first_orders\nWHERE rn = 1;",
+        "definition_used": "Average of orders.subtotal for each customer's first order, excluding orders with $0 total (empty_orders).",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 9797,
+      "output_tokens": 1006,
+      "sql_calls": 1,
+      "latency_ms": 2044,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH first_orders AS (\n  SELECT o.customer_id, o.subtotal, o.order_total,\n         ROW_NUMBER() OVER (PARTITION BY o.customer_id ORDER BY o.ordered_at) AS rn\n  FROM main.orders o\n  WHERE o.order_total > 0\n)\nSELECT AVG(subtotal) AS avg_first_order_subtotal\nFROM first_orders\nWHERE rn = 1",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 14,
+          "preview": "avg_first_order_subtotal\n14.989304812834225"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "**Definition used**  \n- **Revenue (pre\u2011tax)**: the sum of\u202f`orders.subtotal`.  \n- **First order**: the earliest order for each customer, after excluding \u201cempty\u201d orders (orders where `order_total = 0`). This follows the **[empty_orders]** rule, so only orders with `order_total > 0` are considered when determining a customer\u2019s first order.  \n\n**Result**  \nThe average pre\u2011tax amount of a customer\u2019s first order (i.e., the average of `orders.subtotal` for each customer\u2019s first non\u2011empty order) is **$14.99**.  \n\n*The figure comes from the query that selected, for every customer, the earliest order with `order_total > 0` and then averaged the `subtotal` values of those orders.*"
+        }
+      ],
+      "category": "metric-definition",
+      "gold": 14.989304812834225
+    },
+    {
+      "id": "h09",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "status 'answered', expected 'cannot_answer'",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "We spend the most with the supplier \u201clamb and pork bratwurst\u201d, for a total spend of $2.34.",
+        "numeric_value": 2.34,
+        "unit": "USD",
+        "sql": "SELECT supply_name, SUM(supply_cost) AS total_spend FROM main.supplies GROUP BY supply_name ORDER BY total_spend DESC LIMIT 1",
+        "definition_used": "Sum of supply_cost for each supplier (supply_name).",
+        "assumptions": [
+          "Only the first 5 rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 20228,
+      "output_tokens": 1535,
+      "sql_calls": 4,
+      "latency_ms": 3481,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT product_id, COUNT(*) AS cnt FROM main.supplies GROUP BY product_id",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "product_id,cnt\nJAF-003,9\nJAF-005,8\nBEV-004,4\nJAF-004,9\nBEV-002,6\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT supply_name, SUM(supply_cost) AS total_spend FROM main.supplies GROUP BY supply_name ORDER BY total_spend DESC LIMIT 5",
+          "row_count": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "supply_name,total_spend\nlamb and pork bratwurst,2.34\npulled pork,2.15\nbeef stew,1.69\nbread,1.65\nminced beef,1.24"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT supply_name, SUM(supply_cost) AS total_spend FROM main.supplies GROUP BY supply_name ORDER BY total_spend DESC LIMIT 1",
+          "row_count": 1,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "supply_name,total_spend\nlamb and pork bratwurst,2.34"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "SELECT supply_name, SUM(supply_cost) AS total_spend FROM main.supplies GROUP BY supply_name ORDER BY total_spend DESC",
+          "row_count": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "supply_name,total_spend\nlamb and pork bratwurst,2.34\npulled pork,2.15\nbeef stew,1.69\nbread,1.65\nminced beef,1.24\n(showing first 5 rows; more exist: aggregate or filter in SQL)"
+        },
+        {
+          "turn": 4,
+          "type": "text",
+          "text": "**Answer**\n\nThe supplier we spend the most with is **\u201clamb and pork bratwurst.\u201d**  \n\n- **Total spend on this supplier:** **$2.34** (sum of `supply_cost` for all rows where `supply_name = 'lamb and pork bratwurst'`).\n\n**How the figure was derived**\n\n- The warehouse records each supply purchase in **`main.supplies`** with a `supply_cost` amount.\n- To measure \u201cspend with a supplier\u201d we summed `supply_cost` for each distinct `supply_name`:\n\n```sql\nSELECT\n    supply_name,\n    SUM(supply_cost) AS total_spend\nFROM main.supplies\nGROUP BY supply_name\nORDER BY total_spend DESC\nLIMIT 1;\n```\n\n- The query returned **`lamb and pork bratwurst`** with a total spend of **2.34** (dollars).\n\n**Note**\n\n- The data set contains only 65 supply rows, so the absolute spend amounts are modest. The ranking is based solely on the summed `supply_cost` values present in the current warehouse."
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    },
+    {
+      "id": "h10",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "status is 'cannot_answer'",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Cannot compute year\u2011over\u2011year growth for August\u202f2025 because the data does not include August\u202f2024 (the earliest order date is 2024\u201109\u201101). The warehouse only contains orders from September\u202f2024 onward, so the pre\u2011tax revenue for the prior year\u2019s August is unavailable.",
+        "numeric_value": null,
+        "unit": null,
+        "sql": null,
+        "definition_used": "Revenue is pre\u2011tax sales, the sum of orders.subtotal (as defined by the customer).",
+        "assumptions": [
+          "The fiscal year is the calendar year; pre\u2011tax revenue is defined as sum of orders.subtotal; only orders with order_total > 0 are considered, but this does not affect the missing prior\u2011year data."
+        ],
+        "status": "cannot_answer"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "706909e61ef7",
+      "input_tokens": 6474,
+      "output_tokens": 726,
+      "sql_calls": 0,
+      "latency_ms": 1476,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "text",
+          "text": "**Definition used**  \n- **Revenue (pre\u2011tax)** =\u202fthe sum of\u202f`orders.subtotal`\u202f(the order subtotal before tax).  \n\n**Data coverage**  \n- The `orders.ordered_at` column contains dates from **2024\u201109\u201101** through **2025\u201108\u201131**.  \n- Consequently, there are **no orders for August\u202f2024** in the warehouse.\n\n**Result**  \nBecause the prior\u2011year month (August\u202f2024) is not present in the data, the year\u2011over\u2011year growth in pre\u2011tax revenue for August\u202f2025 cannot be calculated from the available records.\n\nIf you would like to compare August\u202f2025 to another month that is present (e.g., September\u202f2024 or July\u202f2025), please let me know and I can provide that comparison."
+        }
+      ],
+      "category": "unanswerable",
+      "gold": null
+    }
+  ]
+}

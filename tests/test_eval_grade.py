@@ -265,3 +265,13 @@ def test_zero_tolerance_accepts_only_the_exact_value():
     assert g._grade_number(spec, 3.592034445640474, exact).passed
     assert not g._grade_number(spec, 3.592034445640474, {**exact, "numeric_value": 3.59}).passed
     assert not g._grade_number(spec, 3.592034445640474, {**exact, "numeric_value": 3.6}).passed
+
+
+def test_set_match_ignores_unicode_spaces_and_hyphens():
+    # h06 in holdout-01: the model wrote "Los Angeles" (narrow no-break space)
+    question = q({"type": "set"})
+    gold = {"items": ["Los Angeles"], "excluded": []}
+    for text in ("Los Angeles has the highest rate.", "Los Angeles", "los  angeles"):
+        assert g.grade(question, gold, ans(answer=text)).passed, text
+    assert g.grade(question, {"items": ["pre-tax"], "excluded": []}, ans(answer="pre‑tax revenue")).passed
+    assert not g.grade(question, gold, ans(answer="LosAngeles")).passed

@@ -17,6 +17,7 @@ Gold values come from running `gold_sql` against the warehouse, never from typed
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from typing import Any
 
@@ -63,8 +64,16 @@ def compute_gold(con, question: dict) -> Any:
     return {"items": items, "excluded": excluded}
 
 
+def _normalize(text: str) -> str:
+    """Lowercase, with Unicode look-alikes made plain: the model writes U+202F / U+00A0 between words and U+2011 in
+    'pre-tax'. NFKC turns the odd spaces into ' '; dash variants become '-'; runs of whitespace become one space."""
+    text = unicodedata.normalize("NFKC", text)
+    text = re.sub(r"[\u2010-\u2015\u2212]", "-", text)
+    return re.sub(r"\s+", " ", text).lower()
+
+
 def _contains_word(text: str, item: str) -> bool:
-    return re.search(rf"(?<![a-z0-9]){re.escape(item.lower())}(?![a-z0-9])", text) is not None
+    return re.search(rf"(?<![a-z0-9]){re.escape(_normalize(item))}(?![a-z0-9])", _normalize(text)) is not None
 
 
 def _grade_number(spec: dict, gold: float, answer: dict) -> Grade:
@@ -84,7 +93,7 @@ def _grade_number(spec: dict, gold: float, answer: dict) -> Grade:
 
 
 def _grade_set(gold: dict, answer: dict) -> Grade:
-    text = (answer.get("answer") or "").lower()
+    text = answer.get("answer") or ""
     missing = [item for item in gold["items"] if not _contains_word(text, item)]
     if missing:
         return Grade(False, f"missing from answer: {missing}")

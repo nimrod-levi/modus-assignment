@@ -133,6 +133,7 @@ def run_question(question: dict, gold, runs: int, ask_fn: Callable[[str], dict])
             model=trace["model"],
             provider=trace.get("provider"),
             system_prompt_sha=trace["system_prompt_sha"],
+            glossary_sha=trace.get("glossary_sha"),
             input_tokens=usage["input_tokens"],
             output_tokens=usage["output_tokens"],
             sql_calls=trace["sql_calls"],
@@ -223,6 +224,8 @@ def main(argv: list[str] | None = None) -> int:
     golds = {q["id"]: grading.compute_gold(con, q) for q in questions}  # fail fast on a bad gold_sql
     con.close()
 
+    # Read the tree state before this run writes anything; the eval's own outputs do not count as changes.
+    dirty = bool(_git("status", "--porcelain", "--", ".", ":!eval/results", ":!eval/scoreboard.csv"))
     config = AgentConfig()
     client = ThrottledClient(make_client(), args.min_interval)
     records: list[dict] = []
@@ -248,9 +251,10 @@ def main(argv: list[str] | None = None) -> int:
         "step": args.step,
         "suite": args.file.stem,
         "git_sha": _git("rev-parse", "--short", "HEAD"),
-        "dirty": bool(_git("status", "--porcelain")),
+        "dirty": dirty,
         "model": first_ok.get("model", config.model),
         "system_prompt_sha": first_ok.get("system_prompt_sha", ""),
+        "glossary_sha": first_ok.get("glossary_sha") or "",
     }
     out.write_text(json.dumps({"meta": meta, "summary": summary, "records": records}, indent=2, default=str))
 

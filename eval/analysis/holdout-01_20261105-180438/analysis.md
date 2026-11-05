@@ -3,7 +3,7 @@
 Run `holdout-01_holdout_20261105-180438.json`, **1 run per question** (the `eval-holdout` Makefile target does not forward `RUNS`), agent = step 5 (prompt sha `706909e61ef7`, `openai/gpt-oss-120b`, Cerebras, effort medium).
 The questions were written after the step-5 agent was built, not tuned on it, and this is the first and only run.
 
-Score: **8/10 = 80%** · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Step-5 dev set for reference: 95% (3 runs). Hypothesis in STEPS.md was 5-7 of 10; the agent did better than predicted.
+Score: **8/10 = 80%** as run; **9/10 = 90%** after the set-grader eval fix (h06, see STEPS.md; re-graded file `holdout-01_holdout_20261105-180438_regraded.json`) · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Step-5 dev set for reference: 95% (3 runs). Hypothesis in STEPS.md was 5-7 of 10; the agent did better than predicted.
 
 | id | result | SQL calls | tokens | what happened |
 |---|---|---|---|---|
@@ -20,8 +20,8 @@ Score: **8/10 = 80%** · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Ste
 
 ## Findings
 
-1. **h09 is the one real failure, and it is the predicted loophole.** `supplies.supply_name` (an ingredient such as "banana") was read as the supplier. It also summed `supply_cost` over the 65 per-unit supply rows (one unit of each), so $2.34 is not spend on anything sold. The step-5 rule "use a column only for what its description says" did not hold here, even though the same rule fixed q19: `supply_name` has no description to contradict, and "supplier" sounds close enough to "supply". The model also ran 4 queries (a re-run of the same query with a different LIMIT), so the "never send the same query twice" rule from 5b is not in this agent (prompt sha is the step-5 one).
-2. **h06 is an eval defect, not an agent defect.** The answer is right. The set grader lowercases and regex-matches the whole word, but does not normalise Unicode whitespace; U+202F, U+00A0 and the non-breaking hyphen (U+2011, seen in "pre‑tax" in the same answers) are produced by this model. Corrected score would be 9/10. This affects every `set` question with a multi-word gold (q13 is one word, h04 passed only because the model wrote plain spaces). Per CLAUDE.md the fix must be its own "eval fix" commit with the reason logged; it is **not** made here.
+1. **h09 is the one real failure, and it is the predicted loophole.** `supplies.supply_name` (an ingredient such as "banana") was read as the supplier. It also summed `supply_cost` over the 65 per-unit supply rows (one unit of each), so $2.34 is not spend on anything sold. The step-5 rule "use a column only for what its description says" did not hold here, even though the same rule fixed q19: `supply_name` has no description to contradict, and "supplier" sounds close enough to "supply". The model also ran 4 queries (a re-run of the same query with a different LIMIT), and the step-5 prompt has no rule against re-running a query with a different LIMIT (a narrower "verify" wording was planned, not done).
+2. **h06 is an eval defect, not an agent defect.** The answer is right. The set grader lowercases and regex-matches the whole word, but does not normalise Unicode whitespace; U+202F, U+00A0 and the non-breaking hyphen (U+2011, seen in "pre‑tax" in the same answers) are produced by this model. Corrected score would be 9/10. This affects every `set` question with a multi-word gold (q13 is one word, h04 passed only because the model wrote plain spaces). Per CLAUDE.md the fix must be its own "eval fix" commit with the reason logged; it was made afterwards in its own commit (9/10).
 3. **The traps that were expected to break the agent mostly did not.** h01, h02, h03, h04, h05, h07 and h08 passed, including the three that needed the glossary's `$0`-order rule (h02, h08) and the item-vs-order grain (h03). The step-5 prompt and glossary generalise to these concepts.
 4. **Passing is partly lucky on one question.** h03 cited the `$0` rule for an item-level query where it is irrelevant, and h04 added the same assumption. Harmless to the numbers, but it shows the glossary rule is applied by keyword, not by reasoning about whether it matters.
 5. **Cost.** 14.2k tokens/run, same as the dev set (14.4k). h05 and h09 (4 calls each) are the expensive ones; h10 answered with 0 queries.
@@ -34,6 +34,6 @@ Score: **8/10 = 80%** · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Ste
 
 ## Next (not done)
 
-1. Eval fix: normalise Unicode whitespace/hyphens in `_contains_word` (own commit, reason in STEPS.md), then re-grade this result file.
-2. Make `eval-holdout` forward `RUNS`, re-run with 3 runs.
+1. ~~Eval fix: normalise Unicode whitespace/hyphens in `_contains_word`, then re-grade this result file.~~ Done (see STEPS.md): 9/10.
+2. ~~Make `eval-holdout` forward `RUNS`~~ (done); re-run with 3 runs (not done).
 3. h09 is a context problem (no supplier concept in the glossary or generated notes); any fix must be generic, e.g. a check that a named entity in the question ("supplier") has a column, not a rule about suppliers.

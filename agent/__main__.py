@@ -41,12 +41,16 @@ def save_trace(trace: dict) -> Path:
 
 def print_trace(trace: dict) -> None:
     for step in trace["steps"]:
-        if step["type"] == "text":
-            print(f"\n[turn {step['turn']}] {step['text']}")
-        else:
+        if step["type"] == "sql":
             print(f"\n[turn {step['turn']}] SQL ({step['row_count']} rows, {step['elapsed_ms']} ms)")
             print(step["sql"])
             print(step["error"] or step["preview"][:600])
+        elif step["type"] == "repeated_sql":
+            print(f"\n[turn {step['turn']}] SQL repeated, not re-run:\n{step['sql']}")
+        elif step["type"] == "rejected_call":
+            print(f"\n[turn {step['turn']}] rejected call: {step['reason']}")
+        else:
+            print(f"\n[turn {step['turn']}] {step['text']}")
 
 
 def main(argv: list[str] | None = None) -> int:

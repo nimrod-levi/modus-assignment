@@ -241,3 +241,17 @@ def test_glossary_block_goes_with_the_question_not_the_system_prompt(monkeypatch
     assert "Ignore test orders." not in system["content"]
     assert user["content"].startswith("What was revenue?") and "[g1] Ignore test orders. (assumed)" in user["content"]
     assert trace["glossary_ids"] == ["g1"] and trace["question"] == "What was revenue?"
+    assert trace["glossary_sha"] and len(trace["glossary_sha"]) == 12  # the glossary text is not in system_prompt_sha
+
+
+def test_print_trace_handles_every_step_type(capsys):
+    from agent.__main__ import print_trace
+
+    print_trace({"steps": [
+        {"turn": 0, "type": "text", "text": "Let me sum."},
+        {"turn": 0, "type": "sql", "sql": "select 1", "row_count": 1, "elapsed_ms": 2, "error": None, "preview": "1"},
+        {"turn": 1, "type": "repeated_sql", "sql": "select 1"},
+        {"turn": 1, "type": "rejected_call", "reason": "tool_use_failed"},
+    ]})
+    out = capsys.readouterr().out
+    assert "repeated, not re-run" in out and "rejected call: tool_use_failed" in out

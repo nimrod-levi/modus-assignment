@@ -35,7 +35,7 @@ QUERIES = {
 def main() -> None:
     con = db.connect()
     for title, sql in QUERIES.items():
-        result = db.run_sql(con, sql)
+        result = db.run_sql(con, sql, max_rows=1000)  # the agent's 5-row cap would cut these tables
         print(f"\n## {title}\n{result.to_text()}")
 
 

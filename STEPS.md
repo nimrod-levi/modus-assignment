@@ -52,7 +52,7 @@ now be correct, and q04's old gold was 3.52):
 - **q04** had `rel_tol: 0.03` to allow 3.52 or 3.59. Tolerance removed (default 0.1%). Customer
   assumption: the 483 $0 orders are ignored, so first/second order are ranked among
   `order_total > 0` orders. Gold changed 3.5199 -> 3.5920.
-The step-00 result file predates this fix; re-run step 0 before comparing scores.
+The first step-00 run (`step-00-baseline_questions_20261103-094307`, not kept) predates this fix; the recorded step-0 score (run `130107`) was made after it.
 
 ### Step 1 · Remove tool-call rejections (infrastructure only)
 
@@ -397,7 +397,19 @@ Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQ
 - **All 20 answers and all 20 token counts are identical to 4a'** (same inputs, temperature 0). Either the provider is deterministic for an identical request or the reply is cached;
   this run cannot tell which. Consequence: a re-run of an unchanged agent adds no information here, and the variance seen in earlier steps (q02, q06, q20 flipping) came from
   runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
+  **Corrected by step 4 final (below):** this holds within one session only. A day later the same request gave a different reply on every question and 3 verdicts flipped.
 - Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).
+
+### Step 4 final · the 4a' agent re-run with 3 runs (no change to the agent)
+
+Run `step-04-final_questions_20261105-135451` (commit `0c424a4`; `agent/` and `glossary/` unchanged since `2a487ad`, prompt sha `ce5d3d1e7bb6`), analysis in
+`eval/analysis/step-04-final_20261105-135451/README.md`.
+
+Score: **18/20 = 90.0%** (3 runs, pass^3 90%) · 0 errors · 10,959 tokens/run · 1.4 SQL calls/run.
+- The 3 runs gave identical verdicts and token counts: within one session an identical request gets the same reply, so 3 runs here carry the confidence of 1.
+- Against 4a3 (same agent, a day earlier, 17/20): every answer text differs and 3 verdicts flipped (q04 +, q16 +, q06 -). Nothing on our side changed, so this is
+  provider drift. A score measures agent + provider on that day; 85% to 90% is the range of the same agent. This is why step 5 is compared with a same-day baseline.
+- Persistent failure: q19 (net profit) with a different invented cost model in every glossary-era run.
 
 ### Step 5 · Professional system prompt (rewrite of the instructions, no new context or tools)
 
@@ -453,5 +465,14 @@ Caveats: h02 h03 h07 h08 depend on assumed glossary rules; h10 accepts only `can
 Score: **8/10 = 80%** · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Better than the 5-7 predicted.
 - Passed: h01 h02 h03 h04 h05 h07 h08 h10. The weekday-average, `$0`-rule, item-grain, trailing-space and no-over-asking traps did not break the agent.
 - **h09 failed (agent):** `supply_name` read as a supplier, answered `answered` with $2.34 (sum of per-unit supply rows). Predicted.
-- **h06 failed (grader):** answer "Los Angeles" is right but written with U+202F between the words, so the whole-word match fails. Corrected score would be 9/10. Not fixed here: needs its own "eval fix" commit.
-- Single run (the `eval-holdout` target does not forward `RUNS`); treat 8/10 as 7-9.
+- **h06 failed (grader):** answer "Los Angeles" is right but written with U+202F between the words, so the whole-word match fails. Fixed afterwards in its own eval-fix commit (entry below): re-graded 9/10.
+- Single run (at the time the `eval-holdout` target did not forward `RUNS`; it does now); treat the score as +/- 1.
+
+### Eval fix · set grader ignores Unicode spaces and hyphens (made after holdout 1)
+
+Reason: h06 failed only because the model wrote "Los Angeles" with U+202F (narrow no-break space) between the words, so the whole-word match did not see it.
+The same model also writes U+00A0 and U+2011 ("pre‑tax"). `_contains_word` now compares NFKC-normalised, lowercased text with dash variants mapped to `-` and
+whitespace runs collapsed (`eval/grade.py`, test `test_set_match_ignores_unicode_spaces_and_hyphens`). Questions, gold SQL and number grading are unchanged.
+- Effect checked on every stored result: of the 46 set-item matches in all 15 result files, only h06 in holdout 1 changes verdict. No dev-set score moves.
+- Holdout 1 re-graded without calling the model (`python -m eval.regrade`, new file `eval/results/holdout-01_holdout_20261105-180438_regraded.json`; the original is kept):
+  **9/10 = 90%**. No scoreboard row is added for a re-grade; the scoreboard keeps the 80% as measured.

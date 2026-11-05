@@ -83,3 +83,8 @@ models, not the marts); found by printing the output and reading it, then fixed.
   1-run 3b figure, so the effect of the notes alone is not measured.
 - Step 3d: Claude wrote the checklist after seeing the failures and said so in STEPS.md. In the wrap-up it compared 3d with 3c per question
   and found the only differences were a grader fix (q08) and an unstable question (q06), so the 75% is not evidence that the checklist helps.
+
+### Step 5 · system prompt rewrite (Claude Code)
+Claude researched prompt-writing guidance (Anthropic and OpenAI prompting guides, text-to-SQL practice; mostly secondary summaries found by web search), rewrote `SYSTEM_PROMPT`,
+wrote the STEPS entry before the run, ran the baseline and the new eval (3 runs each) and wrote the analysis. What to check: the prompt was written after reading the step-4 failures;
+the rewrite is one bundle (no ablation); the verify step it added raised tokens by 35%; q16 regressed.

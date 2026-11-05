@@ -398,3 +398,39 @@ Score: **17/20 = 85.0%** (4a': 18/20) · 0 errors · 10,822 tokens/run · 1.4 SQ
   this run cannot tell which. Consequence: a re-run of an unchanged agent adds no information here, and the variance seen in earlier steps (q02, q06, q20 flipping) came from
   runs where the prompt or the context differed, or from provider behaviour at the time. Do not read "1 run" as a noisy sample of one fixed behaviour without checking this.
 - Open: q04 (rounding), q16 (no query, invented figures), q19 (tax treated as a cost).
+
+### Step 5 · Professional system prompt (rewrite of the instructions, no new context or tools)
+
+Root cause targeted: the system prompt is still the step-0 paragraph plus one refusal sentence added in 3b. It names no workflow, gives no reasons for its
+rules, mixes instructions with the schema, and says nothing about grounding ("every number comes from a query"), verifying results, or how precisely to report a
+figure. The remaining failures (q04 rounding, q16 invented figures with 0 SQL calls, q19 a column used as something its description does not say) are behaviour
+failures: the facts are in the context, the model does not act on them.
+
+Research (summary; sources in the analysis file): Anthropic prompting docs (be clear and direct, brief the model like a capable new colleague who lacks context, explain
+*why*, tag sections with XML, put long reference data first and the task and rules after it); OpenAI GPT-4.1 / harmony guides (agentic reminders: persist until done, use tools
+instead of guessing, plan between tool calls; reasoning effort is a separate knob); text-to-SQL practice (ground in the real schema, verify empty or odd results,
+abstain or ask instead of guessing, enforce safety in code not in the prompt, which this repo already does with the SQL guard).
+
+Changes (same model, provider, effort, tools, context, glossary; only the instruction text changes, all of it generic):
+- `SYSTEM_PROMPT` restructured into tagged sections: `<role>` (who, who relies on the numbers, why a wrong confident number is worse than a question), `<warehouse>`
+  (the generated schema, unchanged), `<workflow>` (understand, check feasibility, query, verify, answer), `<rules>` (grounding, customer definitions first,
+  no proxies, when to ask, precision, efficiency).
+- `FINAL_REQUEST` becomes a short reminder of the rules that matter at answer time (recency): figures only from query results, full precision in `numeric_value`, pick the status the evidence supports.
+- `numeric_value` description in the answer schema: unrounded, as returned by the query.
+- Not changed: the glossary, the generated context, tools, row cap, grader, questions.
+
+Honest limits: the prompt was written after reading the step-4 failures, so it targets "no query, invented number", "rounded value" and "column used as something else"
+by design, as generic rules. The holdout run is the check that it does not just fit the eval. Same-day baseline: `step-05-baseline-rerun` (the unchanged step-4 agent, RUNS=3),
+because step 4 final and 4a3 differed through provider drift alone.
+
+Hypothesis (vs the baseline re-run, about 18/20): +1 to +2 questions. Likely: q16 (the grounding rule: no query, no number), q04 (full-precision rule). Possible: q19.
+No regressions expected on the 17 stable questions; risk: the longer rules make the model ask for clarification on questions that are answerable (q01, q09, q13, q14),
+or add reasoning tokens. Tokens: prompt grows about 0.3k; tokens per run about +0.3k to +1k. A drop in score or a rise in clarifications would reject the hypothesis.
+
+**Result** (run `step-05-system-prompt_questions_20261105-173810`, prompt sha `706909e61ef7`, 3 runs; same-day baseline `step-05-baseline-rerun_questions_20261105-173527`, analysis in `eval/analysis/step-05-system-prompt_20261105-173810/analysis.md`):
+
+Score: **95.0%** (baseline re-run today: 85.0%; step-04-final: 90.0%) · pass^3 95.0% (baseline 80.0%) · 0 errors · **14,430 tokens/run (baseline 10,663, +35%)**.
+- Hypothesis partly met: +2 net questions. Fixed q06 (grain), q19 (a column is not used for what its description does not say), q04 (full precision) and q15; **q16 regressed** (PPP to FFF):
+  the grounding rule makes it query, and after querying it answers with no assumptions instead of asking about the partial quarter.
+- Token cost is larger than predicted. The "verify before answering" step makes the model re-query (q10 1 to 6 calls, q09 repeats a query). Correctness not harmed; wording to narrow (5b).
+- The rewrite is one bundle: which part helps is not isolated. Holdout run not done. The same agent scored 85-90% on different days, so only the same-day baseline is a fair comparison.

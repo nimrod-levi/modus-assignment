@@ -1,0 +1,21 @@
+id,category,4a2_1run,4a3_1run,final_3runs,tokens_4a3,tokens_final,sql_4a3,sql_final,changed_vs_4a3
+q01,metric-definition,PASS,PASS,3/3 pass,9131,9110,1,1,
+q02,metric-definition,PASS,PASS,3/3 pass,9774,9647,1,1,
+q03,metric-definition,PASS,PASS,3/3 pass,12765,12988,2,2,
+q04,metric-definition,PASS,FAIL,3/3 pass,10237,10301,1,1,now returns the unrounded 3.592034445640474 (4a3: 3.59)
+q05,units,PASS,PASS,3/3 pass,8880,8874,1,1,
+q06,grain,PASS,PASS,0/3 pass,10469,9386,1,1,"REGRESSION: SUM(supply_cost) over supplies = 15.81, never joined to order_items (cost per unit, not spend); gold 104719.19. 4a3 joined and passed"
+q07,grain,PASS,PASS,3/3 pass,17534,10233,3,1,
+q08,grain,PASS,PASS,3/3 pass,9373,9331,1,1,
+q09,grain,PASS,PASS,3/3 pass,9128,9072,1,1,
+q10,grain,PASS,PASS,3/3 pass,15570,9433,3,1,
+q11,entity,PASS,PASS,3/3 pass,9066,9083,1,1,
+q12,entity,PASS,PASS,3/3 pass,12217,18634,2,4,
+q13,entity,PASS,PASS,3/3 pass,18677,26046,3,5,
+q14,time,PASS,PASS,3/3 pass,12827,16863,2,3,
+q15,time,PASS,PASS,3/3 pass,6316,6337,0,0,
+q16,time,FAIL,FAIL,3/3 pass,7090,6777,0,0,"now needs_clarification (partial Q3), 0 SQL; 4a3 answered with invented figures"
+q17,unanswerable,PASS,PASS,3/3 pass,5989,6067,0,0,
+q18,unanswerable,PASS,PASS,3/3 pass,5917,11930,0,2,
+q19,unanswerable,FAIL,FAIL,0/3 pass,19428,9816,4,1,"still answers (79.35% = subtotal minus order_cost, tax excluded); gold cannot_answer. Different wrong cost model than 4a3 (73.99%)"
+q20,unanswerable,PASS,PASS,3/3 pass,6059,9257,0,1,

@@ -9,3 +9,4 @@ timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,
 2026-11-04T09:52:46+00:00,step-04a-glossary-all,questions,a865982,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,1,0.800,0.800,0.800,0,0,10191,1.1
 2026-11-04T10:13:38+00:00,step-04a2-glossary-concepts,questions,ce6f329,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,1,0.900,0.900,0.900,0,0,10822,1.4
 2026-11-04T16:45:38+00:00,step-04a3-q04-exact,questions,2a487ad,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,1,0.850,0.850,0.850,0,0,10822,1.4
+2026-11-05T13:57:24+00:00,step-04-final,questions,0c424a4,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,3,0.900,0.900,0.900,0,0,10959,1.4

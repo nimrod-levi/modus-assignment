@@ -16,18 +16,38 @@ from agent.__main__ import load_dotenv, save_trace
 from agent.agent import ask
 
 PAGE = """<!doctype html>
-<meta charset="utf-8"><title>Data agent</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data agent</title>
 <style>
- body{font:15px/1.5 system-ui,sans-serif;max-width:820px;margin:32px auto;padding:0 16px;color:#222}
- form{display:flex;gap:8px} input{flex:1;padding:8px;font-size:15px} button{padding:8px 16px;font-size:15px}
- pre{background:#f4f4f4;padding:10px;overflow:auto;white-space:pre-wrap;border-radius:4px}
- .answer{font-size:18px;margin:16px 0 8px} .meta{color:#666;font-size:13px}
- dt{font-weight:600;margin-top:8px} dd{margin:0} .err{color:#b00020}
- details{margin:8px 0}
+ :root{--bg:#fafafa;--card:#fff;--text:#1f2328;--muted:#656d76;--line:#e3e6ea;--accent:#4f46e5;--code:#f3f4f6;--err:#b42318;--ok:#067647;--warn:#b54708}
+ @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--text:#e6e8eb;--muted:#9aa3ad;--line:#2a2f3a;--accent:#818cf8;--code:#1e222b;--err:#f97066;--ok:#47cd89;--warn:#fdb022}}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+ main{max-width:860px;margin:0 auto;padding:40px 16px 64px}
+ h1{font-size:20px;margin:0 0 20px;font-weight:600}
+ form{display:flex;gap:8px;margin-bottom:24px}
+ input{flex:1;padding:10px 14px;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px}
+ input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+ button{padding:10px 18px;font:inherit;font-weight:500;color:#fff;background:var(--accent);border:0;border-radius:8px;cursor:pointer}
+ button:disabled{opacity:.5;cursor:default}
+ .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+ .answer{font-size:17px;margin:0}
+ .label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 8px}
+ .badge{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line);margin-bottom:10px}
+ .badge.ok{color:var(--ok)} .badge.warn{color:var(--warn)} .badge.bad{color:var(--err)}
+ dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:12px 0 0}
+ dt{color:var(--muted)} dd{margin:0}
+ pre{background:var(--code);padding:10px 12px;margin:6px 0 0;overflow:auto;white-space:pre-wrap;border-radius:6px;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+ .meta{color:var(--muted);font-size:13px} .err{color:var(--err)}
+ .step{padding:12px 0;border-top:1px solid var(--line)} .step:first-of-type{border-top:0;padding-top:4px}
+ summary{cursor:pointer;font-weight:600}
+ .foot{text-align:center;margin-top:8px}
 </style>
-<h2>Data agent</h2>
+<main>
+<h1>Data agent</h1>
 <form id=f><input id=q placeholder="Ask a business question" autofocus><button id=b>Ask</button></form>
 <div id=out></div>
+</main>
 <script>
 const out = document.getElementById('out');
 function el(tag, text, cls) {
@@ -36,29 +56,60 @@ function el(tag, text, cls) {
   if (cls) e.className = cls;
   return e;
 }
+function card(label) {
+  const c = el('div', undefined, 'card');
+  if (label) c.append(el('p', label, 'label'));
+  return c;
+}
 function show(t) {
   out.replaceChildren();
   const a = t.answer || {};
-  out.append(el('div', a.answer || '(no answer: ' + t.end_reason + ')', 'answer'));
+
+  const main = card();
+  if (a.status) {
+    const cls = {ok: 'ok', answered: 'ok'}[a.status] || (a.status.includes('refus') || a.status.includes('error') ? 'bad' : 'warn');
+    main.append(el('span', a.status, 'badge ' + cls));
+  }
+  main.append(el('p', a.answer || '(no answer: ' + t.end_reason + ')', 'answer'));
   const dl = el('dl');
-  for (const k of ['status', 'numeric_value', 'unit', 'definition_used', 'assumptions']) {
+  for (const k of ['numeric_value', 'unit', 'definition_used', 'assumptions']) {
     const v = Array.isArray(a[k]) ? a[k].join('; ') : a[k];
-    if (v !== undefined && v !== null && v !== '') { dl.append(el('dt', k), el('dd', String(v))); }
+    if (v !== undefined && v !== null && v !== '') { dl.append(el('dt', k.replace('_', ' ')), el('dd', String(v))); }
   }
-  out.append(dl);
-  if (a.sql) { out.append(el('dt', 'final sql'), el('pre', a.sql)); }
-  const d = el('details'); d.open = true;
-  d.append(el('summary', 'Steps (' + t.steps.length + ')'));
+  main.append(dl);
+  out.append(main);
+
+  if (a.sql) {
+    const c = card('Final SQL');
+    c.append(el('pre', a.sql));
+    out.append(c);
+  }
+
+  const c = card('SQL steps (' + t.sql_calls + ' executed)');
   for (const s of t.steps) {
-    if (s.type === 'text') { d.append(el('pre', '[turn ' + s.turn + '] ' + s.text)); continue; }
-    d.append(el('div', 'turn ' + s.turn + ' · ' + s.row_count + ' rows · ' + s.elapsed_ms + ' ms', 'meta'));
-    d.append(el('pre', s.sql));
-    d.append(s.error ? el('pre', s.error, 'err') : el('pre', s.preview));
+    const d = el('div', undefined, 'step');
+    if (s.type === 'sql') {
+      d.append(el('div', 'turn ' + s.turn + ' \u00b7 ' + s.row_count + ' rows \u00b7 ' + s.elapsed_ms + ' ms' + (s.truncated ? ' \u00b7 truncated' : ''), 'meta'));
+      d.append(el('pre', s.sql));
+      d.append(s.error ? el('pre', s.error, 'err') : el('pre', s.preview));
+    } else if (s.type === 'repeated_sql') {
+      d.append(el('div', 'turn ' + s.turn + ' \u00b7 same query repeated, not re-run', 'meta'));
+      d.append(el('pre', s.sql));
+    } else if (s.type === 'rejected_call') {
+      d.append(el('div', 'turn ' + s.turn + ' \u00b7 rejected call', 'meta'));
+      d.append(el('pre', s.reason, 'err'));
+    } else {
+      d.append(el('div', 'turn ' + s.turn + ' \u00b7 model note', 'meta'));
+      d.append(el('pre', s.text));
+    }
+    c.append(d);
   }
-  out.append(d);
+  if (!t.steps.length) { c.append(el('div', 'No steps.', 'meta')); }
+  out.append(c);
+
   const u = t.usage;
-  out.append(el('div', t.model + ' · ' + t.provider + ' · ' + t.sql_calls + ' SQL calls · ' + u.input_tokens +
-    ' in / ' + u.output_tokens + ' out tokens · ' + (t.latency_ms / 1000).toFixed(1) + 's · ' + t.end_reason, 'meta'));
+  out.append(el('div', t.model + ' \u00b7 ' + t.provider + ' \u00b7 ' + u.input_tokens +
+    ' in / ' + u.output_tokens + ' out tokens \u00b7 ' + (t.latency_ms / 1000).toFixed(1) + 's \u00b7 ' + t.end_reason, 'meta foot'));
 }
 document.getElementById('f').onsubmit = async (e) => {
   e.preventDefault();

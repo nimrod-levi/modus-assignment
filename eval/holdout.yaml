@@ -1,3 +1,105 @@
 # Held-out questions, same format as questions.yaml. Don't look at failures here while
 # improving the agent; run it once at the end of a step to check the gains generalise.
-questions: []
+#
+# h01-h10 DRAFTED BY CLAUDE after reading the agent's context and the data, with the agent's likely
+# wrong path named for each. Every gold_sql was run read-only against the warehouse and compared
+# with that wrong path (they differ). Gold answers come from gold_sql, never typed.
+#
+# Data facts these rely on (verified):
+#   - 365 distinct order dates, no gaps; the window has 53 Sundays and 52 of every other weekday
+#   - order_items.product_price sums to orders.subtotal (637,444.00); order_items.supply_cost sums to orders.order_cost
+#   - Tuesday/Wednesday are low-volume, big-basket days (avg order ~$24.6 vs ~$8.9)
+#   - one product name has a trailing space ('for richer or pourover '); product names are lowercase
+#   - 5 customers' customer_order_number = 1 order is a $0 order; no customer has two positive orders on one day
+#   - the glossary rules used here (revenue = subtotal, $0 orders excluded from counts/averages/sequence,
+#     fiscal year = calendar year) are ASSUMED; if the customer changes them, h02 h03 h07 h08 change
+
+questions:
+  - id: h01
+    category: time
+    # Totals by weekday say Sunday ($101,447 vs Friday $100,260) only because the window holds 53
+    # Sundays and 52 of each other day. Average per date: Friday 1,928.08 vs Sunday 1,914.09.
+    # Also tempts an over-refusal ("no hour of day" is in the context; weekday is not hour).
+    question: "On which day of the week is our average daily pre-tax revenue highest?"
+    gold_sql: |
+      select dayname(d) from (select cast(ordered_at as date) d, sum(subtotal) r from main.orders group by 1)
+      group by dayname(d) order by avg(r) desc limit 1
+    grader: {type: set}
+
+  - id: h02
+    category: metric-definition
+    # Glossary: $0 empty orders (483) are excluded from averages. avg over all rows = 10.2900 (0.8% off).
+    question: "What is the average pre-tax value of an order?"
+    gold_sql: "select avg(subtotal) from main.orders where order_total > 0"
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: h03
+    category: grain
+    # Food share by ITEM revenue. Summing orders.subtotal where is_food_order gives 54.81% because a
+    # mixed order counts entirely as food. Answer is a percentage (37.79), not a fraction.
+    question: "What percentage of our pre-tax revenue comes from food (jaffles) rather than drinks?"
+    gold_sql: "select 100.0 * sum(product_price) filter (where is_food_item) / sum(product_price) from main.order_items"
+    grader: {type: number, unit: [percent, "%", percentage]}
+
+  - id: h04
+    category: grain
+    # Total gross profit per item (price minus its supply cost, summed over units sold). Pourover wins
+    # ($88,528.50). The per-unit margin leader is flame impala ($10.57), and joining supplies to
+    # items fans the price out.
+    question: "Which menu item earned us the most total gross profit over the whole period?"
+    gold_sql: |
+      select trim(product_name) from main.order_items
+      group by trim(product_name) order by sum(product_price - supply_cost) desc limit 1
+    grader: {type: set}
+
+  - id: h05
+    category: entity
+    # Stored as 'for richer or pourover ' (lowercase, trailing space): an exact match on the plain name
+    # returns 0 rows. The right move is to find the spelling, not to answer 0.
+    question: "How many for richer or pourover did we sell?"
+    gold_sql: "select count(*) from main.order_items where trim(product_name) = 'for richer or pourover'"
+    grader: {type: number, unit: [units, items, drinks, drink items]}
+
+  - id: h06
+    category: entity
+    # locations lists 6 stores, 4 never sold anything. Los Angeles (8%) has the highest rate but no
+    # orders; going through orders only finds Philadelphia (6%).
+    question: "Which of our stores has the highest sales tax rate?"
+    gold_sql: "select location_name from main.locations order by tax_rate desc limit 1"
+    grader: {type: set}
+
+  - id: h07
+    category: time
+    # Both quarters are complete (fiscal year = calendar year), so this must be ANSWERED. The data
+    # notes about the partial 2025-Q3 and 2024-Q3 must not trigger a clarification here.
+    question: "By how many dollars did pre-tax revenue in Q1 2025 exceed Q4 2024?"
+    gold_sql: |
+      select sum(subtotal) filter (where ordered_at >= date '2025-01-01' and ordered_at < date '2025-04-01')
+           - sum(subtotal) filter (where ordered_at >= date '2024-10-01' and ordered_at < date '2025-01-01')
+      from main.orders
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: h08
+    category: metric-definition
+    # First order = first order with order_total > 0 (glossary). customer_order_number = 1 counts the
+    # $0 orders (5 customers) and gives 14.8952. No same-day ties among positive orders, so the rank is unambiguous.
+    question: "What is the average pre-tax amount of a customer's first order?"
+    gold_sql: |
+      select avg(subtotal) from (
+        select subtotal, row_number() over (partition by customer_id order by ordered_at, order_id) rn
+        from main.orders where order_total > 0) where rn = 1
+    grader: {type: number, unit: [USD, dollars, "$"]}
+
+  - id: h09
+    category: unanswerable
+    # supplies has supply_name (banana, napkin, ...) and cost, but no supplier or vendor anywhere.
+    # The loophole is reading supply_name as the supplier.
+    question: "Which supplier do we spend the most with?"
+    grader: {type: status, status: cannot_answer}
+
+  - id: h10
+    category: unanswerable
+    # Data starts 2024-09-01: August 2024 does not exist. Nothing to clarify, the period is absent.
+    # Loopholes: comparing with September 2024, or dividing by 0/NULL.
+    question: "What was the year-over-year growth in pre-tax revenue for August 2025?"
+    grader: {type: status, status: cannot_answer}

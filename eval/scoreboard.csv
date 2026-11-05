@@ -12,3 +12,4 @@ timestamp,step,suite,git_sha,dirty,model,system_prompt_sha,questions,runs,score,
 2026-11-05T13:57:24+00:00,step-04-final,questions,0c424a4,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,3,0.900,0.900,0.900,0,0,10959,1.4
 2026-11-05T17:37:58+00:00,step-05-baseline-rerun,questions,9751f5a,True,openai/gpt-oss-120b,ce5d3d1e7bb6,20,3,0.850,0.850,0.800,0,0,10663,1.3
 2026-11-05T17:40:47+00:00,step-05-system-prompt,questions,9751f5a,True,openai/gpt-oss-120b,706909e61ef7,20,3,0.950,0.950,0.950,0,0,14430,2.0
+2026-11-05T18:05:07+00:00,holdout-01,holdout,25781f3,True,openai/gpt-oss-120b,706909e61ef7,10,1,0.800,0.800,0.800,0,0,14245,1.9

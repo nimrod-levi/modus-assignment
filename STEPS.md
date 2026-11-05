@@ -434,3 +434,24 @@ Score: **95.0%** (baseline re-run today: 85.0%; step-04-final: 90.0%) · pass^3 
   the grounding rule makes it query, and after querying it answers with no assumptions instead of asking about the partial quarter.
 - Token cost is larger than predicted. The "verify before answering" step makes the model re-query (q10 1 to 6 calls, q09 repeats a query). Correctness not harmed; wording to narrow (5b).
 - The rewrite is one bundle: which part helps is not isolated. Holdout run not done. The same agent scored 85-90% on different days, so only the same-day baseline is a fair comparison.
+
+### Holdout 1 · ten new questions written to break the agent (h01-h10, `eval/holdout.yaml`)
+
+Purpose: the dev set (q01-q20) was used to tune the prompt, context and glossary, so 90-95% on it says little about unseen questions. These ten were drafted by Claude after reading the
+agent's context and the data, each aimed at a named weak spot, each gold_sql run read-only against the warehouse and compared with the wrong path (all differ). Not used for tuning:
+run once per step, do not tune on the failures.
+
+Traps: h01 weekday average vs total (53 Sundays), h02 and h08 the `$0`-order glossary rule in an average and in order sequence, h03 food share by item vs by `is_food_order`,
+h04 total gross profit vs per-unit margin, h05 trailing-space product name, h06 store with no orders, h07 over-asking on two full quarters, h09 no supplier column, h10 no August 2024.
+
+Hypothesis (current agent, step 5 prompt): about 5-7 of 10. Likely fails: h01 (totals instead of per-date average), h04 (per-unit margin or fan-out), h06 (only stores with orders), h09 (supply_name as supplier).
+Possible fails: h02/h08 (glossary rule not applied), h05 (answers 0), h07 (asks instead of answering). Likely passes: h03, h10. A score above 8/10 would mean these are not hard enough.
+Caveats: h02 h03 h07 h08 depend on assumed glossary rules; h10 accepts only `cannot_answer`.
+
+**Result** (run `holdout-01_holdout_20261105-180438`, step-5 agent, 1 run; analysis in `eval/analysis/holdout-01_20261105-180438/analysis.md`):
+
+Score: **8/10 = 80%** · 0 errors · 14,245 tokens/run · 1.9 SQL calls/run. Better than the 5-7 predicted.
+- Passed: h01 h02 h03 h04 h05 h07 h08 h10. The weekday-average, `$0`-rule, item-grain, trailing-space and no-over-asking traps did not break the agent.
+- **h09 failed (agent):** `supply_name` read as a supplier, answered `answered` with $2.34 (sum of per-unit supply rows). Predicted.
+- **h06 failed (grader):** answer "Los Angeles" is right but written with U+202F between the words, so the whole-word match fails. Corrected score would be 9/10. Not fixed here: needs its own "eval fix" commit.
+- Single run (the `eval-holdout` target does not forward `RUNS`); treat 8/10 as 7-9.

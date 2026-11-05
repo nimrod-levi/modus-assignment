@@ -88,3 +88,7 @@ models, not the marts); found by printing the output and reading it, then fixed.
 Claude researched prompt-writing guidance (Anthropic and OpenAI prompting guides, text-to-SQL practice; mostly secondary summaries found by web search), rewrote `SYSTEM_PROMPT`,
 wrote the STEPS entry before the run, ran the baseline and the new eval (3 runs each) and wrote the analysis. What to check: the prompt was written after reading the step-4 failures;
 the rewrite is one bundle (no ablation); the verify step it added raised tokens by 35%; q16 regressed.
+
+### Holdout 1 · ten adversarial questions (Claude Code)
+Claude explored the data read-only, picked ten traps, computed each gold_sql and its wrong-path value, and wrote `eval/holdout.yaml` plus the STEPS entry. What to check: the author should hand-verify
+each gold once (queries are in the file); h02/h08 rely on an assumed glossary rule; Claude dropped two candidates (repeat rate, median) after finding they did not separate right from wrong.

@@ -1,4 +1,5 @@
-# CUSTOMER-PROVIDED GLOSSARY. Not generated from the dbt project or the data.
+# CUSTOMER GLOSSARY: the place for customer-provided definitions. Not generated from the dbt project or the data.
+# Today it holds the author's assumed defaults only (see the note below): no entry has been confirmed by a customer.
 # Edit this file, then run `make glossary-check` (it checks tables, columns and SQL against the warehouse).
 #
 # kind:   definition        what a business word means
@@ -10,7 +11,8 @@
 # What the warehouse does not have (refunds, targets, costs, order times) is NOT listed here: the agent must find that out itself.
 # PROOF OF CONCEPT: the whole file is sent with every question, which does not scale (it needs embedding retrieval). The entries are assumptions;
 # a company must decide its own truths before the answers can be trusted.
-# EVERY ENTRY BELOW IS ASSUMED: these are the defaults supplied by the author until Maya (the customer) confirms them.
+# EVERY ENTRY BELOW IS ASSUMED: these are the defaults supplied by the author until the customer confirms them.
+# "Maya" is a placeholder name for the customer's data owner, not a real person.
 entries:
   - id: revenue
     kind: definition

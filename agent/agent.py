@@ -1,8 +1,12 @@
-"""Step 0 baseline agent: schema names + one read-only SQL tool.
+"""The data agent: system prompt, the run_sql tool, the tool-use loop, the final answer and the trace.
 
-Deliberately thin. It knows table and column names, nothing about what the
-business means by "revenue", "new customer" or "last quarter". Later steps add
-context; this file is the control group, so keep it boring.
+This file holds the current step (step 5). Each earlier step is a git tag (step-00-baseline is the thin control:
+table and column names only); STEPS.md says what changed at each one.
+
+- System prompt: role, workflow and rules around the generated warehouse context (agent/semantic.py, agent/edge_cases.py).
+- First user message: the question plus the customer glossary block (agent/glossary.py).
+- Exploration: run_sql is the only tool. A reply with no tool call means "done".
+- Final answer: a separate request with no tools and a strict json_schema (ANSWER_FORMAT); that is what the eval grades.
 """
 
 from __future__ import annotations

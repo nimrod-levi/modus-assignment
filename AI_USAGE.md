@@ -24,7 +24,8 @@ Running log. The final write-up for the submission is distilled from this.
 
 ## Not delegated to AI
 
-- Hand-checking each gold result once, and deciding which questions stay (TODO: do this before the baseline run)
+- Hand-checking each gold result once, and deciding which questions stay. (The per-question hand check is not recorded in the repo;
+  in the final review all 30 gold queries were re-run and the README data facts were recomputed from the warehouse.)
 - Deciding that "revenue" means pre-tax (q01 gold): an assumption to confirm with the customer
 - Gold answers are computed by SQL, never typed
 
@@ -64,8 +65,6 @@ Running log. The final write-up for the submission is distilled from this.
   planned the switch without checking that OpenRouter providers differ on strict `json_schema`; a probe across providers found
   it, so the provider is now pinned.
 
-_(add moments as they happen: what it produced, how you caught it, what you changed)_
-
 ## Step 2 · optimization
 Claude Code diagnosed the token cost from step 1's result file (mean skewed by one 202k-token question), implemented the 5-row cap,
 the harness-added truncation assumption, the repeated-SQL reply and the compact schema, and wrote the tests. Note: it first created the
@@ -84,11 +83,26 @@ models, not the marts); found by printing the output and reading it, then fixed.
 - Step 3d: Claude wrote the checklist after seeing the failures and said so in STEPS.md. In the wrap-up it compared 3d with 3c per question
   and found the only differences were a grader fix (q08) and an unstable question (q06), so the 75% is not evidence that the checklist helps.
 
-### Step 5 · system prompt rewrite (Claude Code)
+## Step 4 · customer glossary
+Claude wrote `agent/glossary.py` (validation against the warehouse, rendering) and its tests. The entries are the author's assumed defaults. The 4a entries still named
+dates and a store; the author decided the glossary holds concepts only and removed them (4a').
+Claude's 4a3 analysis concluded that re-running an unchanged agent adds no information; the step-4-final run a day later disproved it (provider drift), and STEPS.md now says so.
+
+## Web UI
+Claude wrote `agent/web.py` (stdlib `http.server`, one page) on the author's request; it reuses `ask()` and the trace format.
+
+## Step 5 · system prompt rewrite (Claude Code)
 Claude researched prompt-writing guidance (Anthropic and OpenAI prompting guides, text-to-SQL practice; mostly secondary summaries found by web search), rewrote `SYSTEM_PROMPT`,
 wrote the STEPS entry before the run, ran the baseline and the new eval (3 runs each) and wrote the analysis. What to check: the prompt was written after reading the step-4 failures;
 the rewrite is one bundle (no ablation); the verify step it added raised tokens by 35%; q16 regressed.
 
-### Holdout 1 · ten adversarial questions (Claude Code)
+## Holdout 1 · ten adversarial questions (Claude Code)
 Claude explored the data read-only, picked ten traps, computed each gold_sql and its wrong-path value, and wrote `eval/holdout.yaml` plus the STEPS entry. What to check: the author should hand-verify
 each gold once (queries are in the file); h02/h08 rely on an assumed glossary rule; Claude dropped two candidates (repeat rate, median) after finding they did not separate right from wrong.
+
+## Final review before submission (Claude Code)
+Claude read every file and listed issues; the author chose what to fix. Fixed, each in its own commit: `make ask --trace` crashed with a KeyError on repeated or
+rejected calls; `make profile` was cut to 5 rows by the agent's row cap; the scoreboard `dirty` flag was always True (the results file was written before
+`git status` ran); `make eval-holdout` ignored `RUNS`; the set grader missed answers with Unicode spaces (eval fix, holdout 1 re-graded 9/10). README, CLAUDE.md
+and the agent docstring were brought up to date. Claude also flagged a precedence "bug" in `_final_answer` that was not one (`a or b if c else d` already groups as
+`(a or b) if c else d`); a test written to prove it passed on the old code, so the change was dropped.

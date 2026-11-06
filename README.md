@@ -6,6 +6,8 @@ improving it. The warehouse is dbt Labs' jaffle-shop sample, built locally with 
 
 - **Result:** 35% at step 0 → **95%** on the 20-question dev set at step 5 (3 runs), and **9/10 on 10 held-out questions**
   written after the step-5 agent was built (8/10 as run, 9/10 after a grader fix; see [Limitations](#limitations)).
+- **Step 6 (list and table answers):** the agent can fetch up to 200 rows and return a `table`; a new 4-question tables suite
+  goes from 0% to 75-83%. It costs about 8 points on the dev set against a same-day step-5 run (see STEPS.md).
 - **[STEPS.md](STEPS.md):** one entry per step: hypothesis (written before the run), change, result, what it does and does not show.
 - **[eval/scoreboard.csv](eval/scoreboard.csv):** one row per scored run. Per-question analyses are in [`eval/analysis/`](eval/analysis/).
 - **[AI_USAGE.md](AI_USAGE.md):** how AI tools were used, and where they got it wrong.
@@ -29,12 +31,17 @@ improving it. The warehouse is dbt Labs' jaffle-shop sample, built locally with 
 | 5 baseline re-run | same agent again, same day as step 5 | 85% | 3 | 10,663 |
 | **5 system prompt** | restructured prompt: role, workflow, grounding and precision rules | **95%** | 3 | 14,430 |
 | **holdout 1** | 10 new questions, step-5 agent | **8/10 as run, 9/10 re-graded** | 1 | 14,245 |
+| 5 re-run (day of step 6) | step-5 agent, dev set, two runs | 91.7%, 88.3% | 3 | 13,641–13,933 |
+| 5 on tables suite | step-5 agent, 4 list questions (`eval/tables.yaml`) | 0% (no `table` field; invents rows past the 5-row cap) | 3 | 26,190 |
+| 6 table answers | `run_sql` `max_rows` up to 200; `table` {columns, rows} in the final answer | tables 83.3% · dev 80.0%, 83.3% | 3 | 18,226 · ~14,300 |
+| **6b side effects** | final request back to the step-5 text; `max_rows` can only raise the cap | **tables 75% · dev 81.7%** | 3 | 20,560 · 14,791 |
 
 Read the deltas with the caveats in [Limitations](#limitations): the same agent scores 85–90% on different days, so a step
 is only compared with a baseline run on the same day.
 
 Git tags mark the scored states: `step-00-baseline`, `step-01-tool-recovery-scored`, `step-02-optimization`,
-`step-03d-edge-case-checklist`, `step-04-final`, `step-05-system-prompt`. `main` holds step 5.
+`step-03d-edge-case-checklist`, `step-04-final`, `step-05-system-prompt`, `step-06-table-answers`, `step-06b-side-effects`.
+The `step-06-table-answers` branch holds step 6b; `main` holds step 5.
 
 ## Setup (once)
 
@@ -56,6 +63,7 @@ If `python3 --version` says 3.14 or newer, dbt may not install. Run `make setup 
 | `make web` | One-page UI at http://127.0.0.1:8000: answer, assumptions and every SQL step |
 | `make eval STEP=my-run [RUNS=3] [ONLY=q01,q02]` | Run the 20-question eval; writes `eval/results/*.json` and (for a full run) a scoreboard row |
 | `make eval-holdout STEP=my-run [RUNS=3]` | Run the 10 held-out questions |
+| `make eval-tables STEP=my-run [RUNS=3]` | Run the 4 list/table questions (`eval/tables.yaml`) |
 | `python -m eval.regrade eval/results/<file>.json` | Re-grade a stored run with the current grader (no model calls) |
 | `make schema` | Print the exact system prompt the agent sees |
 | `make checks` | Run the edge-case checklist on every table and print the generated context |
@@ -84,11 +92,13 @@ Plain Python and the OpenAI SDK pointed at OpenRouter; no agent framework.
   Each entry has an owner, a date and a status; **all ten are the author's assumptions**, shown to the agent as `(assumed)`.
   It is validated against the warehouse (tables, columns, SQL snippets) and sent with the question, not in the system prompt.
 - **Loop:** `run_sql` is the only tool (up to 12 turns, temperature 0). A reply without a tool call ends exploration; the final
-  answer is then a separate request with no tools and a strict JSON schema: `answer`, `numeric_value`, `unit`, `sql`,
+  answer is then a separate request with no tools and a strict JSON schema: `answer`, `numeric_value`, `table` (columns and rows
+  for a list answer, copied by the model from a query result; null otherwise), `unit`, `sql`,
   `definition_used`, `assumptions`, `status` (`answered` | `needs_clarification` | `cannot_answer`). A rejected reply is
   retried with feedback (at most 3 per question; each costs 10% of that question's credit). A repeated query is not re-run.
 - **Safety** (`agent/db.py`): the DuckDB file is opened read-only; external file and URL access is off and locked (so
-  `read_csv('/etc/passwd')` fails); one SELECT/WITH statement per call; 5 rows shown to the model per query; 20 s timeout.
+  `read_csv('/etc/passwd')` fails); one SELECT/WITH statement per call; 5 rows shown to the model per query by default, up to 200 when it passes `max_rows`
+  (cells cut at 60 characters); 20 s timeout.
 - **Trace** (`runs/*.json`, `eval/results/*.json`): model, provider, prompt hash, glossary hash, every SQL call with row count,
   error and timing, tokens, latency and the final answer.
 
@@ -98,9 +108,11 @@ Plain Python and the OpenAI SDK pointed at OpenRouter; no agent framework.
   aimed at a named trap (tax-inclusive vs pre-tax revenue, supplies fan-out, stores with no orders, the data ending in August
   2025, concepts the warehouse does not hold).
 - `eval/holdout.yaml`: 10 further questions written after the step-5 agent was built and run once; not used for tuning.
+- `eval/tables.yaml`: 4 questions whose answer is a list (10-69 rows), added at step 6 and kept apart from the dev set.
 - **Gold answers come from `gold_sql`**, run against the warehouse at eval time, never typed by hand.
 - **Grading is deterministic** (`eval/grade.py`): a number within tolerance and with an accepted unit, a set of names that must
-  appear in the answer, or the submitted `status` only (for questions where the right move is to ask or refuse). No LLM judge.
+  appear in the answer, a `table` that must hold exactly the gold rows (columns matched by value, numbers rounded to 2 decimals),
+  or the submitted `status` only (for questions where the right move is to ask or refuse). No LLM judge.
 - **Score** = mean credit per question; `pass_all` (pass^k) = share of questions that passed every run.
 - Questions, gold SQL and graders are changed only in their own "eval fix" commit, with the reason logged in STEPS.md.
 
@@ -116,7 +128,7 @@ agent/
   web.py         one-page web UI (stdlib http.server)
   __main__.py    CLI: python -m agent "question" [--trace] [--schema] [--model ...]
 eval/
-  questions.yaml, holdout.yaml   the questions with gold_sql and graders
+  questions.yaml, holdout.yaml, tables.yaml   the questions with gold_sql and graders
   run_eval.py, grade.py          runner and deterministic grader
   regrade.py                     re-grade a stored run after an eval fix
   results/       one JSON per run (every answer, step and verdict)
@@ -180,5 +192,8 @@ What a reviewer should know before trusting the numbers:
 8. **Cost and staleness.** Step 5 costs 35% more tokens than step 4 (its verify step re-queries), and its parts were not
    tested separately. The generated context is computed when the prompt is built, with no refresh or freshness check for a
    warehouse that changes.
-9. **Not done:** glossary retrieval by embeddings, a metric tool over the dbt semantic layer (MetricFlow), holdout at 3 runs,
+9. **Step 6 trades dev-set accuracy for list answers.** About 8 points against a same-day step-5 run, spread over several questions,
+   cause not isolated. Its largest failure mode, a placeholder figure with no query behind it, exists at step 5 too and needs a
+   harness guard. The tables suite has 4 questions; a table cell longer than 60 characters arrives cut and is copied with "...".
+10. **Not done:** glossary retrieval by embeddings, a metric tool over the dbt semantic layer (MetricFlow), holdout at 3 runs,
    new holdout questions after holdout 1's failures became known.

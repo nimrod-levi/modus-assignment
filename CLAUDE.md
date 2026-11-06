@@ -15,12 +15,15 @@ higher score**, with every step measured and reproducible.
 
 ## Current step
 
-Done: steps 0-5 and holdout 1 (scores in `eval/scoreboard.csv`, one entry per step in STEPS.md, summary table in README.md).
-Step 5 (restructured system prompt) is the current agent: 95% on the dev set (3 runs; same-day step-4 baseline 85%),
-holdout 1: 8/10 as run, 9/10 after the set-grader eval fix. Agent runs on OpenRouter, `openai/gpt-oss-120b`, provider
-pinned to Cerebras (`OPENROUTER_PROVIDER`), reasoning effort medium (`OPENROUTER_REASONING_EFFORT`). Step 0 (7/20) was
-measured on Groq and was not re-run on OpenRouter. Evals are deterministic only (no LLM judge).
-Not done: glossary retrieval by embeddings (4b), MetricFlow metric tool, holdout at 3 runs, ablation of the step-5 prompt.
+Done: steps 0-6b and holdout 1 (scores in `eval/scoreboard.csv`, one entry per step in STEPS.md, summary table in README.md).
+Step 6b (list and table answers: `run_sql` `max_rows` 5..200, a `table` field in the final answer) is the current agent on the
+`step-06-table-answers` branch: tables suite (`eval/tables.yaml`, `make eval-tables`) 0% → 75%; dev set ~82% vs ~90% for step 5 on the
+same day (regression not isolated). Step 5 (restructured system prompt) is on `main`: 95% on the dev set (3 runs), holdout 1 9/10
+after the set-grader eval fix. Agent runs on OpenRouter, `openai/gpt-oss-120b`, provider pinned to Cerebras (`OPENROUTER_PROVIDER`),
+reasoning effort medium (`OPENROUTER_REASONING_EFFORT`). Step 0 (7/20) was measured on Groq and was not re-run on OpenRouter.
+Evals are deterministic only (no LLM judge; graders: number, set, status, table).
+Not done: a guard against figures with no query behind them (q14/q15/q16 placeholder $1,234,567.89), glossary retrieval by
+embeddings (4b), MetricFlow metric tool, holdout at 3 runs, ablation of the step-5 prompt.
 `agent/agent.py` holds the current step; earlier steps are git tags. Each fix is its own commit.
 
 ## Rules

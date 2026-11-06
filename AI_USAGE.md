@@ -106,3 +106,11 @@ rejected calls; `make profile` was cut to 5 rows by the agent's row cap; the sco
 `git status` ran); `make eval-holdout` ignored `RUNS`; the set grader missed answers with Unicode spaces (eval fix, holdout 1 re-graded 9/10). README, CLAUDE.md
 and the agent docstring were brought up to date. Claude also flagged a precedence "bug" in `_final_answer` that was not one (`a or b if c else d` already groups as
 `(a or b) if c else d`); a test written to prove it passed on the old code, so the change was dropped.
+
+## Step 6 · list and table answers (Claude Code)
+On the author's request ("return json or a table; let the model raise the 5-row limit up to 200") Claude wrote the plan, the `table` grader and its tests,
+`eval/tables.yaml` (four questions, gold rows checked by running each gold_sql read-only), the agent change, the CLI/web table rendering and the STEPS entries.
+The author chose the model-written table over Claude's recommendation (harness re-runs the final SQL). What Claude got wrong: it predicted no dev-set regression;
+there was one (~8 points), and Claude's first fix (6b) recovered the questions it targeted but not the score. Claude also wrote a test assertion that failed
+because it ignored the trailing text step (fixed in the test, not the code). What to check: the column-by-value matching in `_grade_table`, and that t04's
+glossary trap does not bite (none of the 69 customers has a $0 order, as the yaml says).

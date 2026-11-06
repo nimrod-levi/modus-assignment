@@ -530,3 +530,20 @@ Root cause: both regressions come from step 6 itself (diagnosis above), so they 
 
 Hypothesis: dev set back to the same-day step-5 level (≥ 88%: q06, q12, q15, q20 recover; q16 and q19 stay as at step 5). Tables suite stays ≥ 75%
 (risk: without the final sentence the model may leave `table` null on t01-t04).
+
+**Result** (3 runs each; run `step-06b-side-effects_{tables_20261106-151458,questions_20261106-151546}`; a second same-day step-5 re-run `step-06-baseline-step5-rerun2_questions_20261106-151919`):
+
+| suite | step 5 (today, 2 runs of 3) | step 6 (2 runs of 3) | step 6b |
+|---|---|---|---|
+| tables | 0% | 83.3% | **75.0%**, pass^3 75% |
+| dev | 91.7%, 88.3% (mean **90.0%**) | 80.0%, 83.3% | **81.7%**, pass^3 65%, 14,791 tokens/run |
+
+- Partly met. Tables: t01, t03 and t04 still pass 3/3; t02 now fails 3/3 on its grain trap (30 rows instead of 22 distinct names, a 1-run change from step 6). The
+  table field is still filled without the final-request sentence.
+- Dev: q06, q12 and q20 recovered (3/3), as predicted. The score did not: new single-run failures appeared on q07, q14 (2 runs), q15, q18 and q19. **Step 6/6b sit at
+  ~82% against ~90% for step 5 on the same day**, a gap of about 8 points spread over several questions, one or two runs each. Its cause is not isolated: candidates are
+  the longer schema and prompt (the `table` field, the new rule) and the larger `max_tokens`.
+- The biggest single failure mode is **not new**: a fabricated placeholder figure ($1,234,567.89) with 0 SQL calls (q14 2 runs, q15, q16). It appears when the exploration
+  turn asks the user a question in text and the forced final-answer request then picks `answered`. Step 5 does the same (q15 ×2 and q19 on 2026-11-05, q14 today).
+  A harness guard (no successful query → a number cannot be `answered`) is the natural next step; it is a separate root cause and was not done here.
+- Tokens per run on the dev set are roughly unchanged (14.8k vs 13.6-13.9k for step 5 today); the tables suite costs about 20k per run (long results are re-read each turn).

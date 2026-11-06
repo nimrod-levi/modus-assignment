@@ -476,3 +476,29 @@ whitespace runs collapsed (`eval/grade.py`, test `test_set_match_ignores_unicode
 - Effect checked on every stored result: of the 46 set-item matches in all 15 result files, only h06 in holdout 1 changes verdict. No dev-set score moves.
 - Holdout 1 re-graded without calling the model (`python -m eval.regrade`, new file `eval/results/holdout-01_holdout_20261105-180438_regraded.json`; the original is kept):
   **9/10 = 90%**. No scoreboard row is added for a re-grade; the scoreboard keeps the 80% as measured.
+
+### Step 6 · List and table answers (adjustable row limit, a `table` field in the final answer)
+
+Root cause targeted: the agent can only give one number (`numeric_value`) or prose. `run_sql` shows at most 5 rows, the prompt says to aggregate instead of
+listing, and the truncation assumption says "a full listing is not a requested feature". A question whose answer *is* rows ("give me all the products we sell")
+has no structured place to go, and the eval could not grade one (the `set` grader only looks for names in the prose).
+
+Eval addition first (own commit, before any agent change): a fourth grader type, `table` (`eval/grade.py`): the agent's `table` must hold exactly the
+gold rows, with the same row count, columns matched by value (names and order free, extra columns allowed), numbers rounded to 2 decimals and text normalised.
+The suite `eval/tables.yaml` (t01-t04, drafted by Claude, gold rows hand-checked) is separate from the 20-question dev set, so the dev scoreboard stays comparable.
+Every gold result has more than 5 rows: 10 products, 22 perishable supply names, 10 items by revenue (ordered), 69 customers with more than 150 orders.
+
+**Baseline** (run `step-06-baseline_tables_20261106-145834`, the step-5 agent, 3 runs): **0%**, as expected (step 5 has no `table` field). The prose answers show why this matters:
+behind the 5-row cap the agent **invents rows**. t01 lists "JAF-001: jaffle – $8.00" and "ham jaffle" (no such products); t02 lists "pepperoni, quinoa, tofu" (no such
+supplies) and says 30 instead of 22; t03 and t04 stop after 5 rows ("... total 69 customers"); t04 asks for clarification in 1 of 3 runs.
+
+Changes (same model, provider, effort, context, glossary; all generic, nothing tied to an eval question):
+- `run_sql` takes an optional `max_rows` (default 5, clamped to 1..200, `db.MAX_ROWS_LIMIT`). The same SQL with a different `max_rows` is not treated as a repeat.
+- The final-answer schema gets a nullable `table` {columns, rows}: the model copies every row from the query result (the author's choice over having the harness re-run the SQL).
+- Prompt rule: aggregate by default; when the user asks for a list or table, raise `max_rows` to fetch every row and return them in `table`. `FINAL_REQUEST` says the same.
+- The truncation message and assumption no longer say a listing is unsupported. `max_tokens` goes from 4096 to 8192, so a 69-row table plus reasoning fits (it is a cap, not a cost).
+- CLI and web UI print the table.
+
+Hypothesis: tables suite from 0% to **≥ 75%** (t01-t03 should pass; t04 is the riskiest: 69 rows copied by hand, and the over-asking seen in the baseline).
+Dev set: no regression (95% ± one question); single-value answers keep `table` null. Risks: the model raises `max_rows` on questions that need no list
+(tokens per run up), Cerebras may not honour the nested strict schema (`api_error` or empty answers), the model mistypes copied rows, long tables hit `max_tokens`.

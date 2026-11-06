@@ -75,7 +75,7 @@ RUN_SQL_TOOL = {
             "max_rows": {
                 "type": "integer",
                 "description": (
-                    f"Rows to return; default {db.MAX_ROWS}, at most {db.MAX_ROWS_LIMIT}. Raise it only when the rows "
+                    f"Rows to return: {db.MAX_ROWS} (the default) to {db.MAX_ROWS_LIMIT}. Raise it only when the rows "
                     "themselves are the answer (a list or table the user asked for)."
                 ),
             },
@@ -151,7 +151,7 @@ ANSWER_FORMAT = {
 TOOLS = [{"type": "function", "function": RUN_SQL_TOOL}]
 FINAL_REQUEST = (
     "Now give your final answer. Use only figures from the query results above, keep numeric_value unrounded, "
-    "and choose the status the evidence supports. If the answer is a list or table, put every row in table."
+    "and choose the status the evidence supports."
 )
 # Added by the harness (not the model) when a query hit the row cap, so the user knows the answer saw a sample.
 TRUNCATION_ASSUMPTION = (
@@ -199,14 +199,15 @@ def build_system_prompt(con) -> str:
 
 
 def _max_rows(value: Any) -> int:
-    """The row limit the model asked for, clamped to 1..MAX_ROWS_LIMIT; missing or not a whole number -> MAX_ROWS."""
+    """The row limit the model asked for, clamped to MAX_ROWS..MAX_ROWS_LIMIT; missing or not a whole number -> MAX_ROWS.
+    It can only raise the cap: with fewer than MAX_ROWS rows the model explores blind (step 6b)."""
     if isinstance(value, bool) or not isinstance(value, (int, float, str)):
         return db.MAX_ROWS
     try:
         n = int(value)
     except ValueError:
         return db.MAX_ROWS
-    return min(max(n, 1), db.MAX_ROWS_LIMIT)
+    return min(max(n, db.MAX_ROWS), db.MAX_ROWS_LIMIT)
 
 
 def _tool_message(call, text: str, *, is_error: bool = False) -> dict[str, Any]:

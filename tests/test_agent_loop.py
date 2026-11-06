@@ -245,7 +245,7 @@ def test_max_rows_reaches_run_sql_clamped(monkeypatch):
              for i, v in enumerate([50, 1000, 0, "x", "missing", True])]
     client = FakeClient([_response(*calls), _text("ok"), _text(ANSWER)])
     trace = agent_mod.ask("q", client=client, con=FakeCon())
-    assert seen == [50, db.MAX_ROWS_LIMIT, 1, db.MAX_ROWS, db.MAX_ROWS, db.MAX_ROWS]
+    assert seen == [50, db.MAX_ROWS_LIMIT, db.MAX_ROWS, db.MAX_ROWS, db.MAX_ROWS, db.MAX_ROWS]  # 0 -> 5: never below the default
     assert [st["max_rows"] for st in trace["steps"] if st["type"] == "sql"] == seen
 
 

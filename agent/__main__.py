@@ -53,6 +53,15 @@ def print_trace(trace: dict) -> None:
             print(f"\n[turn {step['turn']}] {step['text']}")
 
 
+def format_table(table: dict) -> str:
+    """The answer's table as aligned text columns."""
+    cells = [[str(c) for c in table["columns"]]] + [["" if v is None else str(v) for v in row] for row in table["rows"]]
+    widths = [max(len(row[i]) for row in cells if i < len(row)) for i in range(len(cells[0]))]
+    lines = ["  ".join(v.ljust(w) for v, w in zip(row, widths)).rstrip() for row in cells]
+    lines.insert(1, "  ".join("-" * w for w in widths))
+    return "\n".join(lines) + f"\n({len(table['rows'])} rows)"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m agent", description=__doc__)
     parser.add_argument("question", nargs="?", help="The business question to answer.")
@@ -82,6 +91,8 @@ def main(argv: list[str] | None = None) -> int:
     answer = trace["answer"] or {}
     print("\n=== Answer ===")
     print(answer.get("answer", f"(no answer: {trace['end_reason']})"))
+    if answer.get("table"):
+        print("\n" + format_table(answer["table"]) + "\n")
     for key in ("status", "numeric_value", "unit", "definition_used", "assumptions"):
         if answer.get(key) not in (None, "", []):
             print(f"{key}: {answer[key]}")

@@ -200,7 +200,7 @@ def test_truncated_result_adds_assumption(monkeypatch):
     client = FakeClient([_response(_call("run_sql", "t1", sql="select n from t")), _text("ok"), _text(ANSWER)])
     trace = agent_mod.ask("q", client=client, con=FakeCon())
     assert trace["answer"]["assumptions"] == [agent_mod.TRUNCATION_ASSUMPTION]
-    assert "not a requested feature" in agent_mod.TRUNCATION_ASSUMPTION
+    assert "not a requested feature" not in agent_mod.TRUNCATION_ASSUMPTION
 
 
 def test_no_assumption_when_not_truncated(monkeypatch):
@@ -227,7 +227,47 @@ def test_prompt_states_row_cap_and_no_done(monkeypatch):
     monkeypatch.setattr(db, "describe_schema", lambda con: "t")
     monkeypatch.setattr(semantic, "describe", lambda con: "t")
     prompt = agent_mod.build_system_prompt(FakeCon())
-    assert f"at most {db.MAX_ROWS} rows" in prompt and "Done" not in prompt
+    assert f"shows {db.MAX_ROWS} rows by default" in prompt and f"up to {db.MAX_ROWS_LIMIT}" in prompt
+    assert "Done" not in prompt
+
+
+def test_max_rows_reaches_run_sql_clamped(monkeypatch):
+    monkeypatch.setattr(db, "describe_schema", lambda con: "t")
+    monkeypatch.setattr(semantic, "describe", lambda con: "t")
+    seen = []
+
+    def fake_run_sql(con, sql, max_rows=db.MAX_ROWS, **kw):
+        seen.append(max_rows)
+        return db.QueryResult(sql=sql, columns=["n"], rows=[(1,)])
+
+    monkeypatch.setattr(db, "run_sql", fake_run_sql)
+    calls = [_call("run_sql", f"c{i}", sql=f"select {i}", **({"max_rows": v} if v != "missing" else {}))
+             for i, v in enumerate([50, 1000, 0, "x", "missing", True])]
+    client = FakeClient([_response(*calls), _text("ok"), _text(ANSWER)])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert seen == [50, db.MAX_ROWS_LIMIT, 1, db.MAX_ROWS, db.MAX_ROWS, db.MAX_ROWS]
+    assert [st["max_rows"] for st in trace["steps"] if st["type"] == "sql"] == seen
+
+
+def test_same_sql_with_more_rows_is_not_a_repeat(monkeypatch):
+    calls = []
+    _patch_db(monkeypatch, calls)
+    client = FakeClient([
+        _response(_call("run_sql", "a", sql="select 1")),
+        _response(_call("run_sql", "b", sql="select 1", max_rows=100)),
+        _response(_call("run_sql", "c", sql="select 1", max_rows=100)),
+        _text("ok"),
+        _text(ANSWER),
+    ])
+    trace = agent_mod.ask("q", client=client, con=FakeCon())
+    assert calls == ["select 1", "select 1"] and trace["sql_calls"] == 2
+    assert [st["type"] for st in trace["steps"] if st["type"] != "text"] == ["sql", "sql", "repeated_sql"]
+
+
+def test_answer_schema_has_a_nullable_table():
+    schema = agent_mod.ANSWER_FORMAT["json_schema"]["schema"]
+    assert "table" in schema["required"] and schema["properties"]["table"]["type"] == ["object", "null"]
+    assert set(schema["required"]) == set(schema["properties"])  # strict mode needs every field listed
 
 
 def test_glossary_block_goes_with_the_question_not_the_system_prompt(monkeypatch):

@@ -1,12 +1,13 @@
 """The data agent: system prompt, the run_sql tool, the tool-use loop, the final answer and the trace.
 
-This file holds the current step (step 5). Each earlier step is a git tag (step-00-baseline is the thin control:
+This file holds the current step (step 6). Each earlier step is a git tag (step-00-baseline is the thin control:
 table and column names only); STEPS.md says what changed at each one.
 
 - System prompt: role, workflow and rules around the generated warehouse context (agent/semantic.py, agent/edge_cases.py).
 - First user message: the question plus the customer glossary block (agent/glossary.py).
-- Exploration: run_sql is the only tool. A reply with no tool call means "done".
-- Final answer: a separate request with no tools and a strict json_schema (ANSWER_FORMAT); that is what the eval grades.
+- Exploration: run_sql is the only tool (5 rows by default, up to 200 with max_rows). A reply with no tool call means "done".
+- Final answer: a separate request with no tools and a strict json_schema (ANSWER_FORMAT): a number, a status, and for a
+  list question a table of rows copied from a query result. That is what the eval grades.
 """
 
 from __future__ import annotations
@@ -54,20 +55,31 @@ for it: answer cannot_answer, say what is missing and what the warehouse does ho
 and say what you found that makes it ambiguous. Do not ask when the context already settles it.
 - Name the definition you used and the period covered, and report money in dollars.
 - Keep the full precision of the query result in numeric_value; round only in the prose of the answer.
-- Each query shows at most {max_rows} rows and every result is re-read on each later turn, so aggregate in SQL (sum, count, group by, \
+- Each query shows {max_rows} rows by default and every result is re-read on each later turn, so aggregate in SQL (sum, count, group by, \
 limit) instead of listing rows. If you need several independent queries, send them together in one turn.
+- When the user asks for a list or a table, the rows are the answer: set max_rows (up to {max_rows_limit}) high enough to fetch every row, \
+and give those rows in the final answer's table. Never list a row you have not seen in a query result.
 </rules>"""
 
 RUN_SQL_TOOL = {
     "name": "run_sql",
     "description": (
-        "Use this to explore the data and to compute numbers. Runs one read-only SQL query "
-        f"(DuckDB dialect, SELECT or WITH only) against the warehouse. Returns up to {db.MAX_ROWS} rows "
+        "Use this to explore the data, to compute numbers and to fetch the rows of a list. Runs one read-only SQL query "
+        f"(DuckDB dialect, SELECT or WITH only) against the warehouse. Returns up to max_rows rows (default {db.MAX_ROWS}) "
         "as CSV text, or an error message you can fix and retry. Not for giving the final answer."
     ),
     "parameters": {
         "type": "object",
-        "properties": {"sql": {"type": "string", "description": "A single SELECT or WITH query."}},
+        "properties": {
+            "sql": {"type": "string", "description": "A single SELECT or WITH query."},
+            "max_rows": {
+                "type": "integer",
+                "description": (
+                    f"Rows to return; default {db.MAX_ROWS}, at most {db.MAX_ROWS_LIMIT}. Raise it only when the rows "
+                    "themselves are the answer (a list or table the user asked for)."
+                ),
+            },
+        },
         "required": ["sql"],
     },
 }
@@ -84,11 +96,30 @@ ANSWER_FORMAT = {
             "properties": {
                 "answer": {
                     "type": "string",
-                    "description": "The answer for the user: a number, a short list or one or two sentences.",
+                    "description": (
+                        "The answer for the user: a number or one or two sentences. For a list or table, a one-line "
+                        "summary; the rows go in table."
+                    ),
                 },
                 "numeric_value": {
                     "type": ["number", "null"],
                     "description": "The headline number, if the answer is a single number, unrounded exactly as the query returned it. Null otherwise.",
+                },
+                "table": {
+                    "type": ["object", "null"],
+                    "description": (
+                        "For a list or table answer: the column names and every row, copied exactly from a query "
+                        "result. Null for a single number or when the status is not 'answered'."
+                    ),
+                    "properties": {
+                        "columns": {"type": "array", "items": {"type": "string"}},
+                        "rows": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": ["string", "number", "null"]}},
+                        },
+                    },
+                    "required": ["columns", "rows"],
+                    "additionalProperties": False,
                 },
                 "unit": {"type": ["string", "null"], "description": "Unit of numeric_value, e.g. USD, orders, customers."},
                 "sql": {"type": ["string", "null"], "description": "The final query that produced the answer."},
@@ -111,7 +142,7 @@ ANSWER_FORMAT = {
                     ),
                 },
             },
-            "required": ["answer", "numeric_value", "unit", "sql", "definition_used", "assumptions", "status"],
+            "required": ["answer", "numeric_value", "table", "unit", "sql", "definition_used", "assumptions", "status"],
             "additionalProperties": False,
         },
     },
@@ -120,11 +151,12 @@ ANSWER_FORMAT = {
 TOOLS = [{"type": "function", "function": RUN_SQL_TOOL}]
 FINAL_REQUEST = (
     "Now give your final answer. Use only figures from the query results above, keep numeric_value unrounded, "
-    "and choose the status the evidence supports."
+    "and choose the status the evidence supports. If the answer is a list or table, put every row in table."
 )
 # Added by the harness (not the model) when a query hit the row cap, so the user knows the answer saw a sample.
 TRUNCATION_ASSUMPTION = (
-    f"Only the first {db.MAX_ROWS} rows of a result were retrieved; a full listing is not a requested feature, ask if you need it."
+    "At least one query result was cut at its row limit "
+    f"({db.MAX_ROWS} by default, up to {db.MAX_ROWS_LIMIT}); a listing taken from it may be incomplete."
 )
 REPEATED_SQL = "Same query as an earlier call in this conversation; its result is above."
 REJECTED = (
@@ -136,7 +168,7 @@ REJECTED = (
 class AgentConfig:
     model: str = field(default_factory=lambda: os.environ.get("AGENT_MODEL", "openai/gpt-oss-120b"))
     max_turns: int = 12
-    max_tokens: int = 4096
+    max_tokens: int = 8192  # a cap, not a cost: room for a 200-row table plus reasoning
     temperature: float = 0.0
     max_retries: int = 3  # rejected tool calls allowed per question; the next one ends the run
     glossary: str = field(default_factory=lambda: os.environ.get("GLOSSARY", "all"))  # off | all
@@ -163,7 +195,18 @@ def make_client() -> OpenAI:
 
 
 def build_system_prompt(con) -> str:
-    return SYSTEM_PROMPT.format(schema=semantic.describe(con), max_rows=db.MAX_ROWS)
+    return SYSTEM_PROMPT.format(schema=semantic.describe(con), max_rows=db.MAX_ROWS, max_rows_limit=db.MAX_ROWS_LIMIT)
+
+
+def _max_rows(value: Any) -> int:
+    """The row limit the model asked for, clamped to 1..MAX_ROWS_LIMIT; missing or not a whole number -> MAX_ROWS."""
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        return db.MAX_ROWS
+    try:
+        n = int(value)
+    except ValueError:
+        return db.MAX_ROWS
+    return min(max(n, 1), db.MAX_ROWS_LIMIT)
 
 
 def _tool_message(call, text: str, *, is_error: bool = False) -> dict[str, Any]:
@@ -272,7 +315,7 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
         "end_reason": None,
         "tool_rejections": 0,
     }
-    seen_sql: set[str] = set()
+    seen_sql: set[tuple[str, int]] = set()  # (sql, max_rows): asking again for more rows is not a repeat
     started = time.perf_counter()
 
     try:
@@ -312,18 +355,20 @@ def ask(question: str, *, client=None, con=None, config: AgentConfig | None = No
                     messages.append(_tool_message(call, f"Unknown tool {call.function.name}.", is_error=True))
                     continue
                 sql = args.get("sql", "")
-                if sql.strip() in seen_sql:  # the same query again: don't re-send its rows
+                max_rows = _max_rows(args.get("max_rows"))
+                if (sql.strip(), max_rows) in seen_sql:  # the same query again: don't re-send its rows
                     trace["steps"].append({"turn": turn, "type": "repeated_sql", "sql": sql})
                     messages.append(_tool_message(call, REPEATED_SQL))
                     continue
-                seen_sql.add(sql.strip())
-                result = db.run_sql(con, sql)
+                seen_sql.add((sql.strip(), max_rows))
+                result = db.run_sql(con, sql, max_rows=max_rows)
                 trace["steps"].append(
                     {
                         "turn": turn,
                         "type": "sql",
                         "sql": result.sql,
                         "row_count": result.row_count,
+                        "max_rows": max_rows,
                         "truncated": result.truncated,
                         "error": result.error,
                         "elapsed_ms": result.elapsed_ms,

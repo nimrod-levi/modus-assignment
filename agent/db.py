@@ -25,7 +25,8 @@ import duckdb
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB_PATH = REPO_ROOT / "data" / "jaffle.duckdb"
 
-MAX_ROWS = 5  # rows handed back to the model per query: results are re-sent on every later turn, so keep them tiny
+MAX_ROWS = 5  # default rows handed back to the model per query: results are re-sent on every later turn, so keep them tiny
+MAX_ROWS_LIMIT = 200  # the most the model may ask for (run_sql's max_rows), when the rows themselves are the answer
 QUERY_TIMEOUT_S = 20.0
 MAX_CELL_CHARS = 60
 
@@ -95,7 +96,10 @@ class QueryResult:
         if not self.rows:
             lines.append("(0 rows)")
         elif self.truncated:
-            lines.append(f"(showing first {len(self.rows)} rows; more exist: aggregate or filter in SQL)")
+            lines.append(
+                f"(showing first {len(self.rows)} rows; more exist: aggregate or filter in SQL, "
+                f"or raise max_rows up to {MAX_ROWS_LIMIT} if you need the rows)"
+            )
         return "\n".join(lines)
 
 

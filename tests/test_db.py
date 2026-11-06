@@ -107,3 +107,10 @@ def test_default_cap_is_five_rows(con):
 def test_schema_types_are_compact(con):
     schema = db.describe_schema(con)
     assert "VARCHAR" not in schema and "DECIMAL(" not in schema
+
+
+@needs_db
+def test_max_rows_up_to_the_limit(con):
+    result = db.run_sql(con, "select * from range(1000)", max_rows=db.MAX_ROWS_LIMIT)
+    assert db.MAX_ROWS_LIMIT == 200 and result.row_count == 200 and result.truncated
+    assert "raise max_rows up to 200" in result.to_text()

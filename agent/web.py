@@ -42,6 +42,10 @@ PAGE = """<!doctype html>
  .step{padding:12px 0;border-top:1px solid var(--line)} .step:first-of-type{border-top:0;padding-top:4px}
  summary{cursor:pointer;font-weight:600}
  .foot{text-align:center;margin-top:8px}
+ .tbl{overflow:auto;max-height:480px}
+ table{border-collapse:collapse;font-size:14px;width:100%}
+ th,td{text-align:left;padding:5px 10px;border-bottom:1px solid var(--line)} th{color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--card)}
+ td.num{text-align:right;font-variant-numeric:tabular-nums}
 </style>
 <main>
 <h1>Data agent</h1>
@@ -78,6 +82,22 @@ function show(t) {
   }
   main.append(dl);
   out.append(main);
+
+  if (a.table && a.table.rows) {
+    const c = card('Table (' + a.table.rows.length + ' rows)');
+    const tbl = el('table'), head = el('tr');
+    for (const col of a.table.columns) head.append(el('th', col));
+    tbl.append(head);
+    for (const row of a.table.rows) {
+      const tr = el('tr');
+      for (const v of row) tr.append(el('td', v === null ? '' : String(v), typeof v === 'number' ? 'num' : undefined));
+      tbl.append(tr);
+    }
+    const wrap = el('div', undefined, 'tbl');
+    wrap.append(tbl);
+    c.append(wrap);
+    out.append(c);
+  }
 
   if (a.sql) {
     const c = card('Final SQL');

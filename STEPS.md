@@ -502,3 +502,31 @@ Changes (same model, provider, effort, context, glossary; all generic, nothing t
 Hypothesis: tables suite from 0% to **≥ 75%** (t01-t03 should pass; t04 is the riskiest: 69 rows copied by hand, and the over-asking seen in the baseline).
 Dev set: no regression (95% ± one question); single-value answers keep `table` null. Risks: the model raises `max_rows` on questions that need no list
 (tokens per run up), Cerebras may not honour the nested strict schema (`api_error` or empty answers), the model mistypes copied rows, long tables hit `max_tokens`.
+
+**Result** (3 runs each; same-day step-5 re-run `step-06-baseline-step5-rerun_questions_20261106-150602`):
+
+| suite | step 5 (today) | step 6 |
+|---|---|---|
+| tables (t01-t04) | 0% (`step-06-baseline_tables_20261106-145834`) | **83.3%**, pass^3 75% (`step-06-table-answers_tables_20261106-150146`) |
+| dev (q01-q20) | **91.7%**, 13,933 tokens/run | **80.0%** (`..._questions_20261106-150242`) and 83.3% on a re-run (`step-06-table-answers-rerun_...150954`), ~14.3k tokens/run |
+
+- Tables: the hypothesis is met. t01, t03 and t04 pass 3/3 (t04: all 69 rows copied without a mistake). t02 fails 2/3 on the grain trap it was written for: the model lists all
+  30 supply rows instead of the 22 distinct names. Every copied row is real; no invented rows (the baseline invented products and supplies).
+- Dev set: **the hypothesis is rejected, a regression of about 10 points.** Diagnosis from the traces:
+  - q15 (4/6 runs) and q20: the model's exploration reply asks for clarification, exactly as at step 5, but the final request, now with "If the answer is a list or table,
+    put every row in table", turns it into `answered` with an **invented figure** ($1,234,567.89 with 0 SQL calls) or into `needs_clarification` instead of `cannot_answer`.
+  - q06 and q12: the model now *lowers* `max_rows` while exploring (33 calls at 1, 15 at 10-20, 11 at 200 across one dev run), sees less than the old fixed 5 rows, and
+    takes wrong paths (q06 $15.81 and $131,788.38; q12 prose with no `numeric_value`).
+  - q16 and q19 fail at step 5 too; not caused by this step.
+- Diagnostic (subset, not on the scoreboard, `diag-6b-no-final-sentence_questions_20261106-151320`): with only the FINAL_REQUEST sentence removed, q15 and q20 pass 3/3;
+  q06 1/3 and q12 1/3 still fail (with low `max_rows` values); q16 0/3 as at step 5.
+- Known limitation: cells longer than 60 characters arrive cut (`db.MAX_CELL_CHARS`) and the model copies the "..." into the table (seen on product descriptions).
+
+### Step 6b · Remove the two side effects of step 6
+
+Root cause: both regressions come from step 6 itself (diagnosis above), so they are fixed here, not left for a later step.
+- `FINAL_REQUEST` back to the step-5 text (the `table` field description and the system-prompt rule still say when to fill it).
+- `max_rows` can only raise the cap: clamped to 5..200 (a smaller value means 5). Lowering it saves a few tokens but hides rows the model needs to see while exploring.
+
+Hypothesis: dev set back to the same-day step-5 level (≥ 88%: q06, q12, q15, q20 recover; q16 and q19 stay as at step 5). Tables suite stays ≥ 75%
+(risk: without the final sentence the model may leave `table` null on t01-t04).

@@ -1,0 +1,3778 @@
+{
+  "meta": {
+    "timestamp": "2026-11-06T15:15:45+00:00",
+    "step": "step-06b-side-effects",
+    "suite": "tables",
+    "git_sha": "2b4a63f",
+    "dirty": false,
+    "model": "openai/gpt-oss-120b",
+    "system_prompt_sha": "75b4ed928b84",
+    "glossary_sha": "0170c82ab751"
+  },
+  "summary": {
+    "questions": 4,
+    "runs": 3,
+    "score": 0.75,
+    "raw_score": 0.75,
+    "pass_all": 0.75,
+    "rejections": 0,
+    "errors": 0,
+    "tokens_per_run": 20559.75,
+    "sql_calls_per_run": 2.0,
+    "per_question": {
+      "t01": 1.0,
+      "t02": 0.0,
+      "t03": 1.0,
+      "t04": 1.0
+    },
+    "per_category": {
+      "listing": 0.75
+    }
+  },
+  "records": [
+    {
+      "id": "t01",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 10 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "All products we sell with their prices:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "product_id",
+            "product_name",
+            "product_price"
+          ],
+          "rows": [
+            [
+              "BEV-001",
+              "tangaroo",
+              6.0
+            ],
+            [
+              "BEV-002",
+              "chai and mighty",
+              5.0
+            ],
+            [
+              "BEV-003",
+              "vanilla ice",
+              6.0
+            ],
+            [
+              "BEV-004",
+              "for richer or pourover ",
+              7.0
+            ],
+            [
+              "BEV-005",
+              "adele-ade",
+              4.0
+            ],
+            [
+              "JAF-001",
+              "nutellaphone who dis?",
+              11.0
+            ],
+            [
+              "JAF-002",
+              "doctor stew",
+              11.0
+            ],
+            [
+              "JAF-003",
+              "the krautback",
+              12.0
+            ],
+            [
+              "JAF-004",
+              "flame impala",
+              14.0
+            ],
+            [
+              "JAF-005",
+              "mel-bun",
+              12.0
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT product_id, product_name, product_price FROM main.products ORDER BY product_id;",
+        "definition_used": null,
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 10356,
+      "output_tokens": 739,
+      "sql_calls": 1,
+      "latency_ms": 2173,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT product_id, product_name, product_price FROM main.products ORDER BY product_id",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "product_id,product_name,product_price\nBEV-001,tangaroo,6.00\nBEV-002,chai and mighty,5.00\nBEV-003,vanilla ice,6.00\nBEV-004,for richer or pourover ,7.00\nBEV-005,adele-ade,4.00\nJAF-001,nutellaphone who dis?,11.00\nJAF-002,doctor stew,11.00\nJAF-003,the krautback,12.00\nJAF-004,flame impala,14.00\nJAF-005,mel-bun,12.00"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "Here are all of the products we sell, together with their current prices (in\u202fUSD):\n\n| product_id | product_name               | product_price |\n|------------|---------------------------|--------------|\n| BEV-001    | tangaroo                  | 6.00 |\n| BEV-002    | chai and mighty           | 5.00 |\n| BEV-003    | vanilla ice               | 6.00 |\n| BEV-004    | for richer or pourover    | 7.00 |\n| BEV-005    | adele-ade                 | 4.00 |\n| JAF-001    | nutellaphone who dis?    | 11.00 |\n| JAF-002    | doctor stew               | 11.00 |\n| JAF-003    | the krautback             | 12.00 |\n| JAF-004    | flame impala              | 14.00 |\n| JAF-005    | mel-bun                   | 12.00 |\n\nThese rows come directly from the **main.products** table."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "\"trim\"(product_name)",
+          "product_price"
+        ],
+        "rows": [
+          [
+            "nutellaphone who dis?",
+            "11.00"
+          ],
+          [
+            "doctor stew",
+            "11.00"
+          ],
+          [
+            "the krautback",
+            "12.00"
+          ],
+          [
+            "flame impala",
+            "14.00"
+          ],
+          [
+            "mel-bun",
+            "12.00"
+          ],
+          [
+            "tangaroo",
+            "6.00"
+          ],
+          [
+            "chai and mighty",
+            "5.00"
+          ],
+          [
+            "vanilla ice",
+            "6.00"
+          ],
+          [
+            "for richer or pourover",
+            "7.00"
+          ],
+          [
+            "adele-ade",
+            "4.00"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t01",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "all 10 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "All products we sell with their prices:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "product_id",
+            "product_name",
+            "product_price"
+          ],
+          "rows": [
+            [
+              "BEV-001",
+              "tangaroo",
+              6.0
+            ],
+            [
+              "BEV-002",
+              "chai and mighty",
+              5.0
+            ],
+            [
+              "BEV-003",
+              "vanilla ice",
+              6.0
+            ],
+            [
+              "BEV-004",
+              "for richer or pourover ",
+              7.0
+            ],
+            [
+              "BEV-005",
+              "adele-ade",
+              4.0
+            ],
+            [
+              "JAF-001",
+              "nutellaphone who dis?",
+              11.0
+            ],
+            [
+              "JAF-002",
+              "doctor stew",
+              11.0
+            ],
+            [
+              "JAF-003",
+              "the krautback",
+              12.0
+            ],
+            [
+              "JAF-004",
+              "flame impala",
+              14.0
+            ],
+            [
+              "JAF-005",
+              "mel-bun",
+              12.0
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT product_id, product_name, product_price FROM main.products ORDER BY product_id;",
+        "definition_used": null,
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 10356,
+      "output_tokens": 743,
+      "sql_calls": 1,
+      "latency_ms": 2097,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT product_id, product_name, product_price FROM main.products ORDER BY product_id",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "product_id,product_name,product_price\nBEV-001,tangaroo,6.00\nBEV-002,chai and mighty,5.00\nBEV-003,vanilla ice,6.00\nBEV-004,for richer or pourover ,7.00\nBEV-005,adele-ade,4.00\nJAF-001,nutellaphone who dis?,11.00\nJAF-002,doctor stew,11.00\nJAF-003,the krautback,12.00\nJAF-004,flame impala,14.00\nJAF-005,mel-bun,12.00"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "Here are all of the products we sell, together with their current prices (in\u202fUSD):\n\n| product_id | product_name            | product_price |\n|------------|------------------------|--------------|\n| BEV-001    | tangaroo               | 6.00 |\n| BEV-002    | chai and mighty        | 5.00 |\n| BEV-003    | vanilla ice            | 6.00 |\n| BEV-004    | for richer or pourover | 7.00 |\n| BEV-005    | adele-ade              | 4.00 |\n| JAF-001    | nutellaphone who dis? | 11.00 |\n| JAF-002    | doctor stew            | 11.00 |\n| JAF-003    | the krautback          | 12.00 |\n| JAF-004    | flame impala           | 14.00 |\n| JAF-005    | mel-bun                | 12.00 |\n\nThese values come directly from the **main.products** table."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "\"trim\"(product_name)",
+          "product_price"
+        ],
+        "rows": [
+          [
+            "nutellaphone who dis?",
+            "11.00"
+          ],
+          [
+            "doctor stew",
+            "11.00"
+          ],
+          [
+            "the krautback",
+            "12.00"
+          ],
+          [
+            "flame impala",
+            "14.00"
+          ],
+          [
+            "mel-bun",
+            "12.00"
+          ],
+          [
+            "tangaroo",
+            "6.00"
+          ],
+          [
+            "chai and mighty",
+            "5.00"
+          ],
+          [
+            "vanilla ice",
+            "6.00"
+          ],
+          [
+            "for richer or pourover",
+            "7.00"
+          ],
+          [
+            "adele-ade",
+            "4.00"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t01",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "all 10 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "All products we sell with their prices:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "product_id",
+            "product_name",
+            "product_price"
+          ],
+          "rows": [
+            [
+              "BEV-001",
+              "tangaroo",
+              6.0
+            ],
+            [
+              "BEV-002",
+              "chai and mighty",
+              5.0
+            ],
+            [
+              "BEV-003",
+              "vanilla ice",
+              6.0
+            ],
+            [
+              "BEV-004",
+              "for richer or pourover ",
+              7.0
+            ],
+            [
+              "BEV-005",
+              "adele-ade",
+              4.0
+            ],
+            [
+              "JAF-001",
+              "nutellaphone who dis?",
+              11.0
+            ],
+            [
+              "JAF-002",
+              "doctor stew",
+              11.0
+            ],
+            [
+              "JAF-003",
+              "the krautback",
+              12.0
+            ],
+            [
+              "JAF-004",
+              "flame impala",
+              14.0
+            ],
+            [
+              "JAF-005",
+              "mel-bun",
+              12.0
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT product_id, product_name, product_price FROM main.products ORDER BY product_id;",
+        "definition_used": null,
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 10356,
+      "output_tokens": 743,
+      "sql_calls": 1,
+      "latency_ms": 1806,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT product_id, product_name, product_price FROM main.products ORDER BY product_id",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "product_id,product_name,product_price\nBEV-001,tangaroo,6.00\nBEV-002,chai and mighty,5.00\nBEV-003,vanilla ice,6.00\nBEV-004,for richer or pourover ,7.00\nBEV-005,adele-ade,4.00\nJAF-001,nutellaphone who dis?,11.00\nJAF-002,doctor stew,11.00\nJAF-003,the krautback,12.00\nJAF-004,flame impala,14.00\nJAF-005,mel-bun,12.00"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "Here are all of the products we sell, together with their current prices (in\u202fUSD):\n\n| product_id | product_name            | product_price |\n|------------|------------------------|--------------|\n| BEV-001    | tangaroo               | 6.00 |\n| BEV-002    | chai and mighty        | 5.00 |\n| BEV-003    | vanilla ice            | 6.00 |\n| BEV-004    | for richer or pourover | 7.00 |\n| BEV-005    | adele-ade              | 4.00 |\n| JAF-001    | nutellaphone who dis? | 11.00 |\n| JAF-002    | doctor stew            | 11.00 |\n| JAF-003    | the krautback          | 12.00 |\n| JAF-004    | flame impala           | 14.00 |\n| JAF-005    | mel-bun                | 12.00 |\n\nThese values come directly from the **main.products** table."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "\"trim\"(product_name)",
+          "product_price"
+        ],
+        "rows": [
+          [
+            "nutellaphone who dis?",
+            "11.00"
+          ],
+          [
+            "doctor stew",
+            "11.00"
+          ],
+          [
+            "the krautback",
+            "12.00"
+          ],
+          [
+            "flame impala",
+            "14.00"
+          ],
+          [
+            "mel-bun",
+            "12.00"
+          ],
+          [
+            "tangaroo",
+            "6.00"
+          ],
+          [
+            "chai and mighty",
+            "5.00"
+          ],
+          [
+            "vanilla ice",
+            "6.00"
+          ],
+          [
+            "for richer or pourover",
+            "7.00"
+          ],
+          [
+            "adele-ade",
+            "4.00"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t02",
+      "run": 0,
+      "error": false,
+      "passed": false,
+      "reason": "table has 30 rows, expected 22",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Perishable supplies (including duplicates as recorded):",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "supply_name"
+          ],
+          "rows": [
+            [
+              "banana"
+            ],
+            [
+              "beef stew"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "chai mix"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "coffee"
+            ],
+            [
+              "coffee"
+            ],
+            [
+              "french vanilla syrup"
+            ],
+            [
+              "ghost pepper sauce"
+            ],
+            [
+              "house-pickled cabbage sauerkraut"
+            ],
+            [
+              "kiwi"
+            ],
+            [
+              "lamb and pork bratwurst"
+            ],
+            [
+              "lime"
+            ],
+            [
+              "mango"
+            ],
+            [
+              "melon"
+            ],
+            [
+              "minced beef"
+            ],
+            [
+              "mustard"
+            ],
+            [
+              "nutella"
+            ],
+            [
+              "oatmilk"
+            ],
+            [
+              "pineapple"
+            ],
+            [
+              "pulled pork"
+            ],
+            [
+              "tangerine"
+            ],
+            [
+              "whey protein"
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT supply_name FROM main.supplies WHERE is_perishable_supply = true ORDER BY supply_name;",
+        "definition_used": null,
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 10270,
+      "output_tokens": 1150,
+      "sql_calls": 1,
+      "latency_ms": 2028,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT supply_name FROM main.supplies WHERE is_perishable_supply = true ORDER BY supply_name",
+          "row_count": 30,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "supply_name\nbanana\nbeef stew\nbread\nbread\nbread\nbread\nbread\nchai mix\ncheese\ncheese\ncheese\ncheese\ncoffee\ncoffee\nfrench vanilla syrup\nghost pepper sauce\nhouse-pickled cabbage sauerkraut\nkiwi\nlamb and pork bratwurst\nlime\nmango\nmelon\nminced beef\nmustard\nnutella\noatmilk\npineapple\npulled pork\ntangerine\nwhey protein"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "Here are the names of all perishable supplies in the data warehouse:\n\n| supply_name |\n|------------|\n| banana |\n| beef stew |\n| bread |\n| bread |\n| bread |\n| bread |\n| bread |\n| chai mix |\n| cheese |\n| cheese |\n| cheese |\n| cheese |\n| coffee |\n| coffee |\n| french vanilla syrup |\n| ghost pepper sauce |\n| house\u2011pickled cabbage sauerkraut |\n| kiwi |\n| lamb and pork bratwurst |\n| lime |\n| mango |\n| melon |\n| minced beef |\n| mustard |\n| nutella |\n| oatmilk |\n| pineapple |\n| pulled pork |\n| tangerine |\n| whey protein |\n\nThese are the distinct rows returned by querying `main.supplies` where `is_perishable_supply = true`."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "supply_name"
+        ],
+        "rows": [
+          [
+            "tangerine"
+          ],
+          [
+            "bread"
+          ],
+          [
+            "nutella"
+          ],
+          [
+            "lamb and pork bratwurst"
+          ],
+          [
+            "ghost pepper sauce"
+          ],
+          [
+            "melon"
+          ],
+          [
+            "pineapple"
+          ],
+          [
+            "coffee"
+          ],
+          [
+            "lime"
+          ],
+          [
+            "beef stew"
+          ],
+          [
+            "house-pickled cabbage sauerkraut"
+          ],
+          [
+            "mustard"
+          ],
+          [
+            "minced beef"
+          ],
+          [
+            "mango"
+          ],
+          [
+            "chai mix"
+          ],
+          [
+            "oatmilk"
+          ],
+          [
+            "french vanilla syrup"
+          ],
+          [
+            "cheese"
+          ],
+          [
+            "pulled pork"
+          ],
+          [
+            "whey protein"
+          ],
+          [
+            "banana"
+          ],
+          [
+            "kiwi"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t02",
+      "run": 1,
+      "error": false,
+      "passed": false,
+      "reason": "table has 30 rows, expected 22",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The perishable supplies are:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "supply_name"
+          ],
+          "rows": [
+            [
+              "banana"
+            ],
+            [
+              "beef stew"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "chai mix"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "coffee"
+            ],
+            [
+              "coffee"
+            ],
+            [
+              "french vanilla syrup"
+            ],
+            [
+              "ghost pepper sauce"
+            ],
+            [
+              "house-pickled cabbage sauerkraut"
+            ],
+            [
+              "kiwi"
+            ],
+            [
+              "lamb and pork bratwurst"
+            ],
+            [
+              "lime"
+            ],
+            [
+              "mango"
+            ],
+            [
+              "melon"
+            ],
+            [
+              "minced beef"
+            ],
+            [
+              "mustard"
+            ],
+            [
+              "nutella"
+            ],
+            [
+              "oatmilk"
+            ],
+            [
+              "pineapple"
+            ],
+            [
+              "pulled pork"
+            ],
+            [
+              "tangerine"
+            ],
+            [
+              "whey protein"
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT supply_name FROM main.supplies WHERE is_perishable_supply = true ORDER BY supply_name;",
+        "definition_used": null,
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 10270,
+      "output_tokens": 1441,
+      "sql_calls": 1,
+      "latency_ms": 2102,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT supply_name FROM main.supplies WHERE is_perishable_supply = true ORDER BY supply_name",
+          "row_count": 30,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "supply_name\nbanana\nbeef stew\nbread\nbread\nbread\nbread\nbread\nchai mix\ncheese\ncheese\ncheese\ncheese\ncoffee\ncoffee\nfrench vanilla syrup\nghost pepper sauce\nhouse-pickled cabbage sauerkraut\nkiwi\nlamb and pork bratwurst\nlime\nmango\nmelon\nminced beef\nmustard\nnutella\noatmilk\npineapple\npulled pork\ntangerine\nwhey protein"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "Here are the names of all perishable supplies in the warehouse:\n\n| supply_name |\n|-------------|\n| banana |\n| beef stew |\n| bread |\n| bread |\n| bread |\n| bread |\n| bread |\n| chai mix |\n| cheese |\n| cheese |\n| cheese |\n| cheese |\n| coffee |\n| coffee |\n| french vanilla syrup |\n| ghost pepper sauce |\n| house\u2011pickled cabbage sauerkraut |\n| kiwi |\n| lamb and pork bratwurst |\n| lime |\n| mango |\n| melon |\n| minced beef |\n| mustard |\n| nutella |\n| oatmilk |\n| pineapple |\n| pulled pork |\n| tangerine |\n| whey protein |\n\nThese are the distinct rows returned by the query on **main.supplies** where `is_perishable_supply = true`."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "supply_name"
+        ],
+        "rows": [
+          [
+            "tangerine"
+          ],
+          [
+            "bread"
+          ],
+          [
+            "nutella"
+          ],
+          [
+            "lamb and pork bratwurst"
+          ],
+          [
+            "ghost pepper sauce"
+          ],
+          [
+            "melon"
+          ],
+          [
+            "pineapple"
+          ],
+          [
+            "coffee"
+          ],
+          [
+            "lime"
+          ],
+          [
+            "beef stew"
+          ],
+          [
+            "house-pickled cabbage sauerkraut"
+          ],
+          [
+            "mustard"
+          ],
+          [
+            "minced beef"
+          ],
+          [
+            "mango"
+          ],
+          [
+            "chai mix"
+          ],
+          [
+            "oatmilk"
+          ],
+          [
+            "french vanilla syrup"
+          ],
+          [
+            "cheese"
+          ],
+          [
+            "pulled pork"
+          ],
+          [
+            "whey protein"
+          ],
+          [
+            "banana"
+          ],
+          [
+            "kiwi"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t02",
+      "run": 2,
+      "error": false,
+      "passed": false,
+      "reason": "table has 30 rows, expected 22",
+      "rejections": 0,
+      "credit": 0.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "The perishable supplies are:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "supply_name"
+          ],
+          "rows": [
+            [
+              "banana"
+            ],
+            [
+              "beef stew"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "bread"
+            ],
+            [
+              "chai mix"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "cheese"
+            ],
+            [
+              "coffee"
+            ],
+            [
+              "coffee"
+            ],
+            [
+              "french vanilla syrup"
+            ],
+            [
+              "ghost pepper sauce"
+            ],
+            [
+              "house-pickled cabbage sauerkraut"
+            ],
+            [
+              "kiwi"
+            ],
+            [
+              "lamb and pork bratwurst"
+            ],
+            [
+              "lime"
+            ],
+            [
+              "mango"
+            ],
+            [
+              "melon"
+            ],
+            [
+              "minced beef"
+            ],
+            [
+              "mustard"
+            ],
+            [
+              "nutella"
+            ],
+            [
+              "oatmilk"
+            ],
+            [
+              "pineapple"
+            ],
+            [
+              "pulled pork"
+            ],
+            [
+              "tangerine"
+            ],
+            [
+              "whey protein"
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT supply_name FROM main.supplies WHERE is_perishable_supply = true ORDER BY supply_name;",
+        "definition_used": null,
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 10270,
+      "output_tokens": 775,
+      "sql_calls": 1,
+      "latency_ms": 1863,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT supply_name FROM main.supplies WHERE is_perishable_supply = true ORDER BY supply_name",
+          "row_count": 30,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "supply_name\nbanana\nbeef stew\nbread\nbread\nbread\nbread\nbread\nchai mix\ncheese\ncheese\ncheese\ncheese\ncoffee\ncoffee\nfrench vanilla syrup\nghost pepper sauce\nhouse-pickled cabbage sauerkraut\nkiwi\nlamb and pork bratwurst\nlime\nmango\nmelon\nminced beef\nmustard\nnutella\noatmilk\npineapple\npulled pork\ntangerine\nwhey protein"
+        },
+        {
+          "turn": 1,
+          "type": "text",
+          "text": "Here are the names of all perishable supplies in the warehouse:\n\n| supply_name |\n|-------------|\n| banana |\n| beef stew |\n| bread |\n| bread |\n| bread |\n| bread |\n| bread |\n| chai mix |\n| cheese |\n| cheese |\n| cheese |\n| cheese |\n| coffee |\n| coffee |\n| french vanilla syrup |\n| ghost pepper sauce |\n| house\u2011pickled cabbage sauerkraut |\n| kiwi |\n| lamb and pork bratwurst |\n| lime |\n| mango |\n| melon |\n| minced beef |\n| mustard |\n| nutella |\n| oatmilk |\n| pineapple |\n| pulled pork |\n| tangerine |\n| whey protein |\n\nThese are the distinct rows returned by the query on **main.supplies** where `is_perishable_supply = true`."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "supply_name"
+        ],
+        "rows": [
+          [
+            "tangerine"
+          ],
+          [
+            "bread"
+          ],
+          [
+            "nutella"
+          ],
+          [
+            "lamb and pork bratwurst"
+          ],
+          [
+            "ghost pepper sauce"
+          ],
+          [
+            "melon"
+          ],
+          [
+            "pineapple"
+          ],
+          [
+            "coffee"
+          ],
+          [
+            "lime"
+          ],
+          [
+            "beef stew"
+          ],
+          [
+            "house-pickled cabbage sauerkraut"
+          ],
+          [
+            "mustard"
+          ],
+          [
+            "minced beef"
+          ],
+          [
+            "mango"
+          ],
+          [
+            "chai mix"
+          ],
+          [
+            "oatmilk"
+          ],
+          [
+            "french vanilla syrup"
+          ],
+          [
+            "cheese"
+          ],
+          [
+            "pulled pork"
+          ],
+          [
+            "whey protein"
+          ],
+          [
+            "banana"
+          ],
+          [
+            "kiwi"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t03",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 10 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue (sum of order_item product_price) for each menu item, sorted highest to lowest.",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "product_name",
+            "pre_tax_revenue"
+          ],
+          "rows": [
+            [
+              "for richer or pourover ",
+              100275.0
+            ],
+            [
+              "vanilla ice",
+              84474.0
+            ],
+            [
+              "tangaroo",
+              83772.0
+            ],
+            [
+              "chai and mighty",
+              71170.0
+            ],
+            [
+              "adele-ade",
+              56876.0
+            ],
+            [
+              "flame impala",
+              55930.0
+            ],
+            [
+              "the krautback",
+              48072.0
+            ],
+            [
+              "mel-bun",
+              47940.0
+            ],
+            [
+              "doctor stew",
+              45254.0
+            ],
+            [
+              "nutellaphone who dis?",
+              43681.0
+            ]
+          ]
+        },
+        "unit": "USD",
+        "sql": "SELECT oi.product_name, SUM(oi.product_price) AS pre_tax_revenue\nFROM main.order_items oi\nJOIN main.orders o ON oi.order_id = o.order_id\nWHERE o.order_total > 0\nGROUP BY oi.product_name\nORDER BY pre_tax_revenue DESC;",
+        "definition_used": "Revenue is pre\u2011tax sales, the sum of orders.subtotal (approximated here by summing order_items.product_price per menu item).",
+        "assumptions": [
+          "Applied the [empty_orders] rule: excluded orders with order_total = 0",
+          "Used the full data period (2024\u201109\u201101 to 2025\u201108\u201131)"
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 17506,
+      "output_tokens": 2334,
+      "sql_calls": 3,
+      "latency_ms": 3865,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT oi.product_name, SUM(oi.product_price) AS pre_tax_revenue\nFROM main.order_items oi\nJOIN main.orders o ON oi.order_id = o.order_id\nWHERE o.order_total > 0\nGROUP BY oi.product_name\nORDER BY pre_tax_revenue DESC",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 26,
+          "preview": "product_name,pre_tax_revenue\nfor richer or pourover ,100275.00\nvanilla ice,84474.00\ntangaroo,83772.00\nchai and mighty,71170.00\nadele-ade,56876.00\nflame impala,55930.00\nthe krautback,48072.00\nmel-bun,47940.00\ndoctor stew,45254.00\nnutellaphone who dis?,43681.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT product_name) FROM main.order_items",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "count(DISTINCT product_name)\n10"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT SUM(product_price) AS total_pre_tax FROM main.order_items oi JOIN main.orders o ON oi.order_id = o.order_id WHERE o.order_total > 0",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 28,
+          "preview": "total_pre_tax\n637444.00"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "**Definition used**  \n*Revenue* = pre\u2011tax sales, the sum of\u202f`orders.subtotal`.  \nBecause the order subtotal is the sum of the `product_price` of its order\u2011items, I calculated pre\u2011tax revenue for each menu item by summing `order_items.product_price` for all order\u2011items that belong to orders with a positive total (`order_total > 0`). This follows the **[empty_orders]** rule that $0\u2011total orders are excluded.\n\n**Pre\u2011tax revenue by menu item (whole period, highest first)**  \n\n| product_name                | pre\u2011tax\u202frevenue (USD) |\n|-----------------------------|----------------------|\n| for richer or pourover     | 100\u202f275.00 |\n| vanilla ice                | 84\u202f474.00 |\n| tangaroo                    | 83\u202f772.00 |\n| chai and mighty            | 71\u202f170.00 |\n| adele\u2011ade                  | 56\u202f876.00 |\n| flame impala               | 55\u202f930.00 |\n| the krautback              | 48\u202f072.00 |\n| mel\u2011bun                    | 47\u202f940.00 |\n| doctor stew                | 45\u202f254.00 |\n| nutellaphone who dis?      | 43\u202f681.00 |\n\n*Total pre\u2011tax revenue across all menu items:* **$637,444.00**.  \n\nThese figures cover the entire data period (ordered_at\u202f=\u202f2024\u201109\u201101\u202fto\u202f2025\u201108\u201131) and respect the customer\u2011provided definitions."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "\"trim\"(product_name)",
+          "sum(product_price)"
+        ],
+        "rows": [
+          [
+            "for richer or pourover",
+            "100275.00"
+          ],
+          [
+            "vanilla ice",
+            "84474.00"
+          ],
+          [
+            "tangaroo",
+            "83772.00"
+          ],
+          [
+            "chai and mighty",
+            "71170.00"
+          ],
+          [
+            "adele-ade",
+            "56876.00"
+          ],
+          [
+            "flame impala",
+            "55930.00"
+          ],
+          [
+            "the krautback",
+            "48072.00"
+          ],
+          [
+            "mel-bun",
+            "47940.00"
+          ],
+          [
+            "doctor stew",
+            "45254.00"
+          ],
+          [
+            "nutellaphone who dis?",
+            "43681.00"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t03",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "all 10 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue (sum of product_price) for each menu item, highest first:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "product_name",
+            "pre_tax_revenue"
+          ],
+          "rows": [
+            [
+              "for richer or pourover ",
+              100275.0
+            ],
+            [
+              "vanilla ice",
+              84474.0
+            ],
+            [
+              "tangaroo",
+              83772.0
+            ],
+            [
+              "chai and mighty",
+              71170.0
+            ],
+            [
+              "adele-ade",
+              56876.0
+            ],
+            [
+              "flame impala",
+              55930.0
+            ],
+            [
+              "the krautback",
+              48072.0
+            ],
+            [
+              "mel-bun",
+              47940.0
+            ],
+            [
+              "doctor stew",
+              45254.0
+            ],
+            [
+              "nutellaphone who dis?",
+              43681.0
+            ]
+          ]
+        },
+        "unit": "USD",
+        "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT p.product_name,\n       COALESCE(SUM(oi.product_price),0) AS pre_tax_revenue\nFROM main.products p\nLEFT JOIN main.order_items oi ON p.product_id = oi.product_id\nLEFT JOIN valid_orders vo ON oi.order_id = vo.order_id\nGROUP BY p.product_name\nORDER BY pre_tax_revenue DESC;",
+        "definition_used": "Revenue is pre\u2011tax sales, the sum of orders.subtotal (approximated per item by summing product_price across order_items).",
+        "assumptions": [
+          "Excluded orders with order_total = 0 per the [empty_orders] rule; used the full data period (2024\u201109\u201101 to 2025\u201108\u201131)."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 26068,
+      "output_tokens": 2582,
+      "sql_calls": 4,
+      "latency_ms": 4797,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT oi.product_name,\n       SUM(oi.product_price) AS pre_tax_revenue\nFROM main.order_items oi\nJOIN valid_orders vo ON oi.order_id = vo.order_id\nGROUP BY oi.product_name\nORDER BY pre_tax_revenue DESC",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 13,
+          "preview": "product_name,pre_tax_revenue\nfor richer or pourover ,100275.00\nvanilla ice,84474.00\ntangaroo,83772.00\nchai and mighty,71170.00\nadele-ade,56876.00\nflame impala,55930.00\nthe krautback,48072.00\nmel-bun,47940.00\ndoctor stew,45254.00\nnutellaphone who dis?,43681.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT p.product_name,\n       COALESCE(SUM(oi.product_price),0) AS pre_tax_revenue\nFROM main.products p\nLEFT JOIN main.order_items oi ON p.product_id = oi.product_id\nLEFT JOIN valid_orders vo ON oi.order_id = vo.order_id\nGROUP BY p.product_name\nORDER BY pre_tax_revenue DESC",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 22,
+          "preview": "product_name,pre_tax_revenue\nfor richer or pourover ,100275.00\nvanilla ice,84474.00\ntangaroo,83772.00\nchai and mighty,71170.00\nadele-ade,56876.00\nflame impala,55930.00\nthe krautback,48072.00\nmel-bun,47940.00\ndoctor stew,45254.00\nnutellaphone who dis?,43681.00"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) FROM main.products",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 1,
+          "preview": "count_star()\n10"
+        },
+        {
+          "turn": 3,
+          "type": "repeated_sql",
+          "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT p.product_name,\n       COALESCE(SUM(oi.product_price),0) AS pre_tax_revenue\nFROM main.products p\nLEFT JOIN main.order_items oi ON p.product_id = oi.product_id\nLEFT JOIN valid_orders vo ON oi.order_id = vo.order_id\nGROUP BY p.product_name\nORDER BY pre_tax_revenue DESC;"
+        },
+        {
+          "turn": 4,
+          "type": "sql",
+          "sql": "SELECT product_name FROM main.products ORDER BY product_name",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "product_name\nadele-ade\nchai and mighty\ndoctor stew\nflame impala\nfor richer or pourover \nmel-bun\nnutellaphone who dis?\ntangaroo\nthe krautback\nvanilla ice"
+        },
+        {
+          "turn": 5,
+          "type": "text",
+          "text": "**Definition used** \u2013 *Revenue (pre\u2011tax) is the sum of\u202forders.subtotal, i.e., the total of all product prices before tax.*  \nThe calculation excludes orders with a total of\u202f$0 (as defined by the **[empty_orders]** rule) and covers the entire data period (2024\u201109\u201101\u202fto\u202f2025\u201108\u201131).\n\n| Menu item (product_name) | Pre\u2011tax revenue |\n|--------------------------|-----------------|\n| for richer or pourover  | $100,275.00 |\n| vanilla ice              | $84,474.00 |\n| tangaroo                 | $83,772.00 |\n| chai and mighty          | $71,170.00 |\n| adele\u2011ade                | $56,876.00 |\n| flame impala             | $55,930.00 |\n| the krautback            | $48,072.00 |\n| mel\u2011bun                  | $47,940.00 |\n| doctor stew              | $45,254.00 |\n| nutellaphone who dis?    | $43,681.00 |\n\nThese figures represent the total pre\u2011tax sales for each menu item over the whole period, ordered from highest to lowest revenue."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "\"trim\"(product_name)",
+          "sum(product_price)"
+        ],
+        "rows": [
+          [
+            "for richer or pourover",
+            "100275.00"
+          ],
+          [
+            "vanilla ice",
+            "84474.00"
+          ],
+          [
+            "tangaroo",
+            "83772.00"
+          ],
+          [
+            "chai and mighty",
+            "71170.00"
+          ],
+          [
+            "adele-ade",
+            "56876.00"
+          ],
+          [
+            "flame impala",
+            "55930.00"
+          ],
+          [
+            "the krautback",
+            "48072.00"
+          ],
+          [
+            "mel-bun",
+            "47940.00"
+          ],
+          [
+            "doctor stew",
+            "45254.00"
+          ],
+          [
+            "nutellaphone who dis?",
+            "43681.00"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t03",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "all 10 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Pre\u2011tax revenue (sum of product_price) for each menu item, sorted highest to lowest, using orders with a total greater than $0.",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "product_name",
+            "pre_tax_revenue"
+          ],
+          "rows": [
+            [
+              "for richer or pourover ",
+              100275.0
+            ],
+            [
+              "vanilla ice",
+              84474.0
+            ],
+            [
+              "tangaroo",
+              83772.0
+            ],
+            [
+              "chai and mighty",
+              71170.0
+            ],
+            [
+              "adele-ade",
+              56876.0
+            ],
+            [
+              "flame impala",
+              55930.0
+            ],
+            [
+              "the krautback",
+              48072.0
+            ],
+            [
+              "mel-bun",
+              47940.0
+            ],
+            [
+              "doctor stew",
+              45254.0
+            ],
+            [
+              "nutellaphone who dis?",
+              43681.0
+            ]
+          ]
+        },
+        "unit": "USD",
+        "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT oi.product_name,\n       SUM(oi.product_price) AS pre_tax_revenue\nFROM main.order_items oi\nJOIN valid_orders vo ON oi.order_id = vo.order_id\nGROUP BY oi.product_name\nORDER BY pre_tax_revenue DESC;",
+        "definition_used": "Revenue is pre\u2011tax sales, defined as the sum of orders.subtotal. Here we approximate it by summing product_price for each product across all order_items belonging to orders with order_total > 0.",
+        "assumptions": [
+          "Used order_total > 0 to exclude empty orders per the [empty_orders] definition.",
+          "Assumed each order_item represents a single unit, so summing product_price gives the pre\u2011tax contribution of that item.",
+          "Aggregated over the entire data period (2024\u201109\u201101 to 2025\u201108\u201131)."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 13989,
+      "output_tokens": 1980,
+      "sql_calls": 2,
+      "latency_ms": 3423,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT oi.product_name,\n       SUM(oi.product_price) AS pre_tax_revenue\nFROM main.order_items oi\nJOIN valid_orders vo ON oi.order_id = vo.order_id\nGROUP BY oi.product_name\nORDER BY pre_tax_revenue DESC",
+          "row_count": 10,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 22,
+          "preview": "product_name,pre_tax_revenue\nfor richer or pourover ,100275.00\nvanilla ice,84474.00\ntangaroo,83772.00\nchai and mighty,71170.00\nadele-ade,56876.00\nflame impala,55930.00\nthe krautback,48072.00\nmel-bun,47940.00\ndoctor stew,45254.00\nnutellaphone who dis?,43681.00"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "WITH valid_orders AS (SELECT order_id FROM main.orders WHERE order_total > 0)\nSELECT COUNT(DISTINCT product_name) FROM main.order_items oi JOIN valid_orders vo ON oi.order_id = vo.order_id",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 37,
+          "preview": "count(DISTINCT product_name)\n10"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "**Definition used**  \nRevenue\u202f=\u202fpre\u2011tax sales, calculated as the sum of\u202f`orders.subtotal`.  \nBecause an order\u2019s subtotal is the sum of the `product_price` of its order items, the pre\u2011tax revenue for each menu item can be obtained by summing `product_price` across all order\u2011item rows that belong to orders with a positive total (`order_total\u202f>\u202f0`). Empty orders (zero total and no items) are excluded per the **[empty_orders]** rule.\n\n| Menu item (product_name) | Pre\u2011tax revenue (USD) |\n|--------------------------|----------------------|\n| for richer or pourover  | 100,275.00 |\n| vanilla ice             | 84,474.00 |\n| tangaroo                | 83,772.00 |\n| chai and mighty         | 71,170.00 |\n| adele-ade               | 56,876.00 |\n| flame impala            | 55,930.00 |\n| the krautback           | 48,072.00 |\n| mel-bun                 | 47,940.00 |\n| doctor stew             | 45,254.00 |\n| nutellaphone who dis?   | 43,681.00 |\n\nThese figures represent the total pre\u2011tax revenue generated by each menu item over the entire data period (2024\u201109\u201101\u202fto\u202f2025\u201108\u201131)."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "\"trim\"(product_name)",
+          "sum(product_price)"
+        ],
+        "rows": [
+          [
+            "for richer or pourover",
+            "100275.00"
+          ],
+          [
+            "vanilla ice",
+            "84474.00"
+          ],
+          [
+            "tangaroo",
+            "83772.00"
+          ],
+          [
+            "chai and mighty",
+            "71170.00"
+          ],
+          [
+            "adele-ade",
+            "56876.00"
+          ],
+          [
+            "flame impala",
+            "55930.00"
+          ],
+          [
+            "the krautback",
+            "48072.00"
+          ],
+          [
+            "mel-bun",
+            "47940.00"
+          ],
+          [
+            "doctor stew",
+            "45254.00"
+          ],
+          [
+            "nutellaphone who dis?",
+            "43681.00"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t04",
+      "run": 0,
+      "error": false,
+      "passed": true,
+      "reason": "all 69 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "List of customers with more than 150 orders (order_total > 0) and their order counts.",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "customer_id",
+            "customer_name",
+            "order_count"
+          ],
+          "rows": [
+            [
+              "3483e39a-260f-4974-9366-50c2d833307f",
+              "Melissa Lopez",
+              231
+            ],
+            [
+              "2609004e-90a8-450e-98f3-5ebc16841cd5",
+              "Joy Lam",
+              226
+            ],
+            [
+              "d47a83f3-a765-4a20-b40c-e0993cf00e4f",
+              "Jasmine Murray",
+              226
+            ],
+            [
+              "9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb",
+              "Michael Williams",
+              222
+            ],
+            [
+              "9bac4be0-d703-4f1d-a088-1bdb362d3246",
+              "Scott Thompson",
+              221
+            ],
+            [
+              "cc1816db-c3dd-4c16-8ea7-18fe313472b9",
+              "Brittany Johnson",
+              218
+            ],
+            [
+              "b4413ac0-2fc9-4c91-b188-71c109d9be8f",
+              "Amy Wolf",
+              218
+            ],
+            [
+              "847d46dd-9721-4351-8bef-5c2292b57d6f",
+              "Kelly Singh",
+              217
+            ],
+            [
+              "d31efffd-fdc4-4168-ac26-83b67a6c5c47",
+              "Derek Smith",
+              213
+            ],
+            [
+              "710200a9-2c6c-4f21-b3f1-3ed6aa684fa2",
+              "Janet Robles",
+              211
+            ],
+            [
+              "66983396-cb40-4613-8d6d-306b8f9ca5c4",
+              "Alexander Burke",
+              207
+            ],
+            [
+              "5261268c-aa94-438a-921a-05efc0d414ac",
+              "Allison Oliver",
+              207
+            ],
+            [
+              "0872893c-bf01-4853-b91f-a1cc0263fedf",
+              "Stephanie Quinn",
+              204
+            ],
+            [
+              "84ee8f13-e5a2-4988-8f65-daa65801c5d1",
+              "Dylan Lopez",
+              203
+            ],
+            [
+              "d6de888a-0aee-4f77-a7d4-daba8f0da415",
+              "Christopher Kim",
+              203
+            ],
+            [
+              "4dc2aa9c-8633-4861-b795-5b285cf76a1f",
+              "Susan Castillo",
+              201
+            ],
+            [
+              "6faa20a4-1e8f-43a8-9a45-33ae5f675190",
+              "Tyrone Ryan",
+              199
+            ],
+            [
+              "848485f0-198f-4efa-8335-707db71a7434",
+              "Kristin Mcintyre",
+              196
+            ],
+            [
+              "5fccc95a-c30f-4525-a4a6-43861baae99a",
+              "Karina Thompson",
+              196
+            ],
+            [
+              "ff4e2ef5-4f72-41f4-90ea-4f40665b9f5b",
+              "Andrew Serrano",
+              195
+            ],
+            [
+              "132425e2-d22d-43aa-a372-e3d9bfd77f8c",
+              "John Marshall",
+              195
+            ],
+            [
+              "c6fb82d9-b6e6-445a-a3d3-0158405a9d16",
+              "Angela James",
+              194
+            ],
+            [
+              "0000bd8e-496c-42aa-9430-fea7f9bd6a96",
+              "Connie Harrison",
+              190
+            ],
+            [
+              "be6fcaa5-9911-4bb6-b97c-47eb53c88b32",
+              "James Gardner",
+              189
+            ],
+            [
+              "0d2974c5-d4de-4163-bf27-73d86a77b048",
+              "Jessica Lewis",
+              189
+            ],
+            [
+              "e77008c8-b7e1-4bb6-93d8-8383d6385531",
+              "Michael Acosta",
+              189
+            ],
+            [
+              "34a9dd73-95d0-45d9-a3fb-636e4e080a6c",
+              "Jonathan Anderson",
+              187
+            ],
+            [
+              "84f816bd-12e2-4633-a419-fc80705977e6",
+              "Alicia Huerta",
+              187
+            ],
+            [
+              "3c7a4cde-d92b-4d90-a731-9c0461ae8c90",
+              "Nicole Jackson",
+              187
+            ],
+            [
+              "5bbca380-854e-47a4-ae5c-fd631650a115",
+              "Joseph Mcintyre",
+              186
+            ],
+            [
+              "b0da7a9b-77d7-407d-8506-51705503fa05",
+              "Sean Koch",
+              186
+            ],
+            [
+              "5d59a09d-7696-4e1b-a171-abe3b79fff2d",
+              "Tracy Gibbs",
+              185
+            ],
+            [
+              "8ebb4b7d-ed19-43be-a647-6c3a9a6a166a",
+              "David Mann",
+              183
+            ],
+            [
+              "2660b7ac-6c46-4392-8ddc-26194c532341",
+              "Michael Mendoza",
+              182
+            ],
+            [
+              "fdd86eaf-7a5b-4598-9a08-6f4f207743bb",
+              "Dana Smith",
+              182
+            ],
+            [
+              "a311b0c8-1b63-4405-8097-09a984512389",
+              "Ray Mitchell",
+              179
+            ],
+            [
+              "438005c2-dd1d-48aa-8bfd-7fb06851b5f8",
+              "Kristi Keller",
+              177
+            ],
+            [
+              "861181e6-5d97-48a8-bbe4-226caa976140",
+              "Aaron Williams",
+              177
+            ],
+            [
+              "adf0d9db-c6a0-4226-a93f-30482ccd9d28",
+              "Donald Thomas",
+              177
+            ],
+            [
+              "a5781cf5-d32e-4370-b0f8-4f229bc0efa4",
+              "Madison Davis",
+              176
+            ],
+            [
+              "2480125c-2d37-405c-96b9-ca32b2c75b33",
+              "Russell Mitchell",
+              176
+            ],
+            [
+              "1076f00e-5dd1-41d5-b2a5-0c59e18a5310",
+              "Shelly Benitez",
+              175
+            ],
+            [
+              "b0cab1cc-6689-4922-a78f-5c6e1c458cd1",
+              "Alex Taylor",
+              174
+            ],
+            [
+              "ead66f31-3437-42c5-9145-8281898ce326",
+              "Rachael Hobbs",
+              173
+            ],
+            [
+              "125d87d5-a36a-4e4e-865c-3122386e88ca",
+              "Dale Berry",
+              172
+            ],
+            [
+              "cfefbf12-9a5a-4d61-a708-d92f785af097",
+              "Julie Taylor",
+              168
+            ],
+            [
+              "3f1fc492-e8ed-4840-97a0-a56592fdc1d9",
+              "Yvonne Watson",
+              167
+            ],
+            [
+              "3810f8e6-9278-4c26-9be0-d6d6c35fe477",
+              "Ashley Mcdaniel",
+              166
+            ],
+            [
+              "ff29ece6-95da-4800-acd2-b14950a339dd",
+              "Melissa Sanders",
+              162
+            ],
+            [
+              "a7cebb21-0f26-4834-8a09-e3269b21a77b",
+              "Emma Mitchell",
+              161
+            ],
+            [
+              "4acffd44-9d77-4c09-afdb-e7f93ee5518b",
+              "Jennifer Richardson",
+              160
+            ],
+            [
+              "a57c96be-0b7a-41c6-bd9a-9330e20c497a",
+              "Jessica Richard",
+              159
+            ],
+            [
+              "d9464bcd-0a19-4058-8fc1-bea843e6c339",
+              "Brittany Brown",
+              158
+            ],
+            [
+              "7d0a9ece-1d73-43ea-98e7-8bbe21e890ec",
+              "Anthony Murillo",
+              156
+            ],
+            [
+              "2a26f327-c9ef-40f4-bb8c-c809417caad1",
+              "Danny Walker",
+              156
+            ],
+            [
+              "890861ac-5e77-4568-aaff-807b37e6f872",
+              "Caitlyn Hill",
+              155
+            ],
+            [
+              "143944c0-b4d0-48f7-ac1f-6ffaeff64a70",
+              "Lydia Khan",
+              155
+            ],
+            [
+              "827eed18-8ab1-4e5d-ab00-5d8ac9bb168b",
+              "Larry Ward",
+              155
+            ],
+            [
+              "6b9cd81e-126c-4c53-b6b5-575d78951256",
+              "Andrea Randall",
+              155
+            ],
+            [
+              "69731d27-9caa-46cf-8933-d01e29b20043",
+              "Jacqueline Pineda",
+              154
+            ],
+            [
+              "9aaa8391-995f-4006-8413-c590098fc46a",
+              "Joshua Mann",
+              154
+            ],
+            [
+              "b4cc95b0-6dbf-4264-a3ef-43fbbadf652a",
+              "Devin Clayton",
+              154
+            ],
+            [
+              "af16d888-ff4c-4c16-a2f8-9e2a3a9677c7",
+              "Jeffrey Gutierrez",
+              153
+            ],
+            [
+              "4b8b181e-668e-45d4-a8e3-7180a41cf064",
+              "Martin Barnes",
+              152
+            ],
+            [
+              "bbe9e834-7071-42d6-8970-aa7301b72ec2",
+              "Michael Cobb",
+              152
+            ],
+            [
+              "fa08fd03-3569-400d-9d63-e8ae15712195",
+              "Cody Gonzalez",
+              152
+            ],
+            [
+              "013b644d-5645-44bd-8ca3-d7d254b2ba18",
+              "Keith Cook",
+              151
+            ],
+            [
+              "18b69140-479d-44b6-8369-04a49414f975",
+              "Pamela Lane",
+              151
+            ],
+            [
+              "50a2d1c4-d788-4498-a6f7-dd75d4db588f",
+              "Stephanie Love",
+              151
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT c.customer_id, c.customer_name, COUNT(o.order_id) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY c.customer_id, c.customer_name\nHAVING COUNT(o.order_id) > 150\nORDER BY order_count DESC;",
+        "definition_used": "Count of orders per customer where order_total > 0 (excluding empty orders)",
+        "assumptions": [
+          "Used the [empty_orders] definition to exclude orders with $0 total; filtered on order_total > 0 as instructed.",
+          "At least one query result was cut at its row limit (5 by default, up to 200); a listing taken from it may be incomplete."
+        ],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 43463,
+      "output_tokens": 7390,
+      "sql_calls": 4,
+      "latency_ms": 7407,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT c.customer_id, c.customer_name, COUNT(o.order_id) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY c.customer_id, c.customer_name\nHAVING COUNT(o.order_id) > 150\nORDER BY order_count DESC",
+          "row_count": 69,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "customer_id,customer_name,order_count\n3483e39a-260f-4974-9366-50c2d833307f,Melissa Lopez,231\n2609004e-90a8-450e-98f3-5ebc16841cd5,Joy Lam,226\nd47a83f3-a765-4a20-b40c-e0993cf00e4f,Jasmine Murray,226\n9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb,Michael Williams,222\n9bac4be0-d703-4f1d-a088-1bdb362d3246,Scott Thompson,221\ncc1816db-c3dd-4c16-8ea7-18fe313472b9,Brittany Johnson,218\nb4413ac0-2fc9-4c91-b188-71c109d9be8f,Amy Wolf,218\n847d46dd-9721-4351-8bef-5c2292b57d6f,Kelly Singh,217\nd31efffd-fdc4-4168-ac26-83b67a6c5c47,Derek Smith,213\n710200a9-2c6c-4f21-b3f1-3ed6aa684fa2,Janet Robles,211\n66983396-cb40-4613-8d6d-306b8f9ca5c4,Alexander Burke,207\n5261268c-aa94-438a-921a-05efc0d414ac,Allison Oliver,207\n0872893c-bf01-4853-b91f-a1cc0263fedf,Stephanie Quinn,204\n84ee8f13-e5a2-4988-8f65-daa65801c5d1,Dylan Lopez,203\nd6de888a-0aee-4f77-a7d4-daba8f0da415,Christopher Kim,203\n4dc2aa9c-8633-4861-b795-5b285cf76a1f,Susan Castillo,201\n6faa20a4-1e8f-43a8-9a45-33ae5f675190,Tyrone Ryan,199\n848485f0-198f-4efa-8335-707db71a7434,Kristin Mcintyre,196\n5fccc95a-c30f-4525-a4a6-43861baae99a,Karina Thompson,196\nff4e2ef5-4f72-41f4-90ea-4f40665b9f5b,Andrew Serrano,195\n132425e2-d22d-43aa-a372-e3d9bfd77f8c,John Marshall,195\nc6fb82d9-b6e6-445a-a3d3-0158405a9d16,Angela James,194\n0000bd8e-496c-42aa-9430-fea7f9bd6a96,Connie Harrison,190\nbe6fcaa5-9911-4bb6-b97c-47eb53c88b32,James Gardner,189\n0d2974c5-d4de-4163-bf27-73d86a77b048,Jessica Lewis,189\ne77008c8-b7e1-4bb6-93d8-8383d6385531,Michael Acosta,189\n34a9dd73-95d0-45d9-a3fb-636e4e080a6c,Jonathan Anderson,187\n84f816bd-12e2-4633-a419-fc80705977e6,Alicia Huerta,187\n3c7a4cde-d92b-4d90-a731-9c0461ae8c90,Nicole Jackson,187\n5bbca380-854e-47a4-ae5c-fd631650a115,Joseph Mcintyre,186\nb0da7a9b-77d7-407d-8506-51705503fa05,Sean Koch,186\n5d59a09d-7696-4e1b-a171-abe3b79fff2d,Tracy Gibbs,185\n8ebb4b7d-ed19-43be-a647-6c3a9a6a166a,David Mann,183\n2660b7ac-6c46-4392-8ddc-26194c532341,Michael Mendoza,182\nfdd86eaf-7a5b-4598-9a08-6f4f207743bb,Dana Smith,182\na311b0c8-1b63-4405-8097-09a984512389,Ray Mitchell,179\n438005c2-dd1d-48aa-8bfd-7fb06851b5f8,Kristi Keller,177\n861181e6-5d97-48a8-bbe4-226caa976140,Aaron Williams,177\nadf0d9db-c6a0-4226-a93f-30482ccd9d28,Donald Thomas,177\na5781cf5-d32e-4370-b0f8-4f229bc0efa4,Madison Davis,176\n2480125c-2d37-405c-96b9-ca32b2c75b33,Russell Mitchell,176\n1076f00e-5dd1-41d1-b2a5-0c59e18a5310,Shelly Benitez,175\nb0cab1cc-6689-4922-a78f-5c6e1c458cd1,Alex Taylor,174\nead66f31-3437-42c5-9145-8281898ce326,Rachael Hobbs,173\n125d87d5-a36a-4f4e-865c-3122386e88ca,Dale Berry,172\ncfefbf12-9a5a-4d61-a708-d92f785af097,Julie Taylor,168\n3f1fc492-e8ed-4840-97a0-a56592fdc1d9,Yvonne Watson,167\n3810f8e6-9278-4c26-9be0-d6d6c35fe477,Ashley Mcdaniel,166\nff29ece6-95da-4800-acd2-b14950a339dd,Melissa Sanders,162\na7cebb21-0f26-4834-8a09-e3269b21a77b,Emma Mitchell,161\n4acffd44-9d77-4c09-afdb-e7f93ee5518b,Jennifer Richardson,160\na57c96be-0b7a-41c6-bd9a-9330e20c497a,Jessica Richard,159\nd9464bcd-0a19-4058-8fc1-bea843e6c339,Brittany Brown,158\n7d0a9ece-1d73-43ea-98e7-8bbe21e890ec,Anthony Murillo,156\n2a26f327-c9ef-40f4-bb8c-c809417caad1,Danny Walker,156\n890861ac-5e77-4568-aaff-807b37e6f872,Caitlyn Hill,155\n143944c0-b4d0-48f7-ac1f-6ffaeff64a70,Lydia Khan,155\n827eed18-8ab1-4e5d-ab00-5d8ac9bb168b,Larry Ward,155\n6b9cd81e-126c-4c53-b6b5-575d78951256,Andrea Randall,155\n69731d27-9caa-46cf-8933-d01e29b20043,Jacqueline Pineda,154\n9aaa8391-995f-4006-8413-c590098fc46a,Joshua Mann,154\nb4cc95b0-6dbf-4264-a3ef-43fbbadf652a,Devin Clayton,154\naf16d888-ff4c-4c16-a2f8-9e2a3a9677c7,Jeffrey Gutierrez,153\n4b8b181e-668e-45d4-a8e3-7180a41cf064,Martin Barnes,152\nbbe9e834-7071-42d6-8970-aa7301b72ec2,Michael Cobb,152\nfa08fd03-3569-400d-9d63-e8ae15712195,Cody Gonzalez,152\n013b644d-5645-44bd-8ca3-d7d254b2ba18,Keith Cook,151\n18b69140-479d-44b6-8369-04a49414f975,Pamela Lane,151\n50a2d1c4-d788-4498-a6f7-dd75d4db588f,Stephanie Love,151"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS cnt\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY c.customer_id\nHAVING COUNT(o.order_id) > 150",
+          "row_count": 5,
+          "max_rows": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "cnt\n218\n168\n226\n151\n174\n(showing first 5 rows; more exist: aggregate or filter in SQL, or raise max_rows up to 200 if you need the rows)"
+        },
+        {
+          "turn": 2,
+          "type": "repeated_sql",
+          "sql": "SELECT c.customer_id, c.customer_name, COUNT(o.order_id) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY c.customer_id, c.customer_name\nHAVING COUNT(o.order_id) > 150\nORDER BY order_count DESC;"
+        },
+        {
+          "turn": 3,
+          "type": "sql",
+          "sql": "SELECT COUNT(DISTINCT c.customer_id) AS customer_cnt\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY c.customer_id\nHAVING COUNT(o.order_id) > 150",
+          "row_count": 5,
+          "max_rows": 5,
+          "truncated": true,
+          "error": null,
+          "elapsed_ms": 6,
+          "preview": "customer_cnt\n1\n1\n1\n1\n1\n(showing first 5 rows; more exist: aggregate or filter in SQL, or raise max_rows up to 200 if you need the rows)"
+        },
+        {
+          "turn": 4,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS num_customers\nFROM (\n  SELECT c.customer_id\n  FROM main.orders o\n  JOIN main.customers c ON o.customer_id = c.customer_id\n  WHERE o.order_total > 0\n  GROUP BY c.customer_id\n  HAVING COUNT(o.order_id) > 150\n) sub",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 7,
+          "preview": "num_customers\n69"
+        },
+        {
+          "turn": 5,
+          "type": "repeated_sql",
+          "sql": "SELECT c.customer_id, c.customer_name, COUNT(o.order_id) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY c.customer_id, c.customer_name\nHAVING COUNT(o.order_id) > 150\nORDER BY order_count DESC;"
+        },
+        {
+          "turn": 6,
+          "type": "text",
+          "text": "**Customers with more than\u202f150 orders (order_total\u202f>\u202f0)**  \n\n| customer_id                              | customer_name      | order_count |\n|------------------------------------------|--------------------|------------|\n| 3483e39a-260f-4974-9366-50c2d833307f     | Melissa Lopez      | 231 |\n| 2609004e-90a8-450e-98f3-5ebc16841cd5     | Joy Lam            | 226 |\n| d47a83f3-a765-4a20-b40c-e0993cf00e4f     | Jasmine Murray     | 226 |\n| 9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb     | Michael Williams   | 222 |\n| 9bac4be0-d703-4f1d-a088-1bdb362d3246     | Scott Thompson     | 221 |\n| cc1816db-c3dd-4c16-8ea7-18fe313472b9     | Brittany Johnson   | 218 |\n| b4413ac0-2fc9-4c91-b188-71c109d9be8f     | Amy Wolf           | 218 |\n| 847d46dd-9721-4351-8bef-5c2292b57d6f     | Kelly Singh        | 217 |\n| d31efffd-fdc4-4168-ac26-83b67a6c5c47     | Derek Smith        | 213 |\n| 710200a9-2c6c-4f21-b3f1-3ed6aa684fa2     | Janet Robles       | 211 |\n| 66983396-cb40-4613-8d6d-306b8f9ca5c4     | Alexander Burke    | 207 |\n| 5261268c-aa94-438a-921a-05efc0d414ac     | Allison Oliver     | 207 |\n| 0872893c-bf01-4853-b91f-a1cc0263fedf     | Stephanie Quinn    | 204 |\n| 84ee8f13-e5a2-4988-8f65-daa65801c5d1     | Dylan Lopez        | 203 |\n| d6de888a-0aee-4f77-a7d4-daba8f0da415     | Christopher Kim    | 203 |\n| 4dc2aa9c-8633-4861-b795-5b285cf76a1f     | Susan Castillo     | 201 |\n| 6faa20a4-1e8f-43a8-9a45-33ae5f675190     | Tyrone Ryan        | 199 |\n| 848485f0-198f-4efa-8335-707db71a7434     | Kristin Mcintyre   | 196 |\n| 5fccc95a-c30f-4525-a4a6-43861baae99a     | Karina Thompson    | 196 |\n| ff4e2ef5-4f72-41f4-90ea-4f40665b9f5b     | Andrew Serrano     | 195 |\n| 132425e2-d22d-43aa-a372-e3d9bfd77f8c     | John Marshall      | 195 |\n| c6fb82d9-b6e6-445a-a3d3-0158405a9d16     | Angela James       | 194 |\n| 0000bd8e-496c-42aa-9430-fea7f9bd6a96     | Connie Harrison    | 190 |\n| be6fcaa5-9911-4bb6-b97c-47eb53c88b32     | James Gardner      | 189 |\n| 0d2974c5-d4de-4163-bf27-73d86a77b048     | Jessica Lewis      | 189 |\n| e77008c8-b7e1-4bb6-93d8-8383d6385531     | Michael Acosta     | 189 |\n| 34a9dd73-95d0-45d9-a3fb-636e4e080a6c     | Jonathan Anderson  | 187 |\n| 84f816bd-12e2-4633-a419-fc80705977e6     | Alicia Huerta      | 187 |\n| 3c7a4cde-d92b-4d90-a731-9c0461ae8c90     | Nicole Jackson     | 187 |\n| 5bbca380-854e-47a4-ae5c-fd631650a115     | Joseph Mcintyre    | 186 |\n| b0da7a9b-77d7-407d-8506-51705503fa05     | Sean Koch          | 186 |\n| 5d59a09d-7696-4e1b-a171-abe3b79fff2d     | Tracy Gibbs        | 185 |\n| 8ebb4b7d-ed19-43be-a647-6c3a9a6a166a     | David Mann         | 183 |\n| 2660b7ac-6c46-4392-8ddc-26194c532341     | Michael Mendoza    | 182 |\n| fdd86eaf-7a5b-4598-9a08-6f4f207743bb     | Dana Smith         | 182 |\n| a311b0c8-1b63-4405-8097-09a984512389     | Ray Mitchell       | 179 |\n| 438005c2-dd1d-48aa-8bfd-7fb06851b5f8     | Kristi Keller      | 177 |\n| 861181e6-5d97-48a8-bbe4-226caa976140     | Aaron Williams     | 177 |\n| adf0d9db-c6a0-4226-a93f-30482ccd9d28     | Donald Thomas      | 177 |\n| a5781cf5-d32e-4370-b0f8-4f229bc0efa4     | Madison Davis      | 176 |\n| 2480125c-2d37-405c-96b9-ca32b2c75b33     | Russell Mitchell   | 176 |\n| 1076f00e-5dd1-41d1-b2a5-0c59e18a5310     | Shelly Benitez     | 175 |\n| b0cab1cc-6689-4922-a78f-5c6e1c458cd1     | Alex Taylor        | 174 |\n| ead66f31-3437-42c5-9145-8281898ce326     | Rachael Hobbs      | 173 |\n| 125d87d5-a36a-4f4e-865c-3122386e88ca     | Dale Berry         | 172 |\n| cfefbf12-9a5a-4d61-a708-d92f785af097     | Julie Taylor       | 168 |\n| 3f1fc492-e8ed-4840-97a0-a56592fdc1d9     | Yvonne Watson      | 167 |\n| 3810f8e6-9278-4c26-9be0-d6d6c35fe477     | Ashley Mcdaniel    | 166 |\n| ff29ece6-95da-4800-acd2-b14950a339dd     | Melissa Sanders    | 162 |\n| a7cebb21-0f26-4834-8a09-e3269b21a77b     | Emma Mitchell      | 161 |\n| 4acffd44-9d77-4c09-afdb-e7f93ee5518b     | Jennifer Richardson| 160 |\n| a57c96be-0b7a-41c6-bd9a-9330e20c497a     | Jessica Richard    | 159 |\n| d9464bcd-0a19-4058-8fc1-bea843e6c339     | Brittany Brown     | 158 |\n| 7d0a9ece-1d73-43ea-98e7-8bbe21e890ec     | Anthony Murillo    | 156 |\n| 2a26f327-c9ef-40f4-bb8c-c809417caad1     | Danny Walker       | 156 |\n| 890861ac-5e77-4568-aaff-807b37e6f872     | Caitlyn Hill       | 155 |\n| 143944c0-b4d0-48f7-ac1f-6ffaeff64a70     | Lydia Khan         | 155 |\n| 827eed18-8ab1-4e5d-ab00-5d8ac9bb168b     | Larry Ward         | 155 |\n| 6b9cd81e-126c-4c53-b6b5-575d78951256     | Andrea Randall      | 155 |\n| 69731d27-9caa-46cf-8933-d01e29b20043     | Jacqueline Pineda  | 154 |\n| 9aaa8391-995f-4006-8413-c590098fc46a     | Joshua Mann        | 154 |\n| b4cc95b0-6dbf-4264-a3ef-43fbbadf652a     | Devin Clayton      | 154 |\n| af16d888-ff4c-4c16-a2f8-9e2a3a9677c7     | Jeffrey Gutierrez  | 153 |\n| 4b8b181e-668e-45d4-a8e3-7180a41cf064     | Martin Barnes      | 152 |\n| bbe9e834-7071-42d6-8970-aa7301b72ec2     | Michael Cobb       | 152 |\n| fa08fd03-3569-400d-9d63-e8ae15712195     | Cody Gonzalez      | 152 |\n| 013b644d-5645-44bd-8ca3-d7d254b2ba18     | Keith Cook         | 151 |\n| 18b69140-479d-44b6-8369-04a49414f975     | Pamela Lane        | 151 |\n| 50a2d1c4-d788-4498-a6f7-dd75d4db588f     | Stephanie Love     | 151 |\n\n**Total customers meeting the criterion:** **69**\n\n**Definition used**  \n- *Empty orders* (orders with a $0 total and no items) are excluded from the count, as specified by the \u201c[empty_orders]\u201d rule. This was implemented by filtering `order_total > 0` before aggregating orders per customer.  \n\nAll figures are derived directly from the query results on the warehouse."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "customer_name",
+          "count_star()"
+        ],
+        "rows": [
+          [
+            "Allison Oliver",
+            207
+          ],
+          [
+            "Karina Thompson",
+            196
+          ],
+          [
+            "Pamela Lane",
+            151
+          ],
+          [
+            "Lydia Khan",
+            155
+          ],
+          [
+            "Keith Cook",
+            151
+          ],
+          [
+            "Dana Smith",
+            182
+          ],
+          [
+            "Ashley Mcdaniel",
+            166
+          ],
+          [
+            "Janet Robles",
+            211
+          ],
+          [
+            "Madison Davis",
+            176
+          ],
+          [
+            "Michael Williams",
+            222
+          ],
+          [
+            "Amy Wolf",
+            218
+          ],
+          [
+            "Brittany Johnson",
+            218
+          ],
+          [
+            "Kristi Keller",
+            177
+          ],
+          [
+            "Ray Mitchell",
+            179
+          ],
+          [
+            "Cody Gonzalez",
+            152
+          ],
+          [
+            "Brittany Brown",
+            158
+          ],
+          [
+            "Jonathan Anderson",
+            187
+          ],
+          [
+            "Martin Barnes",
+            152
+          ],
+          [
+            "Dylan Lopez",
+            203
+          ],
+          [
+            "Jessica Lewis",
+            189
+          ],
+          [
+            "Stephanie Quinn",
+            204
+          ],
+          [
+            "Alex Taylor",
+            174
+          ],
+          [
+            "Nicole Jackson",
+            187
+          ],
+          [
+            "Jessica Richard",
+            159
+          ],
+          [
+            "Tyrone Ryan",
+            199
+          ],
+          [
+            "Kristin Mcintyre",
+            196
+          ],
+          [
+            "Andrea Randall",
+            155
+          ],
+          [
+            "Andrew Serrano",
+            195
+          ],
+          [
+            "Angela James",
+            194
+          ],
+          [
+            "Emma Mitchell",
+            161
+          ],
+          [
+            "Anthony Murillo",
+            156
+          ],
+          [
+            "James Gardner",
+            189
+          ],
+          [
+            "Michael Mendoza",
+            182
+          ],
+          [
+            "Melissa Sanders",
+            162
+          ],
+          [
+            "Joy Lam",
+            226
+          ],
+          [
+            "Scott Thompson",
+            221
+          ],
+          [
+            "Donald Thomas",
+            177
+          ],
+          [
+            "Michael Cobb",
+            152
+          ],
+          [
+            "Connie Harrison",
+            190
+          ],
+          [
+            "Russell Mitchell",
+            176
+          ],
+          [
+            "Yvonne Watson",
+            167
+          ],
+          [
+            "Dale Berry",
+            172
+          ],
+          [
+            "Aaron Williams",
+            177
+          ],
+          [
+            "David Mann",
+            183
+          ],
+          [
+            "Susan Castillo",
+            201
+          ],
+          [
+            "Jasmine Murray",
+            226
+          ],
+          [
+            "Stephanie Love",
+            151
+          ],
+          [
+            "Tracy Gibbs",
+            185
+          ],
+          [
+            "Christopher Kim",
+            203
+          ],
+          [
+            "Devin Clayton",
+            154
+          ],
+          [
+            "Joshua Mann",
+            154
+          ],
+          [
+            "Jeffrey Gutierrez",
+            153
+          ],
+          [
+            "John Marshall",
+            195
+          ],
+          [
+            "Derek Smith",
+            213
+          ],
+          [
+            "Sean Koch",
+            186
+          ],
+          [
+            "Jennifer Richardson",
+            160
+          ],
+          [
+            "Caitlyn Hill",
+            155
+          ],
+          [
+            "Alicia Huerta",
+            187
+          ],
+          [
+            "Jacqueline Pineda",
+            154
+          ],
+          [
+            "Melissa Lopez",
+            231
+          ],
+          [
+            "Alexander Burke",
+            207
+          ],
+          [
+            "Larry Ward",
+            155
+          ],
+          [
+            "Michael Acosta",
+            189
+          ],
+          [
+            "Rachael Hobbs",
+            173
+          ],
+          [
+            "Julie Taylor",
+            168
+          ],
+          [
+            "Danny Walker",
+            156
+          ],
+          [
+            "Shelly Benitez",
+            175
+          ],
+          [
+            "Joseph Mcintyre",
+            186
+          ],
+          [
+            "Kelly Singh",
+            217
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t04",
+      "run": 1,
+      "error": false,
+      "passed": true,
+      "reason": "all 69 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Customers with more than 150 orders (order_total\u202f>\u202f0) and their order counts:",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "customer_id",
+            "customer_name",
+            "order_count"
+          ],
+          "rows": [
+            [
+              "3483e39a-260f-4974-9366-50c2d833307f",
+              "Melissa Lopez",
+              231
+            ],
+            [
+              "2609004e-90a8-450e-98f3-5ebc16841cd5",
+              "Joy Lam",
+              226
+            ],
+            [
+              "d47a83f3-a765-4a20-b40c-e0993cf00e4f",
+              "Jasmine Murray",
+              226
+            ],
+            [
+              "9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb",
+              "Michael Williams",
+              222
+            ],
+            [
+              "9bac4be0-d703-4f1d-a088-1bdb362d3246",
+              "Scott Thompson",
+              221
+            ],
+            [
+              "b4413ac0-2fc9-4c91-b188-71c109d9be8f",
+              "Amy Wolf",
+              218
+            ],
+            [
+              "cc1816db-c3dd-4c16-8ea7-18fe313472b9",
+              "Brittany Johnson",
+              218
+            ],
+            [
+              "847d46dd-9721-4351-8bef-5c2292b57d6f",
+              "Kelly Singh",
+              217
+            ],
+            [
+              "d31efffd-fdc4-4168-ac26-83b67a6c5c47",
+              "Derek Smith",
+              213
+            ],
+            [
+              "710200a9-2c6c-4f21-b3f1-3ed6aa684fa2",
+              "Janet Robles",
+              211
+            ],
+            [
+              "5261268c-aa94-438a-921a-05efc0d414ac",
+              "Allison Oliver",
+              207
+            ],
+            [
+              "66983396-cb40-4613-8d6d-306b8f9ca5c4",
+              "Alexander Burke",
+              207
+            ],
+            [
+              "0872893c-bf01-4853-b91f-a1cc0263fedf",
+              "Stephanie Quinn",
+              204
+            ],
+            [
+              "d6de888a-0aee-4f77-a7d4-daba8f0da415",
+              "Christopher Kim",
+              203
+            ],
+            [
+              "84ee8f13-e5a2-4988-8f65-daa65801c5d1",
+              "Dylan Lopez",
+              203
+            ],
+            [
+              "4dc2aa9c-8633-4861-b795-5b285cf76a1f",
+              "Susan Castillo",
+              201
+            ],
+            [
+              "6faa20a4-1e8f-43a8-9a45-33ae5f675190",
+              "Tyrone Ryan",
+              199
+            ],
+            [
+              "5fccc95a-c30f-4525-a4a6-43861baae99a",
+              "Karina Thompson",
+              196
+            ],
+            [
+              "848485f0-198f-4efa-8335-707db71a7434",
+              "Kristin Mcintyre",
+              196
+            ],
+            [
+              "132425e2-d22d-43aa-a372-e3d9bfd77f8c",
+              "John Marshall",
+              195
+            ],
+            [
+              "ff4e2ef5-4f72-41f4-90ea-4f40665b9f5b",
+              "Andrew Serrano",
+              195
+            ],
+            [
+              "c6fb82d9-b6e6-445a-a3d3-0158405a9d16",
+              "Angela James",
+              194
+            ],
+            [
+              "0000bd8e-496c-42aa-9430-fea7f9bd6a96",
+              "Connie Harrison",
+              190
+            ],
+            [
+              "e77008c8-b7e1-4bb6-93d8-8383d6385531",
+              "Michael Acosta",
+              189
+            ],
+            [
+              "be6fcaa5-9911-4bb6-b97c-47eb53c88b32",
+              "James Gardner",
+              189
+            ],
+            [
+              "0d2974c5-d4de-4163-bf27-73d86a77b048",
+              "Jessica Lewis",
+              189
+            ],
+            [
+              "34a9dd73-95d0-45d9-a3fb-636e4e080a6c",
+              "Jonathan Anderson",
+              187
+            ],
+            [
+              "3c7a4cde-d92b-4d90-a731-9c0461ae8c90",
+              "Nicole Jackson",
+              187
+            ],
+            [
+              "84f816bd-12e2-4633-a419-fc80705977e6",
+              "Alicia Huerta",
+              187
+            ],
+            [
+              "b0da7a9b-77d7-407d-8506-51705503fa05",
+              "Sean Koch",
+              186
+            ],
+            [
+              "5bbca380-854e-47a4-ae5c-fd631650a115",
+              "Joseph Mcintyre",
+              186
+            ],
+            [
+              "5d59a09d-7696-4e1b-a171-abe3b79fff2d",
+              "Tracy Gibbs",
+              185
+            ],
+            [
+              "8ebb4b7d-ed19-43be-a647-6c3a9a6a166a",
+              "David Mann",
+              183
+            ],
+            [
+              "2660b7ac-6c46-4392-8ddc-26194c532341",
+              "Michael Mendoza",
+              182
+            ],
+            [
+              "fdd86eaf-7a5b-4598-9a08-6f4f207743bb",
+              "Dana Smith",
+              182
+            ],
+            [
+              "a311b0c8-1b63-4405-8097-09a984512389",
+              "Ray Mitchell",
+              179
+            ],
+            [
+              "438005c2-dd1d-48aa-8bfd-7fb06851b5f8",
+              "Kristi Keller",
+              177
+            ],
+            [
+              "adf0d9db-c6a0-4226-a93f-30482ccd9d28",
+              "Donald Thomas",
+              177
+            ],
+            [
+              "861181e6-5d97-48a8-bbe4-226caa976140",
+              "Aaron Williams",
+              177
+            ],
+            [
+              "a5781cf5-d32e-4370-b0f8-4f229bc0efa4",
+              "Madison Davis",
+              176
+            ],
+            [
+              "2480125c-2d37-405c-96b9-ca32b2c75b33",
+              "Russell Mitchell",
+              176
+            ],
+            [
+              "1076f00e-5dd1-41d1-b2a5-0c59e18a5310",
+              "Shelly Benitez",
+              175
+            ],
+            [
+              "b0cab1cc-6689-4922-a78f-5c6e1c458cd1",
+              "Alex Taylor",
+              174
+            ],
+            [
+              "ead66f31-3437-42c5-9145-8281898ce326",
+              "Rachael Hobbs",
+              173
+            ],
+            [
+              "125d87d5-a36a-4e4e-865c-3122386e88ca",
+              "Dale Berry",
+              172
+            ],
+            [
+              "cfefbf12-9a5a-4d61-a708-d92f785af097",
+              "Julie Taylor",
+              168
+            ],
+            [
+              "3f1fc492-e8ed-4840-97a0-a56592fdc1d9",
+              "Yvonne Watson",
+              167
+            ],
+            [
+              "3810f8e6-9278-4c26-9be0-d6d6c35fe477",
+              "Ashley Mcdaniel",
+              166
+            ],
+            [
+              "ff29ece6-95da-4800-acd2-b14950a339dd",
+              "Melissa Sanders",
+              162
+            ],
+            [
+              "a7cebb21-0f26-4834-8a09-e3269b21a77b",
+              "Emma Mitchell",
+              161
+            ],
+            [
+              "4acffd44-9d77-4c09-afdb-e7f93ee5518b",
+              "Jennifer Richardson",
+              160
+            ],
+            [
+              "a57c96be-0b7a-41c6-bd9a-9330e20c497a",
+              "Jessica Richard",
+              159
+            ],
+            [
+              "d9464bcd-0a19-4058-8fc1-bea843e6c339",
+              "Brittany Brown",
+              158
+            ],
+            [
+              "7d0a9ece-1d73-43ea-98e7-8bbe21e890ec",
+              "Anthony Murillo",
+              156
+            ],
+            [
+              "2a26f327-c9ef-40f4-bb8c-c809417caad1",
+              "Danny Walker",
+              156
+            ],
+            [
+              "890861ac-5e77-4568-aaff-807b37e6f872",
+              "Caitlyn Hill",
+              155
+            ],
+            [
+              "143944c0-b4d0-48f7-ac1f-6ffaeff64a70",
+              "Lydia Khan",
+              155
+            ],
+            [
+              "6b9cd81e-126c-4c53-b6b5-575d78951256",
+              "Andrea Randall",
+              155
+            ],
+            [
+              "827eed18-8ab1-4e5d-ab00-5d8ac9bb168b",
+              "Larry Ward",
+              155
+            ],
+            [
+              "9aaa8391-995f-4006-8413-c590098fc46a",
+              "Joshua Mann",
+              154
+            ],
+            [
+              "b4cc95b0-6dbf-4264-a3ef-43fbbadf652a",
+              "Devin Clayton",
+              154
+            ],
+            [
+              "69731d27-9caa-46cf-8933-d01e29b20043",
+              "Jacqueline Pineda",
+              154
+            ],
+            [
+              "af16d888-ff4c-4c16-a2f8-9e2a3a9677c7",
+              "Jeffrey Gutierrez",
+              153
+            ],
+            [
+              "fa08fd03-3569-400d-9d63-e8ae15712195",
+              "Cody Gonzalez",
+              152
+            ],
+            [
+              "bbe9e834-7071-42d6-8970-aa7301b72ec2",
+              "Michael Cobb",
+              152
+            ],
+            [
+              "4b8b181e-668e-45d4-a8e3-7180a41cf064",
+              "Martin Barnes",
+              152
+            ],
+            [
+              "50a2d1c4-d788-4498-a6f7-dd75d4db588f",
+              "Stephanie Love",
+              151
+            ],
+            [
+              "18b69140-479d-44b6-8369-04a49414f975",
+              "Pamela Lane",
+              151
+            ],
+            [
+              "013b644d-5645-44bd-8ca3-d7d254b2ba18",
+              "Keith Cook",
+              151
+            ]
+          ]
+        },
+        "unit": "orders",
+        "sql": "SELECT o.customer_id, c.customer_name, COUNT(*) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY o.customer_id, c.customer_name\nHAVING COUNT(*) > 150\nORDER BY order_count DESC;",
+        "definition_used": "Count of orders per customer where order_total > 0 (excluding empty orders)",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 19744,
+      "output_tokens": 8051,
+      "sql_calls": 2,
+      "latency_ms": 5092,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT o.customer_id, c.customer_name, COUNT(*) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY o.customer_id, c.customer_name\nHAVING COUNT(*) > 150\nORDER BY order_count DESC",
+          "row_count": 69,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 9,
+          "preview": "customer_id,customer_name,order_count\n3483e39a-260f-4974-9366-50c2d833307f,Melissa Lopez,231\n2609004e-90a8-450e-98f3-5ebc16841cd5,Joy Lam,226\nd47a83f3-a765-4a20-b40c-e0993cf00e4f,Jasmine Murray,226\n9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb,Michael Williams,222\n9bac4be0-d703-4f1d-a088-1bdb362d3246,Scott Thompson,221\nb4413ac0-2fc9-4c91-b188-71c109d9be8f,Amy Wolf,218\ncc1816db-c3dd-4c16-8ea7-18fe313472b9,Brittany Johnson,218\n847d46dd-9721-4351-8bef-5c2292b57d6f,Kelly Singh,217\nd31efffd-fdc4-4168-ac26-83b67a6c5c47,Derek Smith,213\n710200a9-2c6c-4f21-b3f1-3ed6aa684fa2,Janet Robles,211\n5261268c-aa94-438a-921a-05efc0d414ac,Allison Oliver,207\n66983396-cb40-4613-8d6d-306b8f9ca5c4,Alexander Burke,207\n0872893c-bf01-4853-b91f-a1cc0263fedf,Stephanie Quinn,204\nd6de888a-0aee-4f77-a7d4-daba8f0da415,Christopher Kim,203\n84ee8f13-e5a2-4988-8f65-daa65801c5d1,Dylan Lopez,203\n4dc2aa9c-8633-4861-b795-5b285cf76a1f,Susan Castillo,201\n6faa20a4-1e8f-43a8-9a45-33ae5f675190,Tyrone Ryan,199\n5fccc95a-c30f-4525-a4a6-43861baae99a,Karina Thompson,196\n848485f0-198f-4efa-8335-707db71a7434,Kristin Mcintyre,196\n132425e2-d22d-43aa-a372-e3d9bfd77f8c,John Marshall,195\nff4e2ef5-4f72-41f4-90ea-4f40665b9f5b,Andrew Serrano,195\nc6fb82d9-b6e6-445a-a3d3-0158405a9d16,Angela James,194\n0000bd8e-496c-42aa-9430-fea7f9bd6a96,Connie Harrison,190\ne77008c8-b7e1-4bb6-93d8-8383d6385531,Michael Acosta,189\nbe6fcaa5-9911-4bb6-b97c-47eb53c88b32,James Gardner,189\n0d2974c5-d4de-4163-bf27-73d86a77b048,Jessica Lewis,189\n34a9dd73-95d0-45d9-a3fb-636e4e080a6c,Jonathan Anderson,187\n3c7a4cde-d92b-4d90-a731-9c0461ae8c90,Nicole Jackson,187\n84f816bd-12e2-4633-a419-fc80705977e6,Alicia Huerta,187\nb0da7a9b-77d7-407d-8506-51705503fa05,Sean Koch,186\n5bbca380-854e-47a4-ae5c-fd631650a115,Joseph Mcintyre,186\n5d59a09d-7696-4e1b-a171-abe3b79fff2d,Tracy Gibbs,185\n8ebb4b7d-ed19-43be-a647-6c3a9a6a166a,David Mann,183\n2660b7ac-6c46-4392-8ddc-26194c532341,Michael Mendoza,182\nfdd86eaf-7a5b-4598-9a08-6f4f207743bb,Dana Smith,182\na311b0c8-1b63-4405-8097-09a984512389,Ray Mitchell,179\n438005c2-dd1d-48aa-8bfd-7fb06851b5f8,Kristi Keller,177\nadf0d9db-c6a0-4226-a93f-30482ccd9d28,Donald Thomas,177\n861181e6-5d97-48a8-bbe4-226caa976140,Aaron Williams,177\na5781cf5-d32e-4370-b0f8-4f229bc0efa4,Madison Davis,176\n2480125c-2d37-405c-96b9-ca32b2c75b33,Russell Mitchell,176\n1076f00e-5dd1-41d1-b2a5-0c59e18a5310,Shelly Benitez,175\nb0cab1cc-6689-4922-a78f-5c6e1c458cd1,Alex Taylor,174\nead66f31-3437-42c5-9145-8281898ce326,Rachael Hobbs,173\n125d87d5-a36a-4f4e-865c-3122386e88ca,Dale Berry,172\ncfefbf12-9a5a-4d61-a708-d92f785af097,Julie Taylor,168\n3f1fc492-e8ed-4840-97a0-a56592fdc1d9,Yvonne Watson,167\n3810f8e6-9278-4c26-9be0-d6d6c35fe477,Ashley Mcdaniel,166\nff29ece6-95da-4800-acd2-b14950a339dd,Melissa Sanders,162\na7cebb21-0f26-4834-8a09-e3269b21a77b,Emma Mitchell,161\n4acffd44-9d77-4c09-afdb-e7f93ee5518b,Jennifer Richardson,160\na57c96be-0b7a-41c6-bd9a-9330e20c497a,Jessica Richard,159\nd9464bcd-0a19-4058-8fc1-bea843e6c339,Brittany Brown,158\n7d0a9ece-1d73-43ea-98e7-8bbe21e890ec,Anthony Murillo,156\n2a26f327-c9ef-40f4-bb8c-c809417caad1,Danny Walker,156\n890861ac-5e77-4568-aaff-807b37e6f872,Caitlyn Hill,155\n143944c0-b4d0-48f7-ac1f-6ffaeff64a70,Lydia Khan,155\n6b9cd81e-126c-4c53-b6b5-575d78951256,Andrea Randall,155\n827eed18-8ab1-4e5d-ab00-5d8ac9bb168b,Larry Ward,155\n9aaa8391-995f-4006-8413-c590098fc46a,Joshua Mann,154\nb4cc95b0-6dbf-4264-a3ef-43fbbadf652a,Devin Clayton,154\n69731d27-9caa-46cf-8933-d01e29b20043,Jacqueline Pineda,154\naf16d888-ff4c-4c16-a2f8-9e2a3a9677c7,Jeffrey Gutierrez,153\nfa08fd03-3569-400d-9d63-e8ae15712195,Cody Gonzalez,152\nbbe9e834-7071-42d6-8970-aa7301b72ec2,Michael Cobb,152\n4b8b181e-668e-45d4-a8e3-7180a41cf064,Martin Barnes,152\n50a2d1c4-d788-4498-a6f7-dd75d4db588f,Stephanie Love,151\n18b69140-479d-44b6-8369-04a49414f975,Pamela Lane,151\n013b644d-5645-44bd-8ca3-d7d254b2ba18,Keith Cook,151"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) FROM (\nSELECT o.customer_id\nFROM main.orders o\nWHERE o.order_total > 0\nGROUP BY o.customer_id\nHAVING COUNT(*) > 150\n) sub",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 3,
+          "preview": "count_star()\n69"
+        },
+        {
+          "turn": 2,
+          "type": "text",
+          "text": "**Definition used**  \n- *Empty orders*: Orders with a $0 total and no items are excluded from counts. In the query this was enforced with `order_total > 0` (the same rule that defines **[empty_orders]**).\n\n**Customers with more than\u202f150 orders (excluding empty orders)**  \n\n| customer_id | customer_name | order_count |\n|------------|----------------|------------|\n| 3483e39a-260f-4974-9366-50c2d833307f | Melissa Lopez | 231 |\n| 2609004e-90a8-450e-98f3-5ebc16841cd5 | Joy Lam | 226 |\n| d47a83f3-a765-4a20-b40c-e0993cf00e4f | Jasmine Murray | 226 |\n| 9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb | Michael Williams | 222 |\n| 9bac4be0-d703-4f1d-a088-1bdb362d3246 | Scott Thompson | 221 |\n| b4413ac0-2fc9-4c91-b188-71c109d9be8f | Amy Wolf | 218 |\n| cc1816db-c3dd-4c16-8ea7-18fe313472b9 | Brittany Johnson | 218 |\n| 847d46dd-9721-4351-8bef-5c2292b57d6f | Kelly Singh | 217 |\n| d31efffd-fdc4-4168-ac26-83b67a6c5c47 | Derek Smith | 213 |\n| 710200a9-2c6c-4f21-b3f1-3ed6aa684fa2 | Janet Robles | 211 |\n| 5261268c-aa94-438a-921a-05efc0d414ac | Allison Oliver | 207 |\n| 66983396-cb40-4613-8d6d-306b8f9ca5c4 | Alexander Burke | 207 |\n| 0872893c-bf01-4853-b91f-a1cc0263fedf | Stephanie Quinn | 204 |\n| d6de888a-0aee-4f77-a7d4-daba8f0da415 | Christopher Kim | 203 |\n| 84ee8f13-e5a2-4988-8f65-daa65801c5d1 | Dylan Lopez | 203 |\n| 4dc2aa9c-8633-4861-b795-5b285cf76a1f | Susan Castillo | 201 |\n| 6faa20a4-1e8f-43a8-9a45-33ae5f675190 | Tyrone Ryan | 199 |\n| 5fccc95a-c30f-4525-a4a6-43861baae99a | Karina Thompson | 196 |\n| 848485f0-198f-4efa-8335-707db71a7434 | Kristin Mcintyre | 196 |\n| 132425e2-d22d-43aa-a372-e3d9bfd77f8c | John Marshall | 195 |\n| ff4e2ef5-4f72-41f4-90ea-4f40665b9f5b | Andrew Serrano | 195 |\n| c6fb82d9-b6e6-445a-a3d3-0158405a9d16 | Angela James | 194 |\n| 0000bd8e-496c-42aa-9430-fea7f9bd6a96 | Connie Harrison | 190 |\n| e77008c8-b7e1-4bb6-93d8-8383d6385531 | Michael Acosta | 189 |\n| be6fcaa5-9911-4bb6-b97c-47eb53c88b32 | James Gardner | 189 |\n| 0d2974c5-d4de-4163-bf27-73d86a77b048 | Jessica Lewis | 189 |\n| 34a9dd73-95d0-45d9-a3fb-636e4e080a6c | Jonathan Anderson | 187 |\n| 3c7a4cde-d92b-4d90-a731-9c0461ae8c90 | Nicole Jackson | 187 |\n| 84f816bd-12e2-4633-a419-fc80705977e6 | Alicia Huerta | 187 |\n| b0da7a9b-77d7-407d-8506-51705503fa05 | Sean Koch | 186 |\n| 5bbca380-854e-47a4-ae5c-fd631650a115 | Joseph Mcintyre | 186 |\n| 5d59a09d-7696-4e1b-a171-abe3b79fff2d | Tracy Gibbs | 185 |\n| 8ebb4b7d-ed19-43be-a647-6c3a9a6a166a | David Mann | 183 |\n| 2660b7ac-6c46-4392-8ddc-26194c532341 | Michael Mendoza | 182 |\n| fdd86eaf-7a5b-4598-9a08-6f4f207743bb | Dana Smith | 182 |\n| a311b0c8-1b63-4405-8097-09a984512389 | Ray Mitchell | 179 |\n| 438005c2-dd1d-48aa-8bfd-7fb06851b5f8 | Kristi Keller | 177 |\n| adf0d9db-c6a0-4226-a93f-30482ccd9d28 | Donald Thomas | 177 |\n| 861181e6-5d97-48a8-bbe4-226caa976140 | Aaron Williams | 177 |\n| a5781cf5-d32e-4370-b0f8-4f229bc0efa4 | Madison Davis | 176 |\n| 2480125c-2d37-405c-96b9-ca32b2c75b33 | Russell Mitchell | 176 |\n| 1076f00e-5dd1-41d1-b2a5-0c59e18a5310 | Shelly Benitez | 175 |\n| b0cab1cc-6689-4922-a78f-5c6e1c458cd1 | Alex Taylor | 174 |\n| ead66f31-3437-42c5-9145-8281898ce326 | Rachael Hobbs | 173 |\n| 125d87d5-a36a-4f4e-865c-3122386e88ca | Dale Berry | 172 |\n| cfefbf12-9a5a-4d61-a708-d92f785af097 | Julie Taylor | 168 |\n| 3f1fc492-e8ed-4840-97a0-a56592fdc1d9 | Yvonne Watson | 167 |\n| 3810f8e6-9278-4c26-9be0-d6d6c35fe477 | Ashley Mcdaniel | 166 |\n| ff29ece6-95da-4800-acd2-b14950a339dd | Melissa Sanders | 162 |\n| a7cebb21-0f26-4834-8a09-e3269b21a77b | Emma Mitchell | 161 |\n| 4acffd44-9d77-4c09-afdb-e7f93ee5518b | Jennifer Richardson | 160 |\n| a57c96be-0b7a-41c6-bd9a-9330e20c497a | Jessica Richard | 159 |\n| d9464bcd-0a19-4058-8fc1-bea843e6c339 | Brittany Brown | 158 |\n| 7d0a9ece-1d73-43ea-98e7-8bbe21e890ec | Anthony Murillo | 156 |\n| 2a26f327-c9ef-40f4-bb8c-c809417caad1 | Danny Walker | 156 |\n| 890861ac-5e77-4568-aaff-807b37e6f872 | Caitlyn Hill | 155 |\n| 143944c0-b4d0-48f7-ac1f-6ffaeff64a70 | Lydia Khan | 155 |\n| 6b9cd81e-126c-4c43-b6b5-575d78951256 | Andrea Randall | 155 |\n| 827eed18-8ab1-4e5d-ab00-5d8ac9bb168b | Larry Ward | 155 |\n| 9aaa8391-995f-4006-8413-c590098fc46a | Joshua Mann | 154 |\n| b4cc95b0-6dbf-4264-a3ef-43fbbadf652a | Devin Clayton | 154 |\n| 69731d27-9caa-46cf-8933-d01e29b20043 | Jacqueline Pineda | 154 |\n| af16d888-ff4c-4c16-a2f8-9e2a3a9677c7 | Jeffrey Gutierrez | 153 |\n| fa08fd03-3569-400d-9d63-e8ae15712195 | Cody Gonzalez | 152 |\n| bbe9e834-7071-42d6-8970-aa7301b72ec2 | Michael Cobb | 152 |\n| 4b8b181e-668e-45d4-a8e3-7180a41cf064 | Martin Barnes | 152 |\n| 50a2d1c4-d788-4498-a6f7-dd75d4db588f | Stephanie Love | 151 |\n| 18b69140-479d-44b6-8369-04a49414f975 | Pamela Lane | 151 |\n| 013b644d-5645-44bd-8ca3-d7d254b2ba18 | Keith Cook | 151 |\n\n**Total customers meeting the criterion:** 69  \n\nThese counts reflect only orders with a positive total amount, in line with the **[empty_orders]** definition."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "customer_name",
+          "count_star()"
+        ],
+        "rows": [
+          [
+            "Allison Oliver",
+            207
+          ],
+          [
+            "Karina Thompson",
+            196
+          ],
+          [
+            "Pamela Lane",
+            151
+          ],
+          [
+            "Lydia Khan",
+            155
+          ],
+          [
+            "Keith Cook",
+            151
+          ],
+          [
+            "Dana Smith",
+            182
+          ],
+          [
+            "Ashley Mcdaniel",
+            166
+          ],
+          [
+            "Janet Robles",
+            211
+          ],
+          [
+            "Madison Davis",
+            176
+          ],
+          [
+            "Michael Williams",
+            222
+          ],
+          [
+            "Amy Wolf",
+            218
+          ],
+          [
+            "Brittany Johnson",
+            218
+          ],
+          [
+            "Kristi Keller",
+            177
+          ],
+          [
+            "Ray Mitchell",
+            179
+          ],
+          [
+            "Cody Gonzalez",
+            152
+          ],
+          [
+            "Brittany Brown",
+            158
+          ],
+          [
+            "Jonathan Anderson",
+            187
+          ],
+          [
+            "Martin Barnes",
+            152
+          ],
+          [
+            "Dylan Lopez",
+            203
+          ],
+          [
+            "Jessica Lewis",
+            189
+          ],
+          [
+            "Stephanie Quinn",
+            204
+          ],
+          [
+            "Alex Taylor",
+            174
+          ],
+          [
+            "Nicole Jackson",
+            187
+          ],
+          [
+            "Jessica Richard",
+            159
+          ],
+          [
+            "Tyrone Ryan",
+            199
+          ],
+          [
+            "Kristin Mcintyre",
+            196
+          ],
+          [
+            "Andrea Randall",
+            155
+          ],
+          [
+            "Andrew Serrano",
+            195
+          ],
+          [
+            "Angela James",
+            194
+          ],
+          [
+            "Emma Mitchell",
+            161
+          ],
+          [
+            "Anthony Murillo",
+            156
+          ],
+          [
+            "James Gardner",
+            189
+          ],
+          [
+            "Michael Mendoza",
+            182
+          ],
+          [
+            "Melissa Sanders",
+            162
+          ],
+          [
+            "Joy Lam",
+            226
+          ],
+          [
+            "Scott Thompson",
+            221
+          ],
+          [
+            "Donald Thomas",
+            177
+          ],
+          [
+            "Michael Cobb",
+            152
+          ],
+          [
+            "Connie Harrison",
+            190
+          ],
+          [
+            "Russell Mitchell",
+            176
+          ],
+          [
+            "Yvonne Watson",
+            167
+          ],
+          [
+            "Dale Berry",
+            172
+          ],
+          [
+            "Aaron Williams",
+            177
+          ],
+          [
+            "David Mann",
+            183
+          ],
+          [
+            "Susan Castillo",
+            201
+          ],
+          [
+            "Jasmine Murray",
+            226
+          ],
+          [
+            "Stephanie Love",
+            151
+          ],
+          [
+            "Tracy Gibbs",
+            185
+          ],
+          [
+            "Christopher Kim",
+            203
+          ],
+          [
+            "Devin Clayton",
+            154
+          ],
+          [
+            "Joshua Mann",
+            154
+          ],
+          [
+            "Jeffrey Gutierrez",
+            153
+          ],
+          [
+            "John Marshall",
+            195
+          ],
+          [
+            "Derek Smith",
+            213
+          ],
+          [
+            "Sean Koch",
+            186
+          ],
+          [
+            "Jennifer Richardson",
+            160
+          ],
+          [
+            "Caitlyn Hill",
+            155
+          ],
+          [
+            "Alicia Huerta",
+            187
+          ],
+          [
+            "Jacqueline Pineda",
+            154
+          ],
+          [
+            "Melissa Lopez",
+            231
+          ],
+          [
+            "Alexander Burke",
+            207
+          ],
+          [
+            "Larry Ward",
+            155
+          ],
+          [
+            "Michael Acosta",
+            189
+          ],
+          [
+            "Rachael Hobbs",
+            173
+          ],
+          [
+            "Julie Taylor",
+            168
+          ],
+          [
+            "Danny Walker",
+            156
+          ],
+          [
+            "Shelly Benitez",
+            175
+          ],
+          [
+            "Joseph Mcintyre",
+            186
+          ],
+          [
+            "Kelly Singh",
+            217
+          ]
+        ]
+      }
+    },
+    {
+      "id": "t04",
+      "run": 2,
+      "error": false,
+      "passed": true,
+      "reason": "all 69 rows match",
+      "rejections": 0,
+      "credit": 1.0,
+      "end_reason": "submitted",
+      "answer": {
+        "answer": "Customers with more than 150 orders and the number of orders they placed are listed below.",
+        "numeric_value": null,
+        "table": {
+          "columns": [
+            "customer_id",
+            "customer_name",
+            "order_count"
+          ],
+          "rows": [
+            [
+              "3483e39a-260f-4974-9366-50c2d833307f",
+              "Melissa Lopez",
+              231
+            ],
+            [
+              "d47a83f3-a765-4a20-b40c-e0993cf00e4f",
+              "Jasmine Murray",
+              226
+            ],
+            [
+              "2609004e-90a8-450e-98f3-5ebc16841cd5",
+              "Joy Lam",
+              226
+            ],
+            [
+              "9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb",
+              "Michael Williams",
+              222
+            ],
+            [
+              "9bac4be0-d703-4f1d-a088-1bdb362d3246",
+              "Scott Thompson",
+              221
+            ],
+            [
+              "b4413ac0-2fc9-4c91-b188-71c109d9be8f",
+              "Amy Wolf",
+              218
+            ],
+            [
+              "cc1816db-c3dd-4c16-8ea7-18fe313472b9",
+              "Brittany Johnson",
+              218
+            ],
+            [
+              "847d46dd-9721-4351-8bef-5c2292b57d6f",
+              "Kelly Singh",
+              217
+            ],
+            [
+              "d31efffd-fdc4-4168-ac26-83b67a6c5c47",
+              "Derek Smith",
+              213
+            ],
+            [
+              "710200a9-2c6c-4f21-b3f1-3ed6aa684fa2",
+              "Janet Robles",
+              211
+            ],
+            [
+              "66983396-cb40-4613-8d6d-306b8f9ca5c4",
+              "Alexander Burke",
+              207
+            ],
+            [
+              "5261268c-aa94-438a-921a-05efc0d414ac",
+              "Allison Oliver",
+              207
+            ],
+            [
+              "0872893c-bf01-4853-b91f-a1cc0263fedf",
+              "Stephanie Quinn",
+              204
+            ],
+            [
+              "84ee8f13-e5a2-4988-8f65-daa65801c5d1",
+              "Dylan Lopez",
+              203
+            ],
+            [
+              "d6de888a-0aee-4f77-a7d4-daba8f0da415",
+              "Christopher Kim",
+              203
+            ],
+            [
+              "4dc2aa9c-8633-4861-b795-5b285cf76a1f",
+              "Susan Castillo",
+              201
+            ],
+            [
+              "6faa20a4-1e8f-43a8-9a45-33ae5f675190",
+              "Tyrone Ryan",
+              199
+            ],
+            [
+              "848485f0-198f-4efa-8335-707db71a7434",
+              "Kristin Mcintyre",
+              196
+            ],
+            [
+              "5fccc95a-c30f-4525-a4a6-43861baae99a",
+              "Karina Thompson",
+              196
+            ],
+            [
+              "ff4e2ef5-4f72-41f4-90ea-4f40665b9f5b",
+              "Andrew Serrano",
+              195
+            ],
+            [
+              "132425e2-d22d-43aa-a372-e3d9bfd77f8c",
+              "John Marshall",
+              195
+            ],
+            [
+              "c6fb82d9-b6e6-445a-a3d3-0158405a9d16",
+              "Angela James",
+              194
+            ],
+            [
+              "0000bd8e-496c-42aa-9430-fea7f9bd6a96",
+              "Connie Harrison",
+              190
+            ],
+            [
+              "e77008c8-b7e1-4bb6-93d8-8383d6385531",
+              "Michael Acosta",
+              189
+            ],
+            [
+              "0d2974c5-d4de-4163-bf27-73d86a77b048",
+              "Jessica Lewis",
+              189
+            ],
+            [
+              "be6fcaa5-9911-4bb6-b97c-47eb53c88b32",
+              "James Gardner",
+              189
+            ],
+            [
+              "3c7a4cde-d92b-4d90-a731-9c0461ae8c90",
+              "Nicole Jackson",
+              187
+            ],
+            [
+              "34a9dd73-95d0-45d9-a3fb-636e4e080a6c",
+              "Jonathan Anderson",
+              187
+            ],
+            [
+              "84f816bd-12e2-4633-a419-fc80705977e6",
+              "Alicia Huerta",
+              187
+            ],
+            [
+              "5bbca380-854e-47a4-ae5c-fd631650a115",
+              "Joseph Mcintyre",
+              186
+            ],
+            [
+              "b0da7a9b-77d7-407d-8506-51705503fa05",
+              "Sean Koch",
+              186
+            ],
+            [
+              "5d59a09d-7696-4e1b-a171-abe3b79fff2d",
+              "Tracy Gibbs",
+              185
+            ],
+            [
+              "8ebb4b7d-ed19-43be-a647-6c3a9a6a166a",
+              "David Mann",
+              183
+            ],
+            [
+              "2660b7ac-6c46-4392-8ddc-26194c532341",
+              "Michael Mendoza",
+              182
+            ],
+            [
+              "fdd86eaf-7a5b-4598-9a08-6f4f207743bb",
+              "Dana Smith",
+              182
+            ],
+            [
+              "a311b0c8-1b63-4405-8097-09a984512389",
+              "Ray Mitchell",
+              179
+            ],
+            [
+              "861181e6-5d97-48a8-bbe4-226caa976140",
+              "Aaron Williams",
+              177
+            ],
+            [
+              "adf0d9db-c6a0-4226-a93f-30482ccd9d28",
+              "Donald Thomas",
+              177
+            ],
+            [
+              "438005c2-dd1d-48aa-8bfd-7fb06851b5f8",
+              "Kristi Keller",
+              177
+            ],
+            [
+              "2480125c-2d37-405c-96b9-ca32b2c75b33",
+              "Russell Mitchell",
+              176
+            ],
+            [
+              "a5781cf5-d32e-4370-b0f8-4f229bc0efa4",
+              "Madison Davis",
+              176
+            ],
+            [
+              "1076f00e-5dd1-41d1-b2a5-0c59e18a5310",
+              "Shelly Benitez",
+              175
+            ],
+            [
+              "b0cab1cc-6689-4922-a78f-5c6e1c458cd1",
+              "Alex Taylor",
+              174
+            ],
+            [
+              "ead66f31-3437-42c5-9145-8281898ce326",
+              "Rachael Hobbs",
+              173
+            ],
+            [
+              "125d87d5-a36a-4e4e-865c-3122386e88ca",
+              "Dale Berry",
+              172
+            ],
+            [
+              "cfefbf12-9a5a-4d61-a708-d92f785af097",
+              "Julie Taylor",
+              168
+            ],
+            [
+              "3f1fc492-e8ed-4840-97a0-a56592fdc1d9",
+              "Yvonne Watson",
+              167
+            ],
+            [
+              "3810f8e6-9278-4c26-9be0-d6d6c35fe477",
+              "Ashley Mcdaniel",
+              166
+            ],
+            [
+              "ff29ece6-95da-4800-acd2-b14950a339dd",
+              "Melissa Sanders",
+              162
+            ],
+            [
+              "a7cebb21-0f26-4834-8a09-e3269b21a77b",
+              "Emma Mitchell",
+              161
+            ],
+            [
+              "4acffd44-9d77-4c09-afdb-e7f93ee5518b",
+              "Jennifer Richardson",
+              160
+            ],
+            [
+              "a57c96be-0b7a-41c6-bd9a-9330e20c497a",
+              "Jessica Richard",
+              159
+            ],
+            [
+              "d9464bcd-0a19-4058-8fc1-bea843e6c339",
+              "Brittany Brown",
+              158
+            ],
+            [
+              "2a26f327-c9ef-40f4-bb8c-c809417caad1",
+              "Danny Walker",
+              156
+            ],
+            [
+              "7d0a9ece-1d73-43ea-98e7-8bbe21e890ec",
+              "Anthony Murillo",
+              156
+            ],
+            [
+              "890861ac-5e77-4568-aaff-807b37e6f872",
+              "Caitlyn Hill",
+              155
+            ],
+            [
+              "827eed18-8ab1-4e5d-ab00-5d8ac9bb168b",
+              "Larry Ward",
+              155
+            ],
+            [
+              "6b9cd81e-126c-4c53-b6b5-575d78951256",
+              "Andrea Randall",
+              155
+            ],
+            [
+              "143944c0-b4d0-48f7-ac1f-6ffaeff64a70",
+              "Lydia Khan",
+              155
+            ],
+            [
+              "69731d27-9caa-46cf-8933-d01e29b20043",
+              "Jacqueline Pineda",
+              154
+            ],
+            [
+              "b4cc95b0-6dbf-4264-a3ef-43fbbadf652a",
+              "Devin Clayton",
+              154
+            ],
+            [
+              "9aaa8391-995f-4006-8413-c590098fc46a",
+              "Joshua Mann",
+              154
+            ],
+            [
+              "af16d888-ff4c-4c16-a2f8-9e2a3a9677c7",
+              "Jeffrey Gutierrez",
+              153
+            ],
+            [
+              "bbe9e834-7071-42d6-8970-aa7301b72ec2",
+              "Michael Cobb",
+              152
+            ],
+            [
+              "fa08fd03-3569-400d-9d63-e8ae15712195",
+              "Cody Gonzalez",
+              152
+            ],
+            [
+              "4b8b181e-668e-45d4-a8e3-7180a41cf064",
+              "Martin Barnes",
+              152
+            ],
+            [
+              "50a2d1c4-d788-4498-a6f7-dd75d4db588f",
+              "Stephanie Love",
+              151
+            ],
+            [
+              "013b644d-5645-44bd-8ca3-d7d254b2ba18",
+              "Keith Cook",
+              151
+            ],
+            [
+              "18b69140-479d-44b6-8369-04a49414f975",
+              "Pamela Lane",
+              151
+            ]
+          ]
+        },
+        "unit": null,
+        "sql": "SELECT o.customer_id, c.customer_name, COUNT(*) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY o.customer_id, c.customer_name\nHAVING COUNT(*) > 150\nORDER BY order_count DESC;",
+        "definition_used": "Count of orders per customer where order_total > 0 (excluding empty orders as defined).",
+        "assumptions": [],
+        "status": "answered"
+      },
+      "model": "openai/gpt-oss-120b",
+      "provider": "Cerebras",
+      "system_prompt_sha": "75b4ed928b84",
+      "glossary_sha": "0170c82ab751",
+      "input_tokens": 30412,
+      "output_tokens": 5729,
+      "sql_calls": 3,
+      "latency_ms": 5184,
+      "steps": [
+        {
+          "turn": 0,
+          "type": "sql",
+          "sql": "SELECT customer_id, COUNT(*) AS order_count\nFROM main.orders\nWHERE order_total > 0\nGROUP BY customer_id\nHAVING COUNT(*) > 150\nORDER BY order_count DESC",
+          "row_count": 69,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "customer_id,order_count\n3483e39a-260f-4974-9366-50c2d833307f,231\nd47a83f3-a765-4a20-b40c-e0993cf00e4f,226\n2609004e-90a8-450e-98f3-5ebc16841cd5,226\n9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb,222\n9bac4be0-d703-4f1d-a088-1bdb362d3246,221\ncc1816db-c3dd-4c16-8ea7-18fe313472b9,218\nb4413ac0-2fc9-4c91-b188-71c109d9be8f,218\n847d46dd-9721-4351-8bef-5c2292b57d6f,217\nd31efffd-fdc4-4168-ac26-83b67a6c5c47,213\n710200a9-2c6c-4f21-b3f1-3ed6aa684fa2,211\n5261268c-aa94-438a-921a-05efc0d414ac,207\n66983396-cb40-4613-8d6d-306b8f9ca5c4,207\n0872893c-bf01-4853-b91f-a1cc0263fedf,204\nd6de888a-0aee-4f77-a7d4-daba8f0da415,203\n84ee8f13-e5a2-4988-8f65-daa65801c5d1,203\n4dc2aa9c-8633-4861-b795-5b285cf76a1f,201\n6faa20a4-1e8f-43a8-9a45-33ae5f675190,199\n848485f0-198f-4efa-8335-707db71a7434,196\n5fccc95a-c30f-4525-a4a6-43861baae99a,196\n132425e2-d22d-43aa-a372-e3d9bfd77f8c,195\nff4e2ef5-4f72-41f4-90ea-4f40665b9f5b,195\nc6fb82d9-b6e6-445a-a3d3-0158405a9d16,194\n0000bd8e-496c-42aa-9430-fea7f9bd6a96,190\nbe6fcaa5-9911-4bb6-b97c-47eb53c88b32,189\n0d2974c5-d4de-4163-bf27-73d86a77b048,189\ne77008c8-b7e1-4bb6-93d8-8383d6385531,189\n84f816bd-12e2-4633-a419-fc80705977e6,187\n34a9dd73-95d0-45d9-a3fb-636e4e080a6c,187\n3c7a4cde-d92b-4d90-a731-9c0461ae8c90,187\nb0da7a9b-77d7-407d-8506-51705503fa05,186\n5bbca380-854e-47a4-ae5c-fd631650a115,186\n5d59a09d-7696-4e1b-a171-abe3b79fff2d,185\n8ebb4b7d-ed19-43be-a647-6c3a9a6a166a,183\n2660b7ac-6c46-4392-8ddc-26194c532341,182\nfdd86eaf-7a5b-4598-9a08-6f4f207743bb,182\na311b0c8-1b63-4405-8097-09a984512389,179\n438005c2-dd1d-48aa-8bfd-7fb06851b5f8,177\n861181e6-5d97-48a8-bbe4-226caa976140,177\nadf0d9db-c6a0-4226-a93f-30482ccd9d28,177\n2480125c-2d37-405c-96b9-ca32b2c75b33,176\na5781cf5-d32e-4370-b0f8-4f229bc0efa4,176\n1076f00e-5dd1-41d1-b2a5-0c59e18a5310,175\nb0cab1cc-6689-4922-a78f-5c6e1c458cd1,174\nead66f31-3437-42c5-9145-8281898ce326,173\n125d87d5-a36a-4f4e-865c-3122386e88ca,172\ncfefbf12-9a5a-4d61-a708-d92f785af097,168\n3f1fc492-e8ed-4840-97a0-a56592fdc1d9,167\n3810f8e6-9278-4c26-9be0-d6d6c35fe477,166\nff29ece6-95da-4800-acd2-b14950a339dd,162\na7cebb21-0f26-4834-8a09-e3269b21a77b,161\n4acffd44-9d77-4c09-afdb-e7f93ee5518b,160\na57c96be-0b7a-41c6-bd9a-9330e20c497a,159\nd9464bcd-0a19-4058-8fc1-bea843e6c339,158\n2a26f327-c9ef-40f4-bb8c-c809417caad1,156\n7d0a9ece-1d73-43ea-98e7-8bbe21e890ec,156\n143944c0-b4d0-48f7-ac1f-6ffaeff64a70,155\n827eed18-8ab1-4e5d-ab00-5d8ac9bb168b,155\n890861ac-5e77-4568-aaff-807b37e6f872,155\n6b9cd81e-126c-4c53-b6b5-575d78951256,155\n9aaa8391-995f-4006-8413-c590098fc46a,154\n69731d27-9caa-46cf-8933-d01e29b20043,154\nb4cc95b0-6dbf-4264-a3ef-43fbbadf652a,154\naf16d888-ff4c-4c16-a2f8-9e2a3a9677c7,153\nfa08fd03-3569-400d-9d63-e8ae15712195,152\n4b8b181e-668e-45d4-a8e3-7180a41cf064,152\nbbe9e834-7071-42d6-8970-aa7301b72ec2,152\n18b69140-479d-44b6-8369-04a49414f975,151\n50a2d1c4-d788-4498-a6f7-dd75d4db588f,151\n013b644d-5645-44bd-8ca3-d7d254b2ba18,151"
+        },
+        {
+          "turn": 1,
+          "type": "sql",
+          "sql": "SELECT o.customer_id, c.customer_name, COUNT(*) AS order_count\nFROM main.orders o\nJOIN main.customers c ON o.customer_id = c.customer_id\nWHERE o.order_total > 0\nGROUP BY o.customer_id, c.customer_name\nHAVING COUNT(*) > 150\nORDER BY order_count DESC",
+          "row_count": 69,
+          "max_rows": 200,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 5,
+          "preview": "customer_id,customer_name,order_count\n3483e39a-260f-4974-9366-50c2d833307f,Melissa Lopez,231\nd47a83f3-a765-4a20-b40c-e0993cf00e4f,Jasmine Murray,226\n2609004e-90a8-450e-98f3-5ebc16841cd5,Joy Lam,226\n9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb,Michael Williams,222\n9bac4be0-d703-4f1d-a088-1bdb362d3246,Scott Thompson,221\nb4413ac0-2fc9-4c91-b188-71c109d9be8f,Amy Wolf,218\ncc1816db-c3dd-4c16-8ea7-18fe313472b9,Brittany Johnson,218\n847d46dd-9721-4351-8bef-5c2292b57d6f,Kelly Singh,217\nd31efffd-fdc4-4168-ac26-83b67a6c5c47,Derek Smith,213\n710200a9-2c6c-4f21-b3f1-3ed6aa684fa2,Janet Robles,211\n66983396-cb40-4613-8d6d-306b8f9ca5c4,Alexander Burke,207\n5261268c-aa94-438a-921a-05efc0d414ac,Allison Oliver,207\n0872893c-bf01-4853-b91f-a1cc0263fedf,Stephanie Quinn,204\n84ee8f13-e5a2-4988-8f65-daa65801c5d1,Dylan Lopez,203\nd6de888a-0aee-4f77-a7d4-daba8f0da415,Christopher Kim,203\n4dc2aa9c-8633-4861-b795-5b285cf76a1f,Susan Castillo,201\n6faa20a4-1e8f-43a8-9a45-33ae5f675190,Tyrone Ryan,199\n848485f0-198f-4efa-8335-707db71a7434,Kristin Mcintyre,196\n5fccc95a-c30f-4525-a4a6-43861baae99a,Karina Thompson,196\nff4e2ef5-4f72-41f4-90ea-4f40665b9f5b,Andrew Serrano,195\n132425e2-d22d-43aa-a372-e3d9bfd77f8c,John Marshall,195\nc6fb82d9-b6e6-445a-a3d3-0158405a9d16,Angela James,194\n0000bd8e-496c-42aa-9430-fea7f9bd6a96,Connie Harrison,190\ne77008c8-b7e1-4bb6-93d8-8383d6385531,Michael Acosta,189\n0d2974c5-d4de-4163-bf27-73d86a77b048,Jessica Lewis,189\nbe6fcaa5-9911-4bb6-b97c-47eb53c88b32,James Gardner,189\n3c7a4cde-d92b-4d90-a731-9c0461ae8c90,Nicole Jackson,187\n34a9dd73-95d0-45d9-a3fb-636e4e080a6c,Jonathan Anderson,187\n84f816bd-12e2-4633-a419-fc80705977e6,Alicia Huerta,187\n5bbca380-854e-47a4-ae5c-fd631650a115,Joseph Mcintyre,186\nb0da7a9b-77d7-407d-8506-51705503fa05,Sean Koch,186\n5d59a09d-7696-4e1b-a171-abe3b79fff2d,Tracy Gibbs,185\n8ebb4b7d-ed19-43be-a647-6c3a9a6a166a,David Mann,183\n2660b7ac-6c46-4392-8ddc-26194c532341,Michael Mendoza,182\nfdd86eaf-7a5b-4598-9a08-6f4f207743bb,Dana Smith,182\na311b0c8-1b63-4405-8097-09a984512389,Ray Mitchell,179\n861181e6-5d97-48a8-bbe4-226caa976140,Aaron Williams,177\nadf0d9db-c6a0-4226-a93f-30482ccd9d28,Donald Thomas,177\n438005c2-dd1d-48aa-8bfd-7fb06851b5f8,Kristi Keller,177\n2480125c-2d37-405c-96b9-ca32b2c75b33,Russell Mitchell,176\na5781cf5-d32e-4370-b0f8-4f229bc0efa4,Madison Davis,176\n1076f00e-5dd1-41d1-b2a5-0c59e18a5310,Shelly Benitez,175\nb0cab1cc-6689-4922-a78f-5c6e1c458cd1,Alex Taylor,174\nead66f31-3437-42c5-9145-8281898ce326,Rachael Hobbs,173\n125d87d5-a36a-4f4e-865c-3122386e88ca,Dale Berry,172\ncfefbf12-9a5a-4d61-a708-d92f785af097,Julie Taylor,168\n3f1fc492-e8ed-4840-97a0-a56592fdc1d9,Yvonne Watson,167\n3810f8e6-9278-4c26-9be0-d6d6c35fe477,Ashley Mcdaniel,166\nff29ece6-95da-4800-acd2-b14950a339dd,Melissa Sanders,162\na7cebb21-0f26-4834-8a09-e3269b21a77b,Emma Mitchell,161\n4acffd44-9d77-4c09-afdb-e7f93ee5518b,Jennifer Richardson,160\na57c96be-0b7a-41c6-bd9a-9330e20c497a,Jessica Richard,159\nd9464bcd-0a19-4058-8fc1-bea843e6c339,Brittany Brown,158\n2a26f327-c9ef-40f4-bb8c-c809417caad1,Danny Walker,156\n7d0a9ece-1d73-43ea-98e7-8bbe21e890ec,Anthony Murillo,156\n890861ac-5e77-4568-aaff-807b37e6f872,Caitlyn Hill,155\n827eed18-8ab1-4e5d-ab00-5d8ac9bb168b,Larry Ward,155\n6b9cd81e-126c-4c53-b6b5-575d78951256,Andrea Randall,155\n143944c0-b4d0-48f7-ac1f-6ffaeff64a70,Lydia Khan,155\n69731d27-9caa-46cf-8933-d01e29b20043,Jacqueline Pineda,154\nb4cc95b0-6dbf-4264-a3ef-43fbbadf652a,Devin Clayton,154\n9aaa8391-995f-4006-8413-c590098fc46a,Joshua Mann,154\naf16d888-ff4c-4c16-a2f8-9e2a3a9677c7,Jeffrey Gutierrez,153\nbbe9e834-7071-42d6-8970-aa7301b72ec2,Michael Cobb,152\nfa08fd03-3569-400d-9d63-e8ae15712195,Cody Gonzalez,152\n4b8b181e-668e-45d4-a8e3-7180a41cf064,Martin Barnes,152\n50a2d1c4-d788-4498-a6f7-dd75d4db588f,Stephanie Love,151\n013b644d-5645-44bd-8ca3-d7d254b2ba18,Keith Cook,151\n18b69140-479d-44b6-8369-04a49414f975,Pamela Lane,151"
+        },
+        {
+          "turn": 2,
+          "type": "sql",
+          "sql": "SELECT COUNT(*) AS cnt\nFROM (\n  SELECT o.customer_id\n  FROM main.orders o\n  WHERE o.order_total > 0\n  GROUP BY o.customer_id\n  HAVING COUNT(*) > 150\n) sub",
+          "row_count": 1,
+          "max_rows": 5,
+          "truncated": false,
+          "error": null,
+          "elapsed_ms": 2,
+          "preview": "cnt\n69"
+        },
+        {
+          "turn": 3,
+          "type": "text",
+          "text": "**Customers with more than\u202f150\u202forders (excluding $0\u2011total \u201cempty\u201d orders)**  \n\n| customer_id | customer_name | order_count |\n|------------|----------------|------------|\n| 3483e39a-260f-4974-9366-50c2d833307f | Melissa Lopez | 231 |\n| d47a83f3-a765-4a20-b40c-e0993cf00e4f | Jasmine Murray | 226 |\n| 2609004e-90a8-450e-98f3-5ebc16841cd5 | Joy Lam | 226 |\n| 9ff834d1-4ca0-4dd5-bb53-ea96ad8611bb | Michael Williams | 222 |\n| 9bac4be0-d703-4f1d-a088-1bdb362d3246 | Scott Thompson | 221 |\n| b4413ac0-2fc9-4c91-b188-71c109d9be8f | Amy Wolf | 218 |\n| cc1816db-c3dd-4c16-8ea7-18fe313472b9 | Brittany Johnson | 218 |\n| 847d46dd-9721-4351-8bef-5c2292b57d6f | Kelly Singh | 217 |\n| d31efffd-fdc4-4168-ac26-83b67a6c5c47 | Derek Smith | 213 |\n| 710200a9-2c6c-4f21-b3f1-3ed6aa684fa2 | Janet Robles | 211 |\n| 66983396-cb40-4613-8d6d-306b8f9ca5c4 | Alexander Burke | 207 |\n| 5261268c-aa94-438a-921a-05efc0d414ac | Allison Oliver | 207 |\n| 0872893c-bf01-4853-b91f-a1cc0263fedf | Stephanie Quinn | 204 |\n| 84ee8f13-e5a2-4988-8f65-daa65801c5d1 | Dylan Lopez | 203 |\n| d6de888a-0aee-4f77-a7d4-daba8f0da415 | Christopher Kim | 203 |\n| 4dc2aa9c-8633-4861-b795-5b285cf76a1f | Susan Castillo | 201 |\n| 6faa20a4-1e8f-43a8-9a45-33ae5f675190 | Tyrone Ryan | 199 |\n| 848485f0-198f-4efa-8335-707db71a7434 | Kristin Mcintyre | 196 |\n| 5fccc95a-c30f-4525-a4a6-43861baae99a | Karina Thompson | 196 |\n| ff4e2ef5-4f72-41f4-90ea-4f40665b9f5b | Andrew Serrano | 195 |\n| 132425e2-d22d-43aa-a372-e3d9bfd77f8c | John Marshall | 195 |\n| c6fb82d9-b6e6-445a-a3d3-0158405a9d16 | Angela James | 194 |\n| 0000bd8e-496c-42aa-9430-fea7f9bd6a96 | Connie Harrison | 190 |\n| e77008c8-b7e1-4bb6-93d8-8383d6385531 | Michael Acosta | 189 |\n| 0d2974c5-d4de-4163-bf27-73d86a77b048 | Jessica Lewis | 189 |\n| be6fcaa5-9911-4bb6-b97c-47eb53c88b32 | James Gardner | 189 |\n| 3c7a4cde-d92b-4d90-a731-9c0461ae8c90 | Nicole Jackson | 187 |\n| 34a9dd73-95d0-45d9-a3fb-636e4e080a6c | Jonathan Anderson | 187 |\n| 84f816bd-12e2-4633-a419-fc80705977e6 | Alicia Huerta | 187 |\n| 5bbca380-854e-47a4-ae5c-fd631650a115 | Joseph Mcintyre | 186 |\n| b0da7a9b-77d7-407d-8506-51705503fa05 | Sean Koch | 186 |\n| 5d59a09d-7696-4e1b-a171-abe3b79fff2d | Tracy Gibbs | 185 |\n| 8ebb4b7d-ed19-43be-a647-6c3a9a6a166a | David Mann | 183 |\n| 2660b7ac-6c46-4392-8ddc-26194c532341 | Michael Mendoza | 182 |\n| fdd86eaf-7a5b-4598-9a08-6f4f207743bb | Dana Smith | 182 |\n| a311b0c8-1b63-4405-8097-09a984512389 | Ray Mitchell | 179 |\n| 861181e6-5d97-48a8-bbe4-226caa976140 | Aaron Williams | 177 |\n| adf0d9db-c6a0-4226-a93f-30482ccd9d28 | Donald Thomas | 177 |\n| 438005c2-dd1d-48aa-8bfd-7fb06851b5f8 | Kristi Keller | 177 |\n| 2480125c-2d37-405c-96b9-ca32b2c75b33 | Russell Mitchell | 176 |\n| a5781cf5-d32e-4370-b0f8-4f229bc0efa4 | Madison Davis | 176 |\n| 1076f00e-5dd1-41d1-b2a5-0c59e18a5310 | Shelly Benitez | 175 |\n| b0cab1cc-6689-4922-a78f-5c6e1c458cd1 | Alex Taylor | 174 |\n| ead66f31-3437-42c5-9145-8281898ce326 | Rachael Hobbs | 173 |\n| 125d87d5-a36a-4f4e-865c-3122386e88ca | Dale Berry | 172 |\n| cfefbf12-9a5a-4d61-a708-d92f785af097 | Julie Taylor | 168 |\n| 3f1fc492-e8ed-4840-97a0-a56592fdc1d9 | Yvonne Watson | 167 |\n| 3810f8e6-9278-4c26-9be0-d6d6c35fe477 | Ashley Mcdaniel | 166 |\n| ff29ece6-95da-4800-acd2-b14950a339dd | Melissa Sanders | 162 |\n| a7cebb21-0f26-4834-8a09-e3269b21a77b | Emma Mitchell | 161 |\n| 4acffd44-9d77-4c09-afdb-e7f93ee5518b | Jennifer Richardson | 160 |\n| a57c96be-0b7a-41c6-bd9a-9330e20c497a | Jessica Richard | 159 |\n| d9464bcd-0a19-4058-8fc1-bea843e6c339 | Brittany Brown | 158 |\n| 2a26f327-c9ef-40f4-bb8c-c809417caad1 | Danny Walker | 156 |\n| 7d0a9ece-1d73-43ea-98e7-8bbe21e890ec | Anthony Murillo | 156 |\n| 890861ac-5e77-4568-aaff-807b37e6f872 | Caitlyn Hill | 155 |\n| 827eed18-8ab1-4e5d-ab00-5d8ac9bb168b | Larry Ward | 155 |\n| 6b9cd81e-126c-4c53-b6b5-575d78951256 | Andrea Randall | 155 |\n| 143944c0-b4d0-48f7-ac1f-6ffaeff64a70 | Lydia Khan | 155 |\n| 69731d27-9caa-46cf-8933-d01e29b20043 | Jacqueline Pineda | 154 |\n| b4cc95b0-6dbf-4264-a3ef-43fbbadf652a | Devin Clayton | 154 |\n| 9aaa8391-995f-4006-8413-c590098fc46a | Joshua Mann | 154 |\n| af16d888-ff4c-4c16-a2f8-9e2a3a9677c7 | Jeffrey Gutierrez | 153 |\n| bbe9e834-7071-42d6-8970-aa7301b72ec2 | Michael Cobb | 152 |\n| fa08fd03-3569-400d-9d63-e8ae15712195 | Cody Gonzalez | 152 |\n| 4b8b181e-668e-45d4-a8e3-7180a41cf064 | Martin Barnes | 152 |\n| 50a2d1c4-d788-4498-a6f7-dd75d4db588f | Stephanie Love | 151 |\n| 013b644d-5645-44bd-8ca3-d7d254b2ba18 | Keith Cook | 151 |\n| 18b69140-479d-44b6-8369-04a49414f975 | Pamela Lane | 151 |\n\n**Total customers meeting the criterion:** 69  \n\n*Methodology* \u2013 Orders with a total amount of\u202f$0 (the \u201cempty\u201d orders) were excluded, as defined by the **[empty_orders]** rule (`order_total > 0`). The query grouped orders by `customer_id` and counted only those groups with more than\u202f150\u202forders. Customer names were joined from the `customers` table for readability. All figures are exact counts from the warehouse."
+        }
+      ],
+      "category": "listing",
+      "gold": {
+        "columns": [
+          "customer_name",
+          "count_star()"
+        ],
+        "rows": [
+          [
+            "Allison Oliver",
+            207
+          ],
+          [
+            "Karina Thompson",
+            196
+          ],
+          [
+            "Pamela Lane",
+            151
+          ],
+          [
+            "Lydia Khan",
+            155
+          ],
+          [
+            "Keith Cook",
+            151
+          ],
+          [
+            "Dana Smith",
+            182
+          ],
+          [
+            "Ashley Mcdaniel",
+            166
+          ],
+          [
+            "Janet Robles",
+            211
+          ],
+          [
+            "Madison Davis",
+            176
+          ],
+          [
+            "Michael Williams",
+            222
+          ],
+          [
+            "Amy Wolf",
+            218
+          ],
+          [
+            "Brittany Johnson",
+            218
+          ],
+          [
+            "Kristi Keller",
+            177
+          ],
+          [
+            "Ray Mitchell",
+            179
+          ],
+          [
+            "Cody Gonzalez",
+            152
+          ],
+          [
+            "Brittany Brown",
+            158
+          ],
+          [
+            "Jonathan Anderson",
+            187
+          ],
+          [
+            "Martin Barnes",
+            152
+          ],
+          [
+            "Dylan Lopez",
+            203
+          ],
+          [
+            "Jessica Lewis",
+            189
+          ],
+          [
+            "Stephanie Quinn",
+            204
+          ],
+          [
+            "Alex Taylor",
+            174
+          ],
+          [
+            "Nicole Jackson",
+            187
+          ],
+          [
+            "Jessica Richard",
+            159
+          ],
+          [
+            "Tyrone Ryan",
+            199
+          ],
+          [
+            "Kristin Mcintyre",
+            196
+          ],
+          [
+            "Andrea Randall",
+            155
+          ],
+          [
+            "Andrew Serrano",
+            195
+          ],
+          [
+            "Angela James",
+            194
+          ],
+          [
+            "Emma Mitchell",
+            161
+          ],
+          [
+            "Anthony Murillo",
+            156
+          ],
+          [
+            "James Gardner",
+            189
+          ],
+          [
+            "Michael Mendoza",
+            182
+          ],
+          [
+            "Melissa Sanders",
+            162
+          ],
+          [
+            "Joy Lam",
+            226
+          ],
+          [
+            "Scott Thompson",
+            221
+          ],
+          [
+            "Donald Thomas",
+            177
+          ],
+          [
+            "Michael Cobb",
+            152
+          ],
+          [
+            "Connie Harrison",
+            190
+          ],
+          [
+            "Russell Mitchell",
+            176
+          ],
+          [
+            "Yvonne Watson",
+            167
+          ],
+          [
+            "Dale Berry",
+            172
+          ],
+          [
+            "Aaron Williams",
+            177
+          ],
+          [
+            "David Mann",
+            183
+          ],
+          [
+            "Susan Castillo",
+            201
+          ],
+          [
+            "Jasmine Murray",
+            226
+          ],
+          [
+            "Stephanie Love",
+            151
+          ],
+          [
+            "Tracy Gibbs",
+            185
+          ],
+          [
+            "Christopher Kim",
+            203
+          ],
+          [
+            "Devin Clayton",
+            154
+          ],
+          [
+            "Joshua Mann",
+            154
+          ],
+          [
+            "Jeffrey Gutierrez",
+            153
+          ],
+          [
+            "John Marshall",
+            195
+          ],
+          [
+            "Derek Smith",
+            213
+          ],
+          [
+            "Sean Koch",
+            186
+          ],
+          [
+            "Jennifer Richardson",
+            160
+          ],
+          [
+            "Caitlyn Hill",
+            155
+          ],
+          [
+            "Alicia Huerta",
+            187
+          ],
+          [
+            "Jacqueline Pineda",
+            154
+          ],
+          [
+            "Melissa Lopez",
+            231
+          ],
+          [
+            "Alexander Burke",
+            207
+          ],
+          [
+            "Larry Ward",
+            155
+          ],
+          [
+            "Michael Acosta",
+            189
+          ],
+          [
+            "Rachael Hobbs",
+            173
+          ],
+          [
+            "Julie Taylor",
+            168
+          ],
+          [
+            "Danny Walker",
+            156
+          ],
+          [
+            "Shelly Benitez",
+            175
+          ],
+          [
+            "Joseph Mcintyre",
+            186
+          ],
+          [
+            "Kelly Singh",
+            217
+          ]
+        ]
+      }
+    }
+  ]
+}

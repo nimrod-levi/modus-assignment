@@ -104,7 +104,7 @@ def load_questions(path: Path) -> list[dict]:
         kind = q["grader"].get("type")
         if kind not in grading.GRADER_TYPES:
             raise ValueError(f"{path}: {q['id']}: grader.type must be one of {grading.GRADER_TYPES}")
-        if kind in ("number", "set") and not q.get("gold_sql"):
+        if kind in ("number", "set", "table") and not q.get("gold_sql"):
             raise ValueError(f"{path}: {q['id']}: {kind} questions need gold_sql")
     return questions
 

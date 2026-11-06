@@ -1,0 +1,45 @@
+# List and table questions: the answer is rows, not one number. Same format as questions.yaml, graded with
+# grader.type: table (see eval/grade.py): the agent's `table` must hold exactly the gold rows, columns matched by
+# value (names and order free, extra columns allowed), numbers rounded to `decimals` (default 2).
+#
+# t01-t04 DRAFTED BY CLAUDE (step 6) after profiling the warehouse; every gold_sql was run read-only and its rows
+# hand-checked once. Kept out of the 20-question dev set so the dev scoreboard stays comparable.
+# Every gold result has more than 5 rows (the default run_sql cap), so the agent must ask for more rows.
+
+questions:
+  - id: t01
+    category: listing
+    # 10 products. Traps: raw.raw_products.price is in cents (1400) while main.products is dollars (14.00);
+    # 'for richer or pourover ' has a trailing space in the data (the grader trims text cells).
+    question: "Give me all the products we sell, with their prices."
+    gold_sql: "select trim(product_name), product_price from main.products"
+    grader: {type: table}
+
+  - id: t02
+    category: listing
+    # 22 distinct names. Trap: supplies holds one row per (supply, product), so the perishable rows number 30;
+    # listing rows instead of distinct names gives duplicates, and the row-count check fails it.
+    question: "List the names of all our perishable supplies."
+    gold_sql: "select distinct supply_name from main.supplies where is_perishable_supply"
+    grader: {type: table}
+
+  - id: t03
+    category: listing
+    # 10 rows, ordered. Item-level revenue: sum of order_items.product_price per product. Traps: joining supplies
+    # fans the price out; summing orders.subtotal by is_food_order counts a mixed order entirely.
+    question: "Show pre-tax revenue for each menu item over the whole period, highest first."
+    gold_sql: |
+      select trim(product_name), sum(product_price) from main.order_items
+      group by trim(product_name) order by sum(product_price) desc
+    grader: {type: table, ordered: true}
+
+  - id: t04
+    category: listing
+    # 69 rows (far above the 5-row default, well under the 200 cap); the 69 names are unique. Counts follow the
+    # glossary empty_orders rule (order_total > 0). Checked: none of these 69 customers has a $0 order, so counting
+    # all orders gives the same rows; this question tests a long listing, not the glossary rule.
+    question: "List every customer who placed more than 150 orders, with how many orders each placed."
+    gold_sql: |
+      select c.customer_name, count(*) from main.customers c join main.orders o on o.customer_id = c.customer_id
+      where o.order_total > 0 group by c.customer_id, c.customer_name having count(*) > 150
+    grader: {type: table}

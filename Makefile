@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV   := .venv
 BIN    := $(VENV)/bin
 
-.PHONY: web glossary-check checks setup check-python venv db test profile schema ask eval eval-holdout eval-test clean
+.PHONY: web glossary-check checks setup check-python venv db test profile schema ask eval eval-holdout eval-tables eval-test clean
 
 ## setup: create the venv, install deps and build the warehouse (run once)
 setup: venv db
@@ -52,6 +52,11 @@ eval:
 eval-holdout:
 	@test -n "$(STEP)" || { echo "usage: make eval-holdout STEP=holdout-02 [ONLY=h01,h02] [RUNS=1]"; exit 1; }
 	$(BIN)/python -m eval.run_eval --step "$(STEP)" --file eval/holdout.yaml $(if $(ONLY),--only $(ONLY)) $(if $(RUNS),--runs $(RUNS))
+
+## eval-tables: run eval/tables.yaml (list and table answers) [ONLY=t01,t02] [RUNS=1]
+eval-tables:
+	@test -n "$(STEP)" || { echo "usage: make eval-tables STEP=step-06-name [ONLY=t01,t02] [RUNS=1]"; exit 1; }
+	$(BIN)/python -m eval.run_eval --step "$(STEP)" --file eval/tables.yaml $(if $(ONLY),--only $(ONLY)) $(if $(RUNS),--runs $(RUNS))
 
 ## eval-test: grader and runner tests (no API key)
 eval-test:

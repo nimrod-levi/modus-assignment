@@ -275,3 +275,71 @@ def test_set_match_ignores_unicode_spaces_and_hyphens():
         assert g.grade(question, gold, ans(answer=text)).passed, text
     assert g.grade(question, {"items": ["pre-tax"], "excluded": []}, ans(answer="pre‑tax revenue")).passed
     assert not g.grade(question, gold, ans(answer="LosAngeles")).passed
+
+
+# --- table grader -------------------------------------------------------------
+
+TABLE_GOLD = {"columns": ["name", "price"], "rows": [["doctor stew", 11.0], ["flame impala", 14.0], ["tangaroo", 6.0]]}
+
+
+def table(columns, rows):
+    return ans(table={"columns": columns, "rows": rows})
+
+
+def test_table_gold(con):
+    gold = g.compute_gold(con, q({"type": "table"}, "select name, amount from t order by name"))
+    assert gold == {"columns": ["name", "amount"], "rows": [["a", 10.5], ["b", 20.0], ["c", 3.0]]}
+
+
+def test_table_matches_by_value_not_name_or_order():
+    spec = q({"type": "table"})
+    rows = [["doctor stew", 11.0], ["flame impala", 14.0], ["tangaroo", 6.0]]
+    assert g.grade(spec, TABLE_GOLD, table(["product", "usd"], rows)).passed
+    swapped = [[p, n] for n, p in reversed(rows)]  # columns swapped, rows reversed
+    assert g.grade(spec, TABLE_GOLD, table(["price", "product"], swapped)).passed
+    extra = [[n, "jaffle", p] for n, p in rows]  # an extra column is allowed
+    assert g.grade(spec, TABLE_GOLD, table(["product", "type", "price"], extra)).passed
+
+
+def test_table_normalises_cells():
+    rows = [["Doctor Stew", "$11.00"], ["flame impala ", "14"], ["TANGAROO", 6]]
+    assert g.grade(q({"type": "table"}), TABLE_GOLD, table(["a", "b"], rows)).passed
+
+
+def test_table_fails_on_missing_duplicate_or_wrong_rows():
+    spec = q({"type": "table"})
+    rows = [["doctor stew", 11.0], ["flame impala", 14.0], ["tangaroo", 6.0]]
+    assert "2 rows, expected 3" in g.grade(spec, TABLE_GOLD, table(["a", "b"], rows[:2])).reason
+    dup = rows[:2] + [rows[0]]
+    assert not g.grade(spec, TABLE_GOLD, table(["a", "b"], dup)).passed
+    wrong = rows[:2] + [["tangaroo", 600.0]]  # cents, not dollars
+    assert "missing" in g.grade(spec, TABLE_GOLD, table(["a", "b"], wrong)).reason
+    assert not g.grade(spec, TABLE_GOLD, table(["name"], [[r[0]] for r in rows])).passed  # a gold column absent
+
+
+def test_table_ordered():
+    spec = q({"type": "table", "ordered": True})
+    rows = [["doctor stew", 11.0], ["flame impala", 14.0], ["tangaroo", 6.0]]
+    assert g.grade(spec, TABLE_GOLD, table(["a", "b"], rows)).passed
+    assert "wrong order" in g.grade(spec, TABLE_GOLD, table(["a", "b"], rows[::-1])).reason
+
+
+def test_table_missing_or_malformed():
+    spec = q({"type": "table"})
+    assert g.grade(spec, TABLE_GOLD, ans(table=None)).reason == "no table submitted"
+    assert "malformed" in g.grade(spec, TABLE_GOLD, table(["a", "b"], [["x"], ["y", 1], ["z", 2]])).reason
+    assert not g.grade(spec, TABLE_GOLD, {"status": "cannot_answer", "table": TABLE_GOLD}).passed
+
+
+def test_table_decimals_option():
+    gold = {"columns": ["store", "rate"], "rows": [["chicago", 0.0625], ["philadelphia", 0.06]]}
+    rows = [["chicago", 0.06], ["philadelphia", 0.06]]
+    assert g.grade(q({"type": "table"}), gold, table(["s", "r"], rows)).passed  # 2 decimals hide the difference
+    assert not g.grade(q({"type": "table", "decimals": 4}), gold, table(["s", "r"], rows)).passed
+
+
+def test_load_table_question_needs_gold_sql(tmp_path):
+    base = "questions:\n  - id: a\n    category: c\n    question: x\n    grader: {type: table}\n"
+    with pytest.raises(ValueError, match="need gold_sql"):
+        runner.load_questions(write_yaml(tmp_path, base))
+    assert runner.load_questions(write_yaml(tmp_path, base + "    gold_sql: select 1\n"))[0]["grader"]["type"] == "table"
